@@ -1,0 +1,199 @@
+:root {
+  --bg: #fff;
+  --text: #2d3436;
+  --title-color: var(--text);
+  --card-title-color: var(--text);
+  --card-body-color: var(--text);
+  --quote-color: var(--accent);
+}
+
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background 0.5s ease, color 0.5s ease;
+}
+
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+ color: var(--title-color);
+
+}
+.entry-card h5 {
+  color: var(--card-title-color);
+}
+
+.entry-card p {
+  color: var(--card-body-color);
+}
+
+.quote-script {
+  color: var(--quote-color);
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+}
+
+.quote-script {
+  font-family: 'Great Vibes', cursive;
+  font-size: 1.5rem;
+  color: var(--accent);
+}
+.floating-icons {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.float-icon {
+  position: absolute;
+  font-size: 2rem;
+  opacity: 0.6;
+  animation: float 6s infinite ease-in-out;
+}
+
+.float-icon:nth-child(1) { top: 10%; left: 20%; color: var(--accent); }
+.float-icon:nth-child(2) { top: 30%; left: 70%; color: var(--accent); }
+.float-icon:nth-child(3) { top: 60%; left: 40%; color: var(--accent); }
+
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+  100% { transform: translateY(0); }
+}
+
+.entries .entry-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.entries .entry-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.08);
+}
+
+.theme-switcher button {
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.theme-switcher button:hover {
+  opacity: 0.9;
+}
+
+.theme-dropdown {
+  width: 180px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 2px solid var(--accent);
+  background-color: var(--bg);
+  color: var(--text);
+  transition: border 0.3s ease, background 0.3s ease;
+}
+
+.theme-dropdown:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 0.2rem rgba(108, 92, 231, 0.25);
+}
+.theme-btn {
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  margin-left: 0.5rem;
+  color: white;
+  border: none;
+}
+
+.theme-btn.blush { background-color: #ff6b81; }
+.theme-btn.midnight { background-color: #2d3436; }
+.theme-btn.forest { background-color: #00b894; }
+.theme-btn.ocean { background-color: #0984e3; }
+.theme-btn.clay { background-color: #d35400; }
+
+.theme-btn:hover {
+  opacity: 0.9;
+}
+.footer-link {
+  text-decoration: none;
+  color: var(--text);
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.footer h6 {
+  font-family: 'Inter', sans-serif;
+  margin-bottom: 0.5rem;
+}
+
+.footer p,
+.footer ul {
+  font-size: 0.85rem;
+}
+
+
+.feature-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.08);
+}
+
+.text-accent {
+  color: var(--accent);
+}
+.account-dropdown {
+  width: 140px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 2px solid var(--accent);
+  background-color: var(--bg);
+  color: var(--text);
+  transition: border 0.3s ease, background 0.3s ease;
+}
+
+.account-dropdown:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 0.2rem rgba(108, 92, 231, 0.25);
+}
+.account-dropdown option {
+  background-color: var(--bg);
+  color: var(--text);
+  font-weight: 500;
+  padding: 0.5rem;
+  border-bottom: 1px solid #ccc;
+}
+
+.account-dropdown option:hover,
+.account-dropdown option:focus {
+  background-color: var(--accent);
+  color: #fff;
+}
+
