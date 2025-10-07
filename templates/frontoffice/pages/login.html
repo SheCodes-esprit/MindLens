@@ -1,4 +1,89 @@
 {% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
 {% block content %}
- <p> this is the login</p>
+<link rel="stylesheet" href="{% static 'css/form.css' %}">
+
+<section class="login-section py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        <div class="login-card p-5 shadow-lg rounded-4 bg-white position-relative">
+
+          <div class="text-center mb-4">
+            <h2 class="hero-title mb-2" style="color: #2d3436;">Welcome Back to <span class="text-accent">MindLens</span></h2>
+            <p class="text-muted">Sign in to your personal journal</p>
+          </div>
+
+          {% if errors.general %}
+          <div class="text-center mb-3">
+            <div class="text-danger small">{{ errors.general }}</div>
+          </div>
+          {% endif %}
+
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} mb-3">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+
+          <form method="POST" class="login-form" novalidate>
+              {% csrf_token %}
+            
+              {% if request.GET.next %}
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
+              {% endif %}
+            
+              <div class="mb-3">
+                  <label for="username" class="form-label fw-semibold" style="color: #2d3436;">Username or Email</label>
+                  <input type="text" class="form-control rounded-pill {% if errors.username %}is-invalid{% endif %}" 
+                         id="username" name="username" placeholder="Enter your username or email" 
+                         value="{{ values.username|default:'' }}" required>
+                  {% if errors.username %}
+                      <div class="text-danger small mt-1">{{ errors.username }}</div>
+                  {% endif %}
+              </div>
+
+              <div class="mb-4">
+                  <label for="password" class="form-label fw-semibold" style="color: #2d3436;">Password</label>
+                  <input type="password" class="form-control rounded-pill {% if errors.password %}is-invalid{% endif %}" 
+                         id="password" name="password" placeholder="Enter your password" required>
+                  {% if errors.password %}
+                      <div class="text-danger small mt-1">{{ errors.password }}</div>
+                  {% endif %}
+              </div>
+
+              <div class="mb-4 form-check">
+                  <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe">
+                  <label class="form-check-label" for="rememberMe" style="color: #2d3436;">
+                      Remember me
+                  </label>
+              </div>
+
+              <button type="submit" class="btn w-100 py-2 fw-semibold login-btn" style="color: #2d3436;">Sign In</button>
+
+              <div class="text-center mt-4">
+                  <p class="mb-0" style="color: #2d3436;">Don't have an account?
+                      <a href="{% url 'signup' %}" class="text-accent fw-semibold text-decoration-none">Create account</a>
+                  </p>
+              </div>
+
+              <div class="text-center mt-3">
+                  <a href="" class="text-muted text-decoration-none">Forgot your password?</a>
+              </div>
+          </form>
+
+          <div class="floating-icons">
+            <i class="bi bi-heart-fill float-icon"></i>
+            <i class="bi bi-stars float-icon"></i>
+            <i class="bi bi-emoji-smile float-icon"></i>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}
