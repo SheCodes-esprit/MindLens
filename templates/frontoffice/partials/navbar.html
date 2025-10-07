@@ -1,13 +1,21 @@
 <nav class="navbar navbar-expand-lg bg-white shadow-sm px-4 py-3 sticky-top">
   <div class="container-fluid">
-    <a class="navbar-brand fw-bold" href="">MindLens</a>
+    <a class="navbar-brand fw-bold mindlens-logo" href="#">MindLens</a>
     <div class="collapse navbar-collapse">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-3">
-        <li class="nav-item"><a class="nav-link" href="">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="">Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link" href="">Journal</a></li>
-        <li class="nav-item"><a class="nav-link" href="">Voice</a></li>
-        <li class="nav-item"><a class="nav-link" href="">Vision</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Journal</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Voice</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Vision</a></li>
+        <select class="form-select form-select-sm theme-dropdown" onchange="setTheme(this.value)">
+          <option value="" disabled>Theme</option>
+          <option value="blush" selected>Blush</option>
+          <option value="midnight">Midnight</option>
+          <option value="forest">Forest</option>
+          <option value="ocean">Ocean</option>
+          <option value="clay">Clay</option>
+        </select>
       </ul>
       <div class="d-flex align-items-center gap-3">
         <input class="form-control form-control-sm" type="search" placeholder="Search...">
@@ -16,14 +24,90 @@
           <span class="fw-semibold">{{ user.first_name }}</span>
         </div>
         <div class="account-switcher">
-  <select class="form-select form-select-sm account-dropdown" onchange="handleAccountAction(this.value)">
-    <option value="" disabled selected>Account</option>
-    <option value="/signin">Sign In</option>
-    <option value="/signup">Sign Up</option>
-  </select>
-</div>
-
+          <select class="form-select form-select-sm account-dropdown" onchange="handleAccountAction(this.value)">
+            <option value="" disabled selected>Account</option>
+            <option value="/signin">Sign In</option>
+            <option value="/signup">Sign Up</option>
+          </select>
+        </div>
       </div>
     </div>
   </div>
 </nav>
+<script>
+function setTheme(theme) {
+  const root = document.documentElement;
+  const logo = document.querySelector('.mindlens-logo');
+  const heroTitle = document.querySelector('.hero-title');
+  const heroSubtitle = document.querySelector('.hero-subtitle');
+  const themeDropdown = document.querySelector('.theme-dropdown');
+  const accountDropdown = document.querySelector('.account-dropdown');
+
+  let accent = '#ff6b81'; 
+  let bg = '#fff0f5';
+  let text = '#2d3436';
+  let dropdownText = '#2d3436';
+
+  if (theme === 'blush') {
+    bg = '#fff0f5';
+    accent = '#ff6b81';
+  } 
+  else if (theme === 'midnight') {
+    bg = '#1e1e2f';
+    accent = '#a29bfe';
+    dropdownText = '#ffffff'; 
+  } 
+  else if (theme === 'forest') {
+    bg = '#eafaf1';
+    accent = '#00b894';
+  } 
+  else if (theme === 'ocean') {
+    bg = '#e3f2fd';
+    accent = '#0984e3';
+  } 
+  else if (theme === 'clay') {
+    bg = '#fbeee0';
+    accent = '#d35400';
+  }
+
+  root.style.setProperty('--bg', bg);
+  root.style.setProperty('--text', text);
+  root.style.setProperty('--accent', accent);
+
+  if (heroTitle && heroSubtitle) {
+    if (theme === 'midnight') {
+      heroTitle.style.color = '#ffffff';
+      heroSubtitle.style.color = '#ffffff';
+    } else {
+      heroTitle.style.color = 'var(--title-color)';
+      heroSubtitle.style.color = 'var(--text)';
+    }
+  }
+
+  [themeDropdown, accountDropdown].forEach(dropdown => {
+    if (dropdown) {
+      dropdown.style.backgroundColor = bg;
+      dropdown.style.borderColor = accent;
+      dropdown.style.color = dropdownText;
+    }
+  });
+
+  if (logo) logo.style.color = accent;
+
+  localStorage.setItem('theme', theme);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const savedTheme = localStorage.getItem('theme') || 'blush';
+  const themeDropdown = document.querySelector('.theme-dropdown');
+  const accountDropdown = document.querySelector('.account-dropdown');
+  if (themeDropdown) themeDropdown.value = savedTheme;
+  setTheme(savedTheme);
+});
+
+function handleAccountAction(path) {
+  if (path) window.location.href = path;
+}
+</script>
+
+

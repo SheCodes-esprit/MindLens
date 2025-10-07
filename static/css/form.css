@@ -1,0 +1,98 @@
+/* --- MindLens Unified Form Styles (Register + Login) --- */
+
+.register-section, 
+.login-section {
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  background-color: var(--bg);
+}
+
+.form-card {
+  background-color: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.form-card:hover {
+  transform: translateY(-5px);
+}
+
+.form-card::before,
+.form-card::after {
+  content: "";
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background: var(--accent);
+  border-radius: 50%;
+  opacity: 0.15;
+}
+
+.form-card::before {
+  top: -40px;
+  right: -40px;
+}
+
+.form-card::after {
+  bottom: -40px;
+  left: -40px;
+}
+
+.form-style input {
+  border: 2px solid #eaeaea;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-style input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-btn {
+  background-color: var(--accent);
+  color: white;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.form-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+.floating-icons {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.float-icon {
+  position: absolute;
+  font-size: 2rem;
+  opacity: 0.4;
+  animation: float 6s infinite ease-in-out;
+}
+
+.float-icon:nth-child(1) { top: 10%; left: 20%; color: var(--accent); }
+.float-icon:nth-child(2) { top: 40%; left: 75%; color: var(--accent); }
+.float-icon:nth-child(3) { bottom: 15%; left: 45%; color: var(--accent); }
+
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0); }
+}
+
+.form-label-color{
+    color: #2d3436 !important;
+}

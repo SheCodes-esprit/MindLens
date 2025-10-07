@@ -1,0 +1,86 @@
+{% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/form.css' %}">
+
+<section class="register-section py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        <div class="register-card p-5 shadow-lg rounded-4 bg-white position-relative">
+
+          <div class="text-center mb-4">
+            <h2 class="hero-title mb-2" style="color: #2d3436;">Join <span class="text-accent">MindLens</span></h2>
+            <p class="text-muted">Create your personal journal account</p>
+          </div>
+
+          <!-- Display general errors -->
+          {% if errors.general %}
+          <div class="alert alert-danger mb-3">
+            {{ errors.general }}
+          </div>
+          {% endif %}
+
+          <form method="POST" class="register-form" novalidate>
+              {% csrf_token %}
+            
+              <div class="mb-3">
+                  <label for="username" class="form-label fw-semibold" style="color: #2d3436;">Username</label>
+                  <input type="text" class="form-control rounded-pill {% if errors.username %}is-invalid{% endif %}" 
+                         id="username" name="username" placeholder="Choose a username" 
+                         value="{{ values.username|default:'' }}" required>
+                  {% if errors.username %}
+                      <div class="text-danger small mt-1">{{ errors.username }}</div>
+                  {% endif %}
+              </div>
+
+              <div class="mb-3">
+                  <label for="email" class="form-label fw-semibold" style="color: #2d3436;">Email address</label>
+                  <input type="email" class="form-control rounded-pill {% if errors.email %}is-invalid{% endif %}" 
+                         id="email" name="email" placeholder="Enter your email" 
+                         value="{{ values.email|default:'' }}" required>
+                  {% if errors.email %}
+                      <div class="text-danger small mt-1">{{ errors.email }}</div>
+                  {% endif %}
+              </div>
+
+              <div class="mb-3">
+                  <label for="password" class="form-label fw-semibold" style="color: #2d3436;">Password</label>
+                  <input type="password" class="form-control rounded-pill {% if errors.password %}is-invalid{% endif %}" 
+                         id="password" name="password" placeholder="Enter a password" required>
+                  {% if errors.password %}
+                      <div class="text-danger small mt-1">{{ errors.password }}</div>
+                  {% endif %}
+              </div>
+
+              <div class="mb-4">
+                  <label for="confirmPassword" class="form-label fw-semibold" style="color: #2d3436;">Confirm Password</label>
+                  <input type="password" class="form-control rounded-pill {% if errors.confirmPassword %}is-invalid{% endif %}" 
+                         id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+                  {% if errors.confirmPassword %}
+                      <div class="text-danger small mt-1">{{ errors.confirmPassword }}</div>
+                  {% endif %}
+              </div>
+
+              <button type="submit" class="btn w-100 py-2 fw-semibold register-btn" style="color: #2d3436;">Create Account</button>
+
+              <div class="text-center mt-4">
+                  <p class="mb-0" style="color: #2d3436;">Already have an account?
+                      <a href="{% url 'signin' %}" class="text-accent fw-semibold text-decoration-none">Sign in</a>
+                  </p>
+              </div>
+          </form>
+
+          <div class="floating-icons">
+            <i class="bi bi-heart-fill float-icon"></i>
+            <i class="bi bi-stars float-icon"></i>
+            <i class="bi bi-emoji-smile float-icon"></i>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -19,30 +19,20 @@ body {
   font-family: 'Playfair Display', serif;
   font-size: 3rem;
   margin-bottom: 0.5rem;
- color: var(--title-color);
-
-}
-.entry-card h5 {
-  color: var(--card-title-color);
-}
-
-.entry-card p {
-  color: var(--card-body-color);
-}
-
-.quote-script {
-  color: var(--quote-color);
+  color: var(--title-color);
 }
 
 .hero-subtitle {
   font-size: 1.2rem;
+  color: var(--text);
 }
 
 .quote-script {
   font-family: 'Great Vibes', cursive;
   font-size: 1.5rem;
-  color: var(--accent);
+  color: var(--quote-color);
 }
+
 .floating-icons {
   position: absolute;
   top: 0;
@@ -70,7 +60,9 @@ body {
   100% { transform: translateY(0); }
 }
 
-.entries .entry-card {
+
+.entries .entry-card,
+.feature-card {
   background: #ffffff;
   border-radius: 16px;
   padding: 1.5rem;
@@ -80,24 +72,29 @@ body {
   z-index: 1;
 }
 
-.entries .entry-card:hover {
+.feature-card {
+  text-align: center;
+  padding: 2rem;
+}
+
+.entries .entry-card:hover,
+.feature-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 36px rgba(0,0,0,0.08);
 }
 
-.theme-switcher button {
-  font-size: 0.9rem;
-  font-weight: 600;
-  border-radius: 6px;
-  padding: 0.4rem 0.8rem;
-  transition: background 0.3s ease, color 0.3s ease;
+.entry-card h5,
+.feature-card h5 {
+  color: var(--card-title-color);
 }
 
-.theme-switcher button:hover {
-  opacity: 0.9;
+.entry-card p,
+.feature-card p {
+  color: var(--card-body-color);
 }
 
-.theme-dropdown {
+.theme-dropdown,
+.account-dropdown {
   width: 180px;
   font-weight: 600;
   border-radius: 6px;
@@ -107,78 +104,7 @@ body {
   transition: border 0.3s ease, background 0.3s ease;
 }
 
-.theme-dropdown:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 0.2rem rgba(108, 92, 231, 0.25);
-}
-.theme-btn {
-  font-weight: 600;
-  border-radius: 6px;
-  padding: 0.4rem 0.8rem;
-  margin-left: 0.5rem;
-  color: white;
-  border: none;
-}
-
-.theme-btn.blush { background-color: #ff6b81; }
-.theme-btn.midnight { background-color: #2d3436; }
-.theme-btn.forest { background-color: #00b894; }
-.theme-btn.ocean { background-color: #0984e3; }
-.theme-btn.clay { background-color: #d35400; }
-
-.theme-btn:hover {
-  opacity: 0.9;
-}
-.footer-link {
-  text-decoration: none;
-  color: var(--text);
-  font-size: 0.9rem;
-  transition: color 0.3s ease;
-}
-
-.footer-link:hover {
-  color: var(--accent);
-  text-decoration: underline;
-}
-
-.footer h6 {
-  font-family: 'Inter', sans-serif;
-  margin-bottom: 0.5rem;
-}
-
-.footer p,
-.footer ul {
-  font-size: 0.85rem;
-}
-
-
-.feature-card {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 2rem;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.feature-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 36px rgba(0,0,0,0.08);
-}
-
-.text-accent {
-  color: var(--accent);
-}
-.account-dropdown {
-  width: 140px;
-  font-weight: 600;
-  border-radius: 6px;
-  border: 2px solid var(--accent);
-  background-color: var(--bg);
-  color: var(--text);
-  transition: border 0.3s ease, background 0.3s ease;
-}
-
+.theme-dropdown:focus,
 .account-dropdown:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 0.2rem rgba(108, 92, 231, 0.25);
@@ -197,3 +123,27 @@ body {
   color: #fff;
 }
 
+/* Accent Utility */.text-accent {
+  color: var(--accent);
+}
+
+.footer,
+.footer h6,
+.footer p,
+.footer ul,
+.footer li,
+.footer a {
+  color: #2d3436 !important;
+}
+
+.footer-link {
+  text-decoration: none;
+  color: #2d3436 !important;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+  color: var(--accent) !important;
+  text-decoration: underline;
+}
