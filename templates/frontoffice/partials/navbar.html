@@ -1,3 +1,4 @@
+
 <nav class="navbar navbar-expand-lg bg-white shadow-sm px-4 py-3 sticky-top">
   <div class="container-fluid">
     <a class="navbar-brand fw-bold mindlens-logo" href="{% url 'dashboard' %}">MindLens</a>
@@ -8,7 +9,7 @@
         <li class="nav-item"><a class="nav-link" href="#">Journal</a></li>
         <li class="nav-item"><a class="nav-link" href="#">Voice</a></li>
         <li class="nav-item"><a class="nav-link" href="#">Vision</a></li>
-        <select class="form-select form-select-sm theme-dropdown" onchange="setTheme(this.value)">
+        <select class="form-select-sm theme-dropdown" onchange="setTheme(this.value)">
           <option value="" disabled>Theme</option>
           <option value="blush" selected>Blush</option>
           <option value="midnight">Midnight</option>
@@ -32,10 +33,10 @@
           </div>
         {% endif %}
         <div class="account-switcher">
-          <select class="form-select form-select-sm account-dropdown" onchange="handleAccountAction(this.value)">
+          <select class="form-select-sm account-dropdown" onchange="handleAccountAction(this.value)">
             <option value="" disabled selected>Account</option>
             {% if user.is_authenticated %}
-              <option value="profile">My Profile</option>
+              <option value="{% url 'profile' %}">My Profile</option>
               <option value="settings">Settings</option>
               <option value="-" disabled>──────────</option>
               <option value="{% url 'logout' %}">Logout</option>
@@ -113,7 +114,7 @@ function setTheme(theme) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const savedTheme = localStorage.getItem('theme') || 'blush';
+  const savedTheme = localStorage.getItem('theme') || 'clay';
   const themeDropdown = document.querySelector('.theme-dropdown');
   const accountDropdown = document.querySelector('.account-dropdown');
   if (themeDropdown) themeDropdown.value = savedTheme;

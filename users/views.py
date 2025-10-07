@@ -158,3 +158,72 @@ def redirect_based_on_role(user):
         return redirect('journalist_dashboard')
     else:
         return redirect('signin')
+
+@login_required
+def profile_view(request):
+    context = {
+        'user': request.user,
+        'errors': {},
+        'success': False
+    }
+    
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        username = request.POST.get('username', '').strip()
+        
+        try:
+            if first_name:
+                request.user.first_name = first_name
+            if last_name:
+                request.user.last_name = last_name
+            
+            if username and username != request.user.username:
+                if len(username) < 3:
+                    context['errors']['username'] = 'Username must be at least 3 characters long.'
+                elif request.user.__class__.objects.filter(username=username).exclude(pk=request.user.pk).exists():
+                    context['errors']['username'] = 'This username is already taken.'
+                else:
+                    request.user.username = username
+            
+            if not context['errors']:
+                request.user.save()
+                messages.success(request, 'Profile updated successfully!')
+                context['success'] = True
+                
+        except Exception as e:
+            context['errors']['general'] = 'An error occurred while updating your profile. Please try again.'
+    
+    return render(request, 'frontoffice/pages/profile.html', context)
+
+@login_required
+def change_password_view(request):
+    if request.method == 'POST':
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        
+        errors = {}
+        
+        if not request.user.check_password(current_password):
+            errors['current_password'] = 'Current password is incorrect.'
+        
+        if new_password:
+            pattern = r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_]).{8,}$'
+            if not re.match(pattern, new_password):
+                errors['new_password'] = 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.'
+        
+        if new_password != confirm_password:
+            errors['confirm_password'] = 'New passwords do not match.'
+        
+        if not errors:
+            request.user.set_password(new_password)
+            request.user.save()
+            update_session_auth_hash(request, request.user)  
+            messages.success(request, 'Password changed successfully!')
+            return redirect('profile')
+        else:
+            for field, error in errors.items():
+                messages.error(request, error)
+    
+    return redirect('profile')

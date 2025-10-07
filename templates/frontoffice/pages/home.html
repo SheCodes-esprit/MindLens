@@ -8,28 +8,10 @@
     <i class="bi bi-emoji-neutral float-icon text-success"></i>
   </div>
   <h1 class="hero-title animate__animated animate__fadeInDown">Reflect Your Mind</h1>
-  
-  {% if user.is_authenticated %}
-    <p class="hero-subtitle animate__animated animate__fadeInUp">Welcome back, 
-      {% if user.first_name %}
-        {{ user.first_name }}
-      {% else %}
-        {{ user.username }}
-      {% endif %}
-    </p>
-    <p class="lead mt-3">Ready to continue your journaling journey?</p>
-    <div class="mt-4">
-      <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg me-3">Go to Dashboard</a>
-      <a href="#" class="btn btn-outline-primary btn-lg">Start Journaling</a>
-    </div>
-  {% else %}
     <p class="hero-subtitle animate__animated animate__fadeInUp">Your Personal Journaling Space</p>
     <p class="lead mt-3">Start your journey of self-reflection and emotional awareness today.</p>
-  {% endif %}
-  
   <p id="quote" class="quote-script mt-4"></p>
 </section>
-
 <section class="features container py-4">
   <div class="row g-4">
     <div class="col-md-4">

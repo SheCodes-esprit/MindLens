@@ -1,0 +1,249 @@
+{% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+<div class="profile-container">
+    <div class="floating-profile-icons">
+        <i class="bi bi-gear-fill float-icon"></i>
+        <i class="bi bi-shield-check float-icon"></i>
+        <i class="bi bi-person-check float-icon"></i>
+        <i class="bi bi-bell float-icon"></i>
+        <i class="bi bi-palette float-icon"></i>
+        <i class="bi bi-lock float-icon"></i>
+    </div>
+
+    <div class="container py-5">
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-10">
+                <div class="profile-header text-center animate__animated animate__fadeInDown">
+                    <div class="avatar-container position-relative d-inline-block">
+                        <div class="avatar-gradient">
+                            <img src="{% static 'images/default-avatar.png' %}" 
+                                 class="profile-avatar" 
+                                 alt="Profile">
+                        </div>
+                        <button class="avatar-edit-btn">
+                            <i class="bi bi-camera-fill"></i>
+                        </button>
+                    </div>
+                    <h1 class="profile-name mt-4">
+                        {% if user.first_name and user.last_name %}
+                            {{ user.first_name }} {{ user.last_name }}
+                        {% else %}
+                            {{ user.username }}
+                        {% endif %}
+                    </h1>
+                    <p class="profile-username text-muted">@{{ user.username }}</p>
+                    <div class="profile-badges">
+                        <span class="profile-badge role-badge">
+                            <i class="bi bi-person-badge me-1"></i>
+                            {{ user.role|title }}
+                        </span>
+                        <span class="profile-badge member-badge">
+                            <i class="bi bi-calendar-heart me-1"></i>
+                            Member since {{ user.date_joined|date:'M Y' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <div class="settings-nav-card profile-card animate__animated animate__fadeInLeft">
+                    <div class="nav-header">
+                        <h5><i class="bi bi-sliders me-2"></i>Account Settings</h5>
+                    </div>
+                    <nav class="settings-menu">
+                        <a href="#profile" class="nav-item active">
+                            <i class="bi bi-person-gear"></i>
+                            <span>Profile Info</span>
+                        </a>
+                        <a href="#preferences" class="nav-item">
+                            <i class="bi bi-palette"></i>
+                            <span>Appearance</span>
+                        </a>
+                         <a href="#security" class="nav-item">
+                            <i class="bi bi-shield-lock"></i>
+                            <span>Security</span>
+                        </a>
+                        <a href="#account" class="nav-item">
+                            <i class="bi bi-gear"></i>
+                            <span>Account</span>
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="col-lg-9">
+                <div class="settings-section profile-card animate__animated animate__fadeInRight">
+                    <div class="section-header">
+                        <h4><i class="bi bi-person-gear me-2"></i>Profile Information</h4>
+                        <p class="section-description">Manage your personal information</p>
+                    </div>
+
+                    <form method="POST" class="settings-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="section" value="profile">
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="firstName">
+                                    <i class="bi bi-person me-2"></i>First Name
+                                </label>
+                                <input type="text" class="form-control {% if errors.first_name %}is-invalid{% endif %}" 
+                                       id="firstName" name="first_name" 
+                                       value="{{ user.first_name }}" 
+                                       placeholder="Enter your first name">
+                                {% if errors.first_name %}
+                                <div class="invalid-feedback">{{ errors.first_name }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">
+                                    <i class="bi bi-person me-2"></i>Last Name
+                                </label>
+                                <input type="text" class="form-control {% if errors.last_name %}is-invalid{% endif %}" 
+                                       id="lastName" name="last_name" 
+                                       value="{{ user.last_name }}" 
+                                       placeholder="Enter your last name">
+                                {% if errors.last_name %}
+                                <div class="invalid-feedback">{{ errors.last_name }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                <label for="username">
+                                    <i class="bi bi-at me-2"></i>Username
+                                </label>
+                                <input type="text" class="form-control {% if errors.username %}is-invalid{% endif %}" 
+                                       id="username" name="username" 
+                                       value="{{ user.username }}" 
+                                       placeholder="Choose a username">
+                                <small class="form-text">This is how you'll appear on MindLens</small>
+                                {% if errors.username %}
+                                <div class="invalid-feedback">{{ errors.username }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                <label for="email">
+                                    <i class="bi bi-envelope me-2"></i>Email Address
+                                </label>
+                                <input type="email" class="form-control" 
+                                       id="email" name="email" 
+                                       value="{{ user.email }}" 
+                                       placeholder="your@email.com"
+                                       disabled>
+                                <small class="form-text text-muted">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Email address cannot be changed for security reasons
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="settings-section profile-card animate__animated animate__fadeInRight">
+                    <div class="section-header">
+                        <h4><i class="bi bi-palette me-2"></i>Appearance</h4>
+                        <p class="section-description">Customize how MindLens looks to you</p>
+                    </div>
+
+                    <div class="preferences-grid">
+                        <div class="preference-item">
+                            <div class="preference-info">
+                                <h6>Theme</h6>
+                                <p>Choose your preferred theme</p>
+                            </div>
+                            <select class="form-select theme-select">
+                                <option value="blush" selected>Blush Theme</option>
+                                <option value="midnight">Midnight Theme</option>
+                                <option value="forest">Forest Theme</option>
+                                <option value="ocean">Ocean Theme</option>
+                                <option value="clay">Clay Theme</option>
+                            </select>
+                        </div>
+
+                        <div class="preference-item">
+                            <div class="preference-info">
+                                <h6>Time Format</h6>
+                                <p>How dates and times are displayed</p>
+                            </div>
+                            <select class="form-select">
+                                <option selected>12-hour format</option>
+                                <option>24-hour format</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section profile-card animate__animated animate__fadeInRight">
+                    <div class="section-header">
+                        <h4><i class="bi bi-shield-lock me-2"></i>Security</h4>
+                        <p class="section-description">Manage your account security</p>
+                    </div>
+
+                    <div class="security-actions">
+                        <div class="security-item">
+                            <div class="security-info">
+                                <h6>Change Password</h6>
+                                <p>Update your password to keep your account secure</p>
+                            </div>
+                            <button class="btn btn-outline-primary">Change Password</button>
+                        </div>
+
+                        <div class="security-item">
+                            <div class="security-info">
+                                <h6>Two-Factor Authentication</h6>
+                                <p>Add an extra layer of security to your account</p>
+                            </div>
+                            <div class="security-status">
+                                <span class="status-badge disabled">Disabled</span>
+                                <button class="btn btn-outline-primary">Enable 2FA</button>
+                            </div>
+                        </div>
+
+                        <div class="security-item">
+                            <div class="security-info">
+                                <h6>Active Sessions</h6>
+                                <p>Manage devices that are logged into your account</p>
+                            </div>
+                            <button class="btn btn-outline-primary">View Sessions</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section profile-card animate__animated animate__fadeInRight">
+                    <div class="section-header">
+                        <h4><i class="bi bi-gear me-2"></i>Account Management</h4>
+                        <p class="section-description">Advanced account controls</p>
+                    </div>
+
+                    <div class="account-actions">
+                        <div class="account-item">
+                            <div class="account-info">
+                                <h6>Deactivate Account</h6>
+                                <p>Temporarily disable your account</p>
+                            </div>
+                            <button class="btn btn-outline-secondary">Deactivate</button>
+                        </div>
+
+                        <div class="account-item danger-zone">
+                            <div class="account-info">
+                                <h6>Delete Account</h6>
+                                <p>Permanently delete your account and all data</p>
+                                <small class="text-muted">This action cannot be undone</small>
+                            </div>
+                            <button class="btn btn-danger">Delete Account</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
