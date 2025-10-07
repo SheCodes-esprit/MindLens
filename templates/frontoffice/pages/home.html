@@ -7,10 +7,29 @@
     <i class="bi bi-emoji-frown float-icon text-primary"></i>
     <i class="bi bi-emoji-neutral float-icon text-success"></i>
   </div>
-  <h1 class="hero-title animate__animated animate__fadeInDown ">Reflect Your Mind</h1>
-  <p class="hero-subtitle animate__animated animate__fadeInUp">Welcome back, {{ user.first_name }}</p>
-  <p id="quote" class="quote-script mt-3"></p>
+  <h1 class="hero-title animate__animated animate__fadeInDown">Reflect Your Mind</h1>
+  
+  {% if user.is_authenticated %}
+    <p class="hero-subtitle animate__animated animate__fadeInUp">Welcome back, 
+      {% if user.first_name %}
+        {{ user.first_name }}
+      {% else %}
+        {{ user.username }}
+      {% endif %}
+    </p>
+    <p class="lead mt-3">Ready to continue your journaling journey?</p>
+    <div class="mt-4">
+      <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg me-3">Go to Dashboard</a>
+      <a href="#" class="btn btn-outline-primary btn-lg">Start Journaling</a>
+    </div>
+  {% else %}
+    <p class="hero-subtitle animate__animated animate__fadeInUp">Your Personal Journaling Space</p>
+    <p class="lead mt-3">Start your journey of self-reflection and emotional awareness today.</p>
+  {% endif %}
+  
+  <p id="quote" class="quote-script mt-4"></p>
 </section>
+
 <section class="features container py-4">
   <div class="row g-4">
     <div class="col-md-4">
@@ -18,6 +37,9 @@
         <i class="bi bi-journal-text fs-2 text-accent mb-3"></i>
         <h5>Journaling</h5>
         <p>Capture your thoughts, emotions, and reflections in a private, expressive space.</p>
+        {% if not user.is_authenticated %}
+          <small class="text-muted">Sign up to start writing</small>
+        {% endif %}
       </div>
     </div>
     <div class="col-md-4">
@@ -25,6 +47,9 @@
         <i class="bi bi-mic fs-2 text-accent mb-3"></i>
         <h5>Voice Notes</h5>
         <p>Record your feelings with your voice — perfect for moments when words flow freely.</p>
+        {% if not user.is_authenticated %}
+          <small class="text-muted">Create an account to record</small>
+        {% endif %}
       </div>
     </div>
     <div class="col-md-4">
@@ -32,6 +57,49 @@
         <i class="bi bi-images fs-2 text-accent mb-3"></i>
         <h5>Gallery</h5>
         <p>Store meaningful visuals, memories, and snapshots that reflect your journey.</p>
+        {% if not user.is_authenticated %}
+          <small class="text-muted">Join to upload memories</small>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if not user.is_authenticated %}
+  <div class="row mt-5">
+    <div class="col-12">
+      <div class="cta-section text-center p-5 rounded-4" style="background: linear-gradient(135deg, var(--accent) 0%, #667eea 100%); color: white;">
+        <h3 class="mb-3">Ready to Begin Your Reflection Journey?</h3>
+        <p class="mb-4">Join thousands of users who use MindLens to capture memories, reflect deeply, and keep their stories alive.</p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+          <a href="{% url 'signup' %}" class="btn btn-light btn-lg">Create Your Account</a>
+          <a href="{% url 'signin' %}" class="btn btn-outline-light btn-lg">I Have an Account</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</section>
+
+<section class="benefits container py-5">
+  <div class="row text-center mb-5">
+    <div class="col-12">
+      <h2>Why Choose MindLens?</h2>
+      <p class="lead">MindLens helps you capture memories, reflect on your thoughts, and preserve life’s moments — all in one secure, beautifully simple space.</p>
+    </div>
+  </div>
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="benefit-item text-center p-4">
+        <i class="bi bi-shield-check fs-1 text-accent mb-3"></i>
+        <h5>Private & Secure</h5>
+        <p>Your thoughts are yours alone. We use encryption to keep your journal entries safe and private.</p>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="benefit-item text-center p-4">
+     <i class="bi bi-graph-up fs-1 text-accent mb-3"></i>
+      <h5>Stay Connected to Your Growth</h5>
+      <p>Track your emotions, insights, and milestones over time.</p>
       </div>
     </div>
   </div>
