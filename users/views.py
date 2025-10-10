@@ -168,6 +168,21 @@ def profile_view(request):
     }
     
     if request.method == 'POST':
+        if 'profile_image' in request.FILES:
+            profile_image = request.FILES['profile_image']
+            allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+            if profile_image.content_type not in allowed_types:
+                context['errors']['profile_image'] = 'Please upload a valid image file (JPEG, PNG, GIF, WebP).'
+            elif profile_image.size > 5 * 1024 * 1024: 
+                context['errors']['profile_image'] = 'Image file too large. Maximum size is 5MB.'
+            else:
+                if request.user.profile_image:
+                    request.user.profile_image.delete(save=False)
+                request.user.profile_image = profile_image
+                request.user.save()
+                messages.success(request, 'Profile image updated successfully!')
+                return redirect('profile') 
+        
         first_name = request.POST.get('first_name', '').strip()
         last_name = request.POST.get('last_name', '').strip()
         username = request.POST.get('username', '').strip()
@@ -181,7 +196,7 @@ def profile_view(request):
             if username and username != request.user.username:
                 if len(username) < 3:
                     context['errors']['username'] = 'Username must be at least 3 characters long.'
-                elif request.user.__class__.objects.filter(username=username).exclude(pk=request.user.pk).exists():
+                elif User.objects.filter(username=username).exclude(pk=request.user.pk).exists():
                     context['errors']['username'] = 'This username is already taken.'
                 else:
                     request.user.username = username
@@ -190,40 +205,9 @@ def profile_view(request):
                 request.user.save()
                 messages.success(request, 'Profile updated successfully!')
                 context['success'] = True
+                return redirect('profile')  
                 
         except Exception as e:
             context['errors']['general'] = 'An error occurred while updating your profile. Please try again.'
     
     return render(request, 'frontoffice/pages/profile.html', context)
-
-@login_required
-def change_password_view(request):
-    if request.method == 'POST':
-        current_password = request.POST.get('current_password')
-        new_password = request.POST.get('new_password')
-        confirm_password = request.POST.get('confirm_password')
-        
-        errors = {}
-        
-        if not request.user.check_password(current_password):
-            errors['current_password'] = 'Current password is incorrect.'
-        
-        if new_password:
-            pattern = r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_]).{8,}$'
-            if not re.match(pattern, new_password):
-                errors['new_password'] = 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.'
-        
-        if new_password != confirm_password:
-            errors['confirm_password'] = 'New passwords do not match.'
-        
-        if not errors:
-            request.user.set_password(new_password)
-            request.user.save()
-            update_session_auth_hash(request, request.user)  
-            messages.success(request, 'Password changed successfully!')
-            return redirect('profile')
-        else:
-            for field, error in errors.items():
-                messages.error(request, error)
-    
-    return redirect('profile')

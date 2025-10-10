@@ -12,18 +12,18 @@
         <i class="bi bi-palette float-icon"></i>
         <i class="bi bi-lock float-icon"></i>
     </div>
-
     <div class="container py-5">
         <div class="row justify-content-center mb-5">
             <div class="col-lg-10">
                 <div class="profile-header text-center animate__animated animate__fadeInDown">
                     <div class="avatar-container position-relative d-inline-block">
                         <div class="avatar-gradient">
-                            <img src="{% static 'images/default-avatar.png' %}" 
+                            <img src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static 'images/default-avatar.png' %}{% endif %}" 
                                  class="profile-avatar" 
-                                 alt="Profile">
+                                 alt="Profile"
+                                 id="profile-avatar">
                         </div>
-                        <button class="avatar-edit-btn">
+                        <button type="button" class="avatar-edit-btn" onclick="document.getElementById('profile_image').click()">
                             <i class="bi bi-camera-fill"></i>
                         </button>
                     </div>
@@ -83,10 +83,27 @@
                         <p class="section-description">Manage your personal information</p>
                     </div>
 
-                    <form method="POST" class="settings-form">
+                    <form method="POST" class="settings-form" enctype="multipart/form-data">
                         {% csrf_token %}
                         <input type="hidden" name="section" value="profile">
                         
+                        <div class="form-group mb-4" hidden>
+                            <label for="profile_image" class="form-label">
+                                <i class="bi bi-image me-2"></i>Profile Image
+                            </label>
+                            <input type="file" class="form-control {% if errors.profile_image %}is-invalid{% endif %}" 
+                                   id="profile_image" name="profile_image" 
+                                   accept="image/*">
+                            <div class="form-text">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Click the camera icon on your avatar or choose file here. 
+                                Supported formats: JPEG, PNG, GIF, WebP. Max size: 5MB
+                            </div>
+                            {% if errors.profile_image %}
+                            <div class="invalid-feedback">{{ errors.profile_image }}</div>
+                            {% endif %}
+                        </div>
+
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="firstName">
@@ -142,17 +159,16 @@
                         </div>
 
                         <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                           <button type="submit" class="btn btn-primary" style="box-shadow:none; outline:none;">Save Changes</button>
+
                         </div>
                     </form>
                 </div>
-
                 <div class="settings-section profile-card animate__animated animate__fadeInRight">
                     <div class="section-header">
                         <h4><i class="bi bi-palette me-2"></i>Appearance</h4>
                         <p class="section-description">Customize how MindLens looks to you</p>
                     </div>
-
                     <div class="preferences-grid">
                         <div class="preference-item">
                             <div class="preference-info">
@@ -167,7 +183,6 @@
                                 <option value="clay">Clay Theme</option>
                             </select>
                         </div>
-
                         <div class="preference-item">
                             <div class="preference-info">
                                 <h6>Time Format</h6>
@@ -246,4 +261,27 @@
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const profileImageInput = document.getElementById('profile_image');
+    const profileAvatar = document.getElementById('profile-avatar');
+    
+    if (profileImageInput && profileAvatar) {
+        profileImageInput.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                // Show preview immediately
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profileAvatar.src = e.target.result;
+                };
+                reader.readAsDataURL(this.files[0]);
+                
+                // Optional: Auto-submit the form when image is selected
+                // Uncomment the line below if you want auto-submit
+                this.form.submit();
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

@@ -11,7 +11,7 @@ venv/
 # Django stuff
 db.sqlite3
 *.log
-media/
+media/profile_images/*
 staticfiles/
 *.pot
 *.pyc
