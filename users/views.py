@@ -4,6 +4,9 @@ from .models import User
 import re
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 
 def test_template(request):
     return render(request, 'test.html')
@@ -159,55 +162,134 @@ def redirect_based_on_role(user):
     else:
         return redirect('signin')
 
+def handle_profile_update(request, context):
+    """Handle profile information update (name, username)"""
+    first_name = request.POST.get('first_name', '').strip()
+    last_name = request.POST.get('last_name', '').strip()
+    username = request.POST.get('username', '').strip()
+    
+    try:
+        if first_name:
+            request.user.first_name = first_name
+        if last_name:
+            request.user.last_name = last_name
+        
+        if username and username != request.user.username:
+            if len(username) < 3:
+                context['errors']['username'] = 'Username must be at least 3 characters long.'
+            elif User.objects.filter(username=username).exclude(pk=request.user.pk).exists():
+                context['errors']['username'] = 'This username is already taken.'
+            else:
+                request.user.username = username
+        
+        if not context['errors']:
+            request.user.save()
+            messages.success(request, 'Profile updated successfully!')
+            context['success'] = True
+            return True
+        return False
+            
+    except Exception as e:
+        context['errors']['general'] = 'An error occurred while updating your profile. Please try again.'
+        return False
+
+def handle_profile_image_update(request, context):
+    """Handle profile image upload and update"""
+    if 'profile_image' in request.FILES:
+        profile_image = request.FILES['profile_image']
+        
+        allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+        if profile_image.content_type not in allowed_types:
+            context['errors']['profile_image'] = 'Please upload a valid image file (JPEG, PNG, GIF, WebP).'
+            return False
+        elif profile_image.size > 5 * 1024 * 1024: 
+            context['errors']['profile_image'] = 'Image file too large. Maximum size is 5MB.'
+            return False
+        else:
+            if request.user.profile_image:
+                request.user.profile_image.delete(save=False)
+            request.user.profile_image = profile_image
+            request.user.save()
+            messages.success(request, 'Profile image updated successfully!')
+            return True
+    return False
+
+def handle_password_update(request, context):
+    """Handle password change"""
+    current_password = request.POST.get('current_password', '').strip()
+    new_password = request.POST.get('new_password', '').strip()
+    confirm_password = request.POST.get('confirm_password', '').strip()
+    
+    has_errors = False
+    
+    if not current_password:
+        context['password_errors']['current_password'] = 'Current password is required.'
+        has_errors = True
+    elif not request.user.check_password(current_password):
+        context['password_errors']['current_password'] = 'Current password is incorrect.'
+        has_errors = True
+    
+    if not new_password:
+        context['password_errors']['new_password'] = 'New password is required.'
+        has_errors = True
+    else:
+        try:
+            validate_password(new_password, request.user)
+        except ValidationError as e:
+            context['password_errors']['new_password'] = ' '.join(e.messages)
+            has_errors = True
+    
+    if not confirm_password:
+        context['password_errors']['confirm_password'] = 'Please confirm your new password.'
+        has_errors = True
+    elif new_password != confirm_password:
+        context['password_errors']['confirm_password'] = 'New passwords do not match.'
+        has_errors = True
+    
+    if not has_errors:
+        try:
+            request.user.set_password(new_password)
+            request.user.save()
+            
+            update_session_auth_hash(request, request.user)
+            
+            messages.success(request, 'Password updated successfully!')
+            context['password_success'] = True
+            return True
+            
+        except Exception as e:
+            context['password_errors']['general'] = 'An error occurred while updating your password. Please try again.'
+            return False
+    
+    return False
+
 @login_required
 def profile_view(request):
+    """Main profile view that orchestrates all update functions"""
     context = {
         'user': request.user,
         'errors': {},
-        'success': False
+        'success': False,
+        'password_errors': {},
+        'password_success': False
     }
     
     if request.method == 'POST':
-        if 'profile_image' in request.FILES:
-            profile_image = request.FILES['profile_image']
-            allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
-            if profile_image.content_type not in allowed_types:
-                context['errors']['profile_image'] = 'Please upload a valid image file (JPEG, PNG, GIF, WebP).'
-            elif profile_image.size > 5 * 1024 * 1024: 
-                context['errors']['profile_image'] = 'Image file too large. Maximum size is 5MB.'
-            else:
-                if request.user.profile_image:
-                    request.user.profile_image.delete(save=False)
-                request.user.profile_image = profile_image
-                request.user.save()
-                messages.success(request, 'Profile image updated successfully!')
-                return redirect('profile') 
+        section = request.POST.get('section', 'profile')
         
-        first_name = request.POST.get('first_name', '').strip()
-        last_name = request.POST.get('last_name', '').strip()
-        username = request.POST.get('username', '').strip()
-        
-        try:
-            if first_name:
-                request.user.first_name = first_name
-            if last_name:
-                request.user.last_name = last_name
-            
-            if username and username != request.user.username:
-                if len(username) < 3:
-                    context['errors']['username'] = 'Username must be at least 3 characters long.'
-                elif User.objects.filter(username=username).exclude(pk=request.user.pk).exists():
-                    context['errors']['username'] = 'This username is already taken.'
-                else:
-                    request.user.username = username
-            
-            if not context['errors']:
-                request.user.save()
-                messages.success(request, 'Profile updated successfully!')
-                context['success'] = True
-                return redirect('profile')  
+        if section == 'password':
+            password_updated = handle_password_update(request, context)
+            if password_updated:
+                return redirect('profile')
                 
-        except Exception as e:
-            context['errors']['general'] = 'An error occurred while updating your profile. Please try again.'
+        elif section == 'profile':
+            image_updated = handle_profile_image_update(request, context)
+            if image_updated:
+                return redirect('profile')
+            
+            profile_updated = handle_profile_update(request, context)
+            if profile_updated:
+                return redirect('profile')
     
     return render(request, 'frontoffice/pages/profile.html', context)
+

@@ -12,6 +12,19 @@
         <i class="bi bi-palette float-icon"></i>
         <i class="bi bi-lock float-icon"></i>
     </div>
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+    {% for message in messages %}
+    <div class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                {{ message }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
     <div class="container py-5">
         <div class="row justify-content-center mb-5">
             <div class="col-lg-10">
@@ -196,20 +209,68 @@
                     </div>
                 </div>
 
-                <div class="settings-section profile-card animate__animated animate__fadeInRight">
-                    <div class="section-header">
-                        <h4><i class="bi bi-shield-lock me-2"></i>Security</h4>
-                        <p class="section-description">Manage your account security</p>
-                    </div>
-
-                    <div class="security-actions">
-                        <div class="security-item">
-                            <div class="security-info">
-                                <h6>Change Password</h6>
-                                <p>Update your password to keep your account secure</p>
-                            </div>
-                            <button class="btn btn-outline-primary">Change Password</button>
+               <div class="settings-section profile-card animate__animated animate__fadeInRight">
+    <div class="section-header">
+        <h4><i class="bi bi-shield-lock me-2"></i>Security</h4>
+        <p class="section-description">Manage your account security</p>
+    </div>
+    <form method="POST" class="settings-form">
+        {% csrf_token %}
+        <input type="hidden" name="section" value="password">
+        
+        <div class="security-actions">
+            <div class="security-item">
+                <div class="security-info">
+                    <h6>Change Password</h6>
+                    <p>Update your password to keep your account secure</p>
+                </div>
+                
+                <div class="password-form" id="password-form" style="display: none;">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="current_password">
+                                <i class="bi bi-lock me-2"></i>Current Password
+                            </label>
+                            <input type="password" class="form-control {% if password_errors.current_password %}is-invalid{% endif %}" 
+                                   id="current_password" name="current_password" 
+                                   placeholder="Enter your current password">
+                            {% if password_errors.current_password %}
+                            <div class="invalid-feedback">{{ password_errors.current_password }}</div>
+                            {% endif %}
                         </div>
+                        <div class="form-group">
+                            <label for="new_password">
+                                <i class="bi bi-key me-2"></i>New Password
+                            </label>
+                            <input type="password" class="form-control {% if password_errors.new_password %}is-invalid{% endif %}" 
+                                   id="new_password" name="new_password" 
+                                   placeholder="Enter new password">
+                            {% if password_errors.new_password %}
+                            <div class="invalid-feedback">{{ password_errors.new_password }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm_password">
+                                <i class="bi bi-key-fill me-2"></i>Confirm New Password
+                            </label>
+                            <input type="password" class="form-control {% if password_errors.confirm_password %}is-invalid{% endif %}" 
+                                   id="confirm_password" name="confirm_password" 
+                                   placeholder="Confirm new password">
+                            {% if password_errors.confirm_password %}
+                            <div class="invalid-feedback">{{ password_errors.confirm_password }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-actions mt-3">
+                        <button type="button" class="btn btn-outline-secondary me-2" onclick="togglePasswordForm()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Password</button>
+                    </div>
+                </div>
+                
+                <button type="button" class="btn btn-outline-primary" onclick="togglePasswordForm()" id="change-password-btn">
+                    Change Password
+                </button>
+            </div>
 
                         <div class="security-item">
                             <div class="security-info">
@@ -269,19 +330,110 @@ document.addEventListener('DOMContentLoaded', function() {
     if (profileImageInput && profileAvatar) {
         profileImageInput.addEventListener('change', function(e) {
             if (this.files && this.files[0]) {
-                // Show preview immediately
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     profileAvatar.src = e.target.result;
                 };
                 reader.readAsDataURL(this.files[0]);
                 
-                // Optional: Auto-submit the form when image is selected
-                // Uncomment the line below if you want auto-submit
                 this.form.submit();
             }
         });
     }
 });
+function togglePasswordForm() {
+    const passwordForm = document.getElementById('password-form');
+    const changePasswordBtn = document.getElementById('change-password-btn');
+    
+    if (passwordForm.style.display === 'none') {
+        passwordForm.style.display = 'block';
+        changePasswordBtn.style.display = 'none';
+        
+        const inputs = passwordForm.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.value = '';
+            input.classList.remove('is-invalid');
+        });
+        
+        const errorMessages = passwordForm.querySelectorAll('.invalid-feedback');
+        errorMessages.forEach(error => error.style.display = 'none');
+    } else {
+        passwordForm.style.display = 'none';
+        changePasswordBtn.style.display = 'block';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const toastElList = document.querySelectorAll('.toast');
+    const toastList = [...toastElList].map(toastEl => {
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+        return toast;
+    });
+    
+    toastElList.forEach(toastEl => {
+        toastEl.addEventListener('hidden.bs.toast', function() {
+            this.remove();
+        });
+    });
+    
+    const profileImageInput = document.getElementById('profile_image');
+    const profileAvatar = document.getElementById('profile-avatar');
+    
+    if (profileImageInput && profileAvatar) {
+        profileImageInput.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profileAvatar.src = e.target.result;
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
+    
+    const successMessages = document.querySelectorAll('.toast-body');
+    let passwordSuccess = false;
+    
+    successMessages.forEach(message => {
+        if (message.textContent.includes('Password updated') || 
+            message.textContent.includes('Profile updated') ||
+            message.textContent.includes('Profile image updated')) {
+            passwordSuccess = true;
+        }
+    });
+    
+    if (passwordSuccess) {
+        const passwordForm = document.getElementById('password-form');
+        const changePasswordBtn = document.getElementById('change-password-btn');
+        
+        if (passwordForm && changePasswordBtn) {
+            passwordForm.style.display = 'none';
+            changePasswordBtn.style.display = 'block';
+        }
+    }
+});
+
+function togglePasswordForm() {
+    const passwordForm = document.getElementById('password-form');
+    const changePasswordBtn = document.getElementById('change-password-btn');
+    
+    if (passwordForm.style.display === 'none') {
+        passwordForm.style.display = 'block';
+        changePasswordBtn.style.display = 'none';
+        
+        const inputs = passwordForm.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.value = '';
+            input.classList.remove('is-invalid');
+        });
+        
+        const errorMessages = passwordForm.querySelectorAll('.invalid-feedback');
+        errorMessages.forEach(error => error.style.display = 'none');
+    } else {
+        passwordForm.style.display = 'none';
+        changePasswordBtn.style.display = 'block';
+    }
+}
 </script>
 {% endblock %}

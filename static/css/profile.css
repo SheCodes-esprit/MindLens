@@ -501,3 +501,43 @@
 .strength-4 { width: 80%; background: #20c997; }
 .strength-5 { width: 100%; background: #198754; }
 
+.toast {
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    min-width: 300px;
+}
+
+.toast.bg-success {
+    background-color: rgba(25, 135, 84, 0.95) !important;
+}
+
+.toast.bg-danger {
+    background-color: rgba(220, 53, 69, 0.95) !important;
+}
+
+.toast.bg-warning {
+    background-color: rgba(255, 193, 7, 0.95) !important;
+    color: #000 !important;
+}
+
+.toast.bg-info {
+    background-color: rgba(13, 202, 240, 0.95) !important;
+}
+
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.toast.show {
+    animation: slideInRight 0.3s ease-out;
+}
