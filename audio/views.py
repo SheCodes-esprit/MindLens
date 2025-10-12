@@ -10,44 +10,134 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 from django.db.models import Count
 from pydub import AudioSegment
-import os
 import whisper
-from pydub import AudioSegment
-from pydub.utils import which
+import re
 
-AudioSegment.converter = r"C:\Users\chaym\Downloads\ffmpeg-8.0-essentials_build\ffmpeg-8.0-essentials_build\bin\ffmpeg.exe"
-AudioSegment.ffprobe = r"C:\Users\chaym\Downloads\ffmpeg-8.0-essentials_build\ffmpeg-8.0-essentials_build\bin\ffprobe.exe"
-# You can choose model sizes: tiny, base, small, medium, large
-whisper_model = whisper.load_model("base")
 # Configure logging
 logger = logging.getLogger(__name__)
 
-def perform_ai_analysis(audio_entry):
-    if audio_entry.audio_url:
-        try:
-            # Transcribe the uploaded audio file
-            result = whisper_model.transcribe(audio_entry.audio_url.path)
-            audio_entry.ai_transcript = result['text']
-            audio_entry.save()
+# Initialize Whisper model
+whisper_model = whisper.load_model("base")
 
-            # Optionally, you can keep your emotion mock for now
-            AudioEmotionAnalysis.objects.create(
-                audio_entry=audio_entry,
-                detected_emotion='stress',
-                intensity=0.75,
-                ai_model_version='whisper_base'
-            )
-            AudioEmotionAnalysis.objects.create(
-                audio_entry=audio_entry,
-                detected_emotion='joy',
-                intensity=0.3,
-                ai_model_version='whisper_base'
-            )
-        except Exception as e:
-            # Logging in case transcription fails
-            logger.error(f"Whisper transcription failed: {e}")
-            audio_entry.ai_transcript = "Transcription failed."
+def perform_ai_analysis(audio_entry):
+    """
+    Performs transcription and emotion analysis for a given AudioEntry.
+    1. Transcribes audio using Whisper.
+    2. Performs emotion analysis using keyword-based detection.
+    3. Saves detected emotions in AudioEmotionAnalysis.
+    """
+    if not audio_entry.audio_url:
+        logger.info("No audio file found for analysis.")
+        return
+
+    # Step 1: Transcribe audio
+    transcript = ""
+    try:
+        result = whisper_model.transcribe(audio_entry.audio_url.path, task="translate")
+        transcript = result.get('text', '').strip()
+        if not transcript:
+            audio_entry.ai_transcript = "No speech detected."
             audio_entry.save()
+            logger.info("Transcript is empty after transcription.")
+            return
+        audio_entry.ai_transcript = transcript
+        audio_entry.save()
+        logger.info(f"Transcript: {transcript}")
+    except Exception as e:
+        logger.error(f"Whisper transcription failed: {e}")
+        audio_entry.ai_transcript = "Transcription failed."
+        audio_entry.save()
+        return
+
+    # Step 2: Skip emotion analysis if transcript too short
+    if len(transcript) < 3:
+        logger.info("Transcript too short for emotion analysis")
+        return
+
+    # Step 3: Perform emotion analysis using keyword-based approach
+    try:
+        emotions = analyze_emotions_keyword_based(transcript)
+        logger.info(f"Detected emotions: {emotions}")
+
+        # Step 4: Save emotions in the database
+        for emotion, intensity in emotions.items():
+            if intensity >= 0.01:
+                AudioEmotionAnalysis.objects.create(
+                    audio_entry=audio_entry,
+                    detected_emotion=emotion,
+                    intensity=intensity,
+                    ai_model_version='whisper_base + keyword_analysis'
+                )
+        if not any(v >= 0.01 for v in emotions.values()):
+            logger.info("No significant emotions detected.")
+
+    except Exception as e:
+        logger.error(f"Emotion analysis failed: {e}")
+
+def analyze_emotions_keyword_based(text):
+    """
+    Analyzes emotions in text using keyword matching.
+    Returns a dictionary with emotion scores between 0 and 1.
+    """
+    text_lower = text.lower()
+    
+    emotion_keywords = {
+        'Happy': [
+            'happy', 'joy', 'joyful', 'excited', 'wonderful', 'great', 'amazing', 
+            'love', 'fun', 'enjoyed', 'delighted', 'pleased', 'cheerful', 'glad',
+            'fantastic', 'excellent', 'awesome', 'brilliant', 'perfect', 'beautiful',
+            'laugh', 'laughing', 'smile', 'smiling', 'best', 'good', 'nice'
+        ],
+        'Sad': [
+            'sad', 'unhappy', 'depressed', 'miserable', 'disappointed', 'down', 
+            'upset', 'hurt', 'crying', 'tears', 'lonely', 'hopeless', 'gloomy',
+            'sorry', 'regret', 'miss', 'lost', 'bad', 'terrible', 'awful'
+        ],
+        'Angry': [
+            'angry', 'mad', 'furious', 'annoyed', 'irritated', 'frustrated', 
+            'rage', 'hate', 'outraged', 'pissed', 'upset', 'disgusted'
+        ],
+        'Fear': [
+            'afraid', 'scared', 'fear', 'worried', 'anxious', 'nervous', 
+            'terrified', 'panic', 'frightened', 'stress', 'stressed', 'concern'
+        ],
+        'Surprise': [
+            'surprised', 'shocked', 'amazed', 'astonished', 'unexpected', 
+            'wow', 'incredible', 'unbelievable', 'omg', 'whoa'
+        ]
+    }
+    
+    # Count matches for each emotion
+    emotion_scores = {}
+    words = text_lower.split()
+    total_words = len(words)
+    
+    for emotion, keywords in emotion_keywords.items():
+        match_count = 0
+        matched_words = set()
+        
+        for keyword in keywords:
+            # Use word boundaries to match whole words
+            pattern = r'\b' + re.escape(keyword) + r'\w*\b'
+            matches = re.findall(pattern, text_lower)
+            match_count += len(matches)
+            matched_words.update(matches)
+        
+        if match_count > 0:
+            # Base score from keyword density
+            base_score = (match_count / max(total_words, 1)) * 10
+            
+            # Bonus for multiple different emotional words
+            variety_bonus = len(matched_words) * 0.15
+            
+            # Final intensity (capped at 1.0 for database storage)
+            intensity = min(base_score + variety_bonus, 1.0)
+        else:
+            intensity = 0.0
+        
+        emotion_scores[emotion] = round(intensity, 4)
+    
+    return emotion_scores
 
 @login_required
 def audio_create(request):
