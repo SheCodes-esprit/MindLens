@@ -21,6 +21,11 @@
                 Create a New Audio Entry
             </h2>
             <p>Record your thoughts or upload an audio file</p>
+            <!-- Display remaining entries -->
+            <p><strong>Remaining entries today: {{ remaining_entries }} / 150</strong></p>
+            {% if error %}
+                <p style="color: #dc3545;">{{ error }}</p>
+            {% endif %}
         </div>
 
         <!-- Audio Form -->
@@ -38,16 +43,16 @@
 
             <!-- Upload Field -->
             <div class="form-group">
-    <label for="id_audio_url">Upload Audio File (Optional)</label>
-    <div class="custom-file-input-wrapper">
-        <input type="file" id="id_audio_url" name="audio_url" accept="audio/*" class="file-input-hidden">
-        <button type="button" class="file-input-button" onclick="document.getElementById('id_audio_url').click()">
-            <span class="file-icon">📁</span>
-            Choose Audio File
-        </button>
-        <span class="file-name" id="fileName">No file selected</span>
-    </div>
-</div>
+                <label for="id_audio_url">Upload Audio File (Optional)</label>
+                <div class="custom-file-input-wrapper">
+                    <input type="file" id="id_audio_url" name="audio_url" accept="audio/*" class="file-input-hidden">
+                    <button type="button" class="file-input-button" onclick="document.getElementById('id_audio_url').click()">
+                        <span class="file-icon">📁</span>
+                        Choose Audio File
+                    </button>
+                    <span class="file-name" id="fileName">No file selected</span>
+                </div>
+            </div>
 
             <!-- Recording Controls -->
             <div class="recording-controls">
@@ -56,7 +61,7 @@
                     Or Record Audio
                 </label>
                 <div class="recording-buttons">
-                    <button type="button" id="startRecording" class="btn-record">
+                    <button type="button" id="startRecording" class="btn-record" {% if remaining_entries == 0 %}disabled{% endif %}>
                         <i class="bi bi-mic-fill"></i>
                         Start Recording
                     </button>
@@ -73,7 +78,7 @@
             <input type="hidden" name="recorded_audio" id="recordedAudioInput">
 
             <!-- Submit -->
-            <button type="submit" class="btn-submit-audio">
+            <button type="submit" class="btn-submit-audio" {% if remaining_entries == 0 %}disabled{% endif %}>
                 <i class="bi bi-check-circle"></i>
                 Save and Analyze
             </button>

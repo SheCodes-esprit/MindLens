@@ -977,3 +977,15 @@
     font-size: 0.85rem; /* Reduced from 0.9rem */
     font-style: italic;
 }
+.audio-create-header p {
+    margin: 0.5rem 0;
+    font-size: 1rem;
+}
+
+.audio-create-header p strong {
+    color: #007bff;
+}
+
+.audio-create-header p[style*="color"] {
+    font-weight: bold;
+}
