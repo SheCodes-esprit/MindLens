@@ -1,23 +1,58 @@
 {% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/audio.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="container py-5">
-    <h2>Your Audio Journal Entries</h2>
-    <a href="{% url 'audio_create' %}" class="btn btn-primary mb-3">Record New Audio</a>
-    <ul class="list-group">
+    <div class="audio-hero text-center">
+        <div class="floating-icons">
+            <i class="bi bi-mic-fill float-icon"></i>
+            <i class="bi bi-music-note-beamed float-icon"></i>
+            <i class="bi bi-headphones float-icon"></i>
+            <i class="bi bi-soundwave float-icon"></i>
+            <i class="bi bi-volume-up-fill float-icon"></i>
+        </div>
+        <h2>Your Audio Journal Entries</h2>
+        <a href="{% url 'audio_create' %}" class="btn btn-create-audio">
+            <i class="bi bi-mic-fill"></i> Record New Audio
+        </a>
+        
+    </div>
+
+    <div class="audio-entries-container">
         {% for entry in entries %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-                <a href="{% url 'audio_detail' entry.pk %}">{{ entry.title|default:"Untitled" }}</a>
-                <small class="text-muted"> - {{ entry.created_at|date:"M d, Y" }}</small>
+        <div class="audio-entry-card">
+            <div class="audio-entry-content">
+                <div class="audio-icon">
+                    <i class="bi bi-play-fill"></i>
+                </div>
+                <div class="audio-entry-info">
+                    <a href="{% url 'audio_detail' entry.pk %}" class="audio-entry-title">
+                        {{ entry.title|default:"Untitled" }}
+                    </a>
+                    <div class="audio-entry-date">
+                        <i class="bi bi-calendar3"></i>
+                        {{ entry.created_at|date:"M d, Y" }}
+                    </div>
+                </div>
             </div>
             <form method="POST" action="{% url 'audio_delete' entry.pk %}" onsubmit="return confirm('Are you sure you want to delete this audio entry?');">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                <button type="submit" class="btn-delete-audio">
+                    <i class="bi bi-trash"></i> Delete
+                </button>
             </form>
-        </li>
+        </div>
         {% empty %}
-        <li class="list-group-item">No audio entries yet.</li>
+        <div class="audio-empty-state">
+            <i class="bi bi-mic-mute"></i>
+            <h3>No Audio Entries Yet</h3>
+            <p>Start recording your first audio journal entry!</p>
+        </div>
         {% endfor %}
-    </ul>
+    </div>
 </div>
 {% endblock %}
