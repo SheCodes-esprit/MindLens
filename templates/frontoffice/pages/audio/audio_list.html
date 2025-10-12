@@ -5,9 +5,15 @@
     <a href="{% url 'audio_create' %}" class="btn btn-primary mb-3">Record New Audio</a>
     <ul class="list-group">
         {% for entry in entries %}
-        <li class="list-group-item">
-            <a href="{% url 'audio_detail' entry.pk %}">{{ entry.title|default:"Untitled" }}</a>
-            <small class="text-muted"> - {{ entry.created_at|date:"M d, Y" }}</small>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <a href="{% url 'audio_detail' entry.pk %}">{{ entry.title|default:"Untitled" }}</a>
+                <small class="text-muted"> - {{ entry.created_at|date:"M d, Y" }}</small>
+            </div>
+            <form method="POST" action="{% url 'audio_delete' entry.pk %}" onsubmit="return confirm('Are you sure you want to delete this audio entry?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
         </li>
         {% empty %}
         <li class="list-group-item">No audio entries yet.</li>

@@ -1,13 +1,77 @@
-<!-- Create templates/frontoffice/pages/audio_create.html (new file) -->
 {% extends 'frontoffice/layouts/base.html' %}
 {% block content %}
 <div class="container py-5">
     <h2>Create New Audio Entry</h2>
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" id="audioForm">
         {% csrf_token %}
         {{ form.as_p }}
+        <div class="mb-3">
+            <label class="form-label">Record Audio</label>
+            <div class="d-flex gap-2">
+                <button type="button" id="startRecording" class="btn btn-success">Start Recording</button>
+                <button type="button" id="stopRecording" class="btn btn-danger" disabled>Stop Recording</button>
+            </div>
+            <div id="recordingStatus" class="mt-2"></div>
+            <audio id="audioPlayback" controls class="mt-2 d-none"></audio>
+        </div>
         <button type="submit" class="btn btn-primary">Save and Analyze</button>
     </form>
-    <!-- TODO: Add client-side audio recording if desired (using MediaRecorder API) -->
 </div>
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const startButton = document.getElementById('startRecording');
+    const stopButton = document.getElementById('stopRecording');
+    const recordingStatus = document.getElementById('recordingStatus');
+    const audioPlayback = document.getElementById('audioPlayback');
+    const recordedAudioInput = document.querySelector('input[name="recorded_audio"]');
+    let mediaRecorder;
+    let audioChunks = [];
+
+    startButton.addEventListener('click', async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+
+            mediaRecorder.ondataavailable = (event) => {
+                audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                audioPlayback.src = audioUrl;
+                audioPlayback.classList.remove('d-none');
+
+                // Convert to base64 for form submission
+                const reader = new FileReader();
+                reader.readAsDataURL(audioBlob);
+                reader.onloadend = () => {
+                    recordedAudioInput.value = reader.result;
+                };
+
+                stream.getTracks().forEach(track => track.stop());
+            };
+
+            mediaRecorder.start();
+            startButton.disabled = true;
+            stopButton.disabled = false;
+            recordingStatus.textContent = 'Recording...';
+        } catch (err) {
+            recordingStatus.textContent = 'Error accessing microphone: ' + err.message;
+        }
+    });
+
+    stopButton.addEventListener('click', () => {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+            startButton.disabled = false;
+            stopButton.disabled = true;
+            recordingStatus.textContent = 'Recording stopped.';
+        }
+    });
+});
+</script>
+{% endblock %}
 {% endblock %}
