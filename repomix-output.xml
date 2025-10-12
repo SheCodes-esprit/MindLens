@@ -1,0 +1,5333 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.gitignore
+audio/__init__.py
+audio/admin.py
+audio/apps.py
+audio/forms.py
+audio/migrations/__init__.py
+audio/migrations/0001_initial.py
+audio/models.py
+audio/tests.py
+audio/urls.py
+audio/views.py
+manage.py
+media/audio_entries/New_Recording_9_3Va37vF.m4a
+media/audio_entries/New_Recording_9_9GaPuxx.m4a
+media/audio_entries/New_Recording_9_JI9KJcW.m4a
+media/audio_entries/New_Recording_9_Meamo4Y.m4a
+media/audio_entries/New_Recording_9_swkldSn.m4a
+media/audio_entries/New_Recording_9_T8pgGuC.m4a
+media/audio_entries/New_Recording_9_T9l55WK.m4a
+media/audio_entries/New_Recording_9_UAt7uv8.m4a
+media/audio_entries/New_Recording_9_uQKZ6No.m4a
+media/audio_entries/New_Recording_9_WjQ3dMg.m4a
+media/audio_entries/New_Recording_9.m4a
+media/audio_entries/recording_chayma.fouzri_20251012124336.webm
+media/audio_entries/recording_chayma.fouzri_20251012124353.webm
+media/audio_entries/recording_chayma.fouzri_20251012141132.webmcodecsopus
+media/audio_entries/recording_chayma.fouzri_20251012142004.webm
+media/audio_entries/recording_chayma.fouzri_20251012142018.webm
+media/audio_entries/recording_chayma.fouzri_20251012142637.webm
+media/audio_entries/recording_chayma.fouzri_20251012142920.webm
+media/audio_entries/recording_chayma.fouzri_20251012143430.webm
+media/audio_entries/recording_chayma.fouzri_20251012144240.webm
+media/audio_entries/recording_chayma.fouzri_20251012144827.webm
+media/audio_entries/recording_chayma.fouzri_20251012150425.webm
+media/audio_entries/recording_chayma.fouzri_20251012154204.webm
+MindLens/__init__.py
+MindLens/asgi.py
+MindLens/settings.py
+MindLens/urls.py
+MindLens/wsgi.py
+static/css/audio.css
+static/css/form.css
+static/css/main.css
+static/css/profile.css
+static/images/default-avatar.png
+static/js/main.js
+templates/backoffice/pages/dashboard.html
+templates/frontoffice/layouts/base.html
+templates/frontoffice/pages/audio/audio_create.html
+templates/frontoffice/pages/audio/audio_detail.html
+templates/frontoffice/pages/audio/audio_list.html
+templates/frontoffice/pages/dashboard.html
+templates/frontoffice/pages/home.html
+templates/frontoffice/pages/login.html
+templates/frontoffice/pages/profile.html
+templates/frontoffice/pages/register.html
+templates/frontoffice/pages/wellbeing/recommendation_form.html
+templates/frontoffice/pages/wellbeing/wellbeing_confirm_delete.html
+templates/frontoffice/pages/wellbeing/wellbeing_detail.html
+templates/frontoffice/pages/wellbeing/wellbeing_form.html
+templates/frontoffice/pages/wellbeing/wellbeing_list.html
+templates/frontoffice/partials/footer.html
+templates/frontoffice/partials/navbar.html
+templates/frontoffice/partials/sidebar.html
+users/__init__.py
+users/admin.py
+users/apps.py
+users/migrations/__init__.py
+users/migrations/0001_initial.py
+users/migrations/0002_alter_user_email.py
+users/models.py
+users/tests.py
+users/urls.py
+users/views.py
+wellbeing/__init__.py
+wellbeing/admin.py
+wellbeing/apps.py
+wellbeing/forms.py
+wellbeing/migrations/__init__.py
+wellbeing/migrations/0001_initial.py
+wellbeing/models.py
+wellbeing/tests.py
+wellbeing/urls.py
+wellbeing/views.py
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="audio/apps.py">
+from django.apps import AppConfig
+
+
+class AudioConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'audio'
+</file>
+
+<file path="audio/migrations/0001_initial.py">
+# Generated by Django 4.2 on 2025-10-12 11:59
+
+from django.conf import settings
+from django.db import migrations, models
+import django.db.models.deletion
+
+
+class Migration(migrations.Migration):
+
+    initial = True
+
+    dependencies = [
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+    ]
+
+    operations = [
+        migrations.CreateModel(
+            name='AudioEntry',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('title', models.CharField(blank=True, max_length=255, null=True)),
+                ('audio_url', models.FileField(blank=True, null=True, upload_to='audio_entries/')),
+                ('duration', models.FloatField(blank=True, null=True)),
+                ('ai_transcript', models.TextField(blank=True, null=True)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='audio_entries', to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='AudioEmotionAnalysis',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('detected_emotion', models.CharField(max_length=100)),
+                ('intensity', models.FloatField()),
+                ('ai_model_version', models.CharField(blank=True, max_length=50, null=True)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('audio_entry', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='emotion_analyses', to='audio.audioentry')),
+            ],
+        ),
+    ]
+</file>
+
+<file path="audio/models.py">
+from django.db import models
+from users.models import User 
+
+class AudioEntry(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='audio_entries')
+    title = models.CharField(max_length=255, blank=True, null=True)
+    audio_url = models.FileField(upload_to='audio_entries/', blank=True, null=True)  # For storing audio files
+    duration = models.FloatField(blank=True, null=True)  # In seconds
+    ai_transcript = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title or 'Untitled'} - {self.user.username}"
+
+class AudioEmotionAnalysis(models.Model):
+    audio_entry = models.ForeignKey(AudioEntry, on_delete=models.CASCADE, related_name='emotion_analyses')
+    detected_emotion = models.CharField(max_length=100)  # e.g., 'joy', 'sadness', 'stress'
+    intensity = models.FloatField()  # e.g., 0.0 to 1.0
+    ai_model_version = models.CharField(max_length=50, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.detected_emotion} ({self.intensity}) for {self.audio_entry}"
+</file>
+
+<file path="audio/tests.py">
+from django.test import TestCase
+
+# Create your tests here.
+</file>
+
+<file path="manage.py">
+#!/usr/bin/env python
+"""Django's command-line utility for administrative tasks."""
+import os
+import sys
+
+
+def main():
+    """Run administrative tasks."""
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "MindLens.settings")
+    try:
+        from django.core.management import execute_from_command_line
+    except ImportError as exc:
+        raise ImportError(
+            "Couldn't import Django. Are you sure it's installed and "
+            "available on your PYTHONPATH environment variable? Did you "
+            "forget to activate a virtual environment?"
+        ) from exc
+    execute_from_command_line(sys.argv)
+
+
+if __name__ == "__main__":
+    main()
+</file>
+
+<file path="MindLens/asgi.py">
+"""
+ASGI config for MindLens project.
+
+It exposes the ASGI callable as a module-level variable named ``application``.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/4.2/howto/deployment/asgi/
+"""
+
+import os
+
+from django.core.asgi import get_asgi_application
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "MindLens.settings")
+
+application = get_asgi_application()
+</file>
+
+<file path="MindLens/wsgi.py">
+"""
+WSGI config for MindLens project.
+
+It exposes the WSGI callable as a module-level variable named ``application``.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/4.2/howto/deployment/wsgi/
+"""
+
+import os
+
+from django.core.wsgi import get_wsgi_application
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "MindLens.settings")
+
+application = get_wsgi_application()
+</file>
+
+<file path="templates/frontoffice/pages/wellbeing/recommendation_form.html">
+{% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
+{% block title %}Ajouter une recommandation{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+<div style="max-width: 800px; margin: 0 auto; padding: 3rem 1rem;">
+    <div class="entry-card">
+        <div style="background: #27ae60; color: white; padding: 1.5rem; border-radius: 12px 12px 0 0; margin: -1.5rem -1.5rem 1.5rem -1.5rem;">
+            <h3 style="margin: 0 0 0.5rem 0; font-size: 1.8rem; font-weight: 600;">💡 Nouvelle recommandation</h3>
+            <small style="opacity: 0.9;">Pour l'enregistrement du {{ record.date|date:"d/m/Y" }}</small>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+            <div style="background: #d4edda; border-left: 4px solid #28a745; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label for="{{ form.type.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">
+                    🏷️ {{ form.type.label }}
+                </label>
+                {{ form.type }}
+                {% if form.type.errors %}
+                    <div style="color: #e74c3c; font-size: 0.9rem; margin-top: 0.25rem;">
+                        {{ form.type.errors }}
+                    </div>
+                {% endif %}
+                <small style="color: var(--text); opacity: 0.7; display: block; margin-top: 0.25rem;">
+                    Choisissez le type de routine recommandée
+                </small>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label for="{{ form.description.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">
+                    📝 {{ form.description.label }}
+                </label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <div style="color: #e74c3c; font-size: 0.9rem; margin-top: 0.25rem;">
+                        {{ form.description.errors }}
+                    </div>
+                {% endif %}
+                <small style="color: var(--text); opacity: 0.7; display: block; margin-top: 0.25rem;">
+                    Décrivez la recommandation en détail
+                </small>
+            </div>
+
+            <div style="margin-bottom: 2rem;">
+                <label for="{{ form.efficiency_score.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">
+                    ⭐ {{ form.efficiency_score.label }}
+                </label>
+                {{ form.efficiency_score }}
+                {% if form.efficiency_score.errors %}
+                    <div style="color: #e74c3c; font-size: 0.9rem; margin-top: 0.25rem;">
+                        {{ form.efficiency_score.errors }}
+                    </div>
+                {% endif %}
+                <small style="color: var(--text); opacity: 0.7; display: block; margin-top: 0.25rem;">
+                    Score d'efficacité estimé (0.0 à 1.0)
+                </small>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" 
+                        style="flex: 1; background: #27ae60; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: opacity 0.3s;">
+                    ✅ Ajouter la recommandation
+                </button>
+                <a href="{% url 'wellbeing:wellbeing_detail' record.pk %}" 
+                   style="flex: 1; text-align: center; background: #6c757d; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: opacity 0.3s;">
+                    ❌ Annuler
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="feature-card" style="margin-top: 2rem; border: 2px solid var(--accent);">
+        <h5 style="color: var(--card-title-color); margin-bottom: 1rem;">💡 Exemples de recommandations</h5>
+        <ul style="text-align: left; color: var(--card-body-color); line-height: 1.8;">
+            <li><strong>Routine matinale:</strong> "Commencer la journée par 10 minutes de méditation"</li>
+            <li><strong>Exercice:</strong> "30 minutes de marche rapide après le déjeuner"</li>
+            <li><strong>Sommeil:</strong> "Éteindre les écrans 1h avant le coucher"</li>
+            <li><strong>Productivité:</strong> "Utiliser la technique Pomodoro (25min focus + 5min pause)"</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+</file>
+
+<file path="templates/frontoffice/pages/wellbeing/wellbeing_confirm_delete.html">
+{% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
+{% block title %}Supprimer l'enregistrement{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+<div style="max-width: 600px; margin: 0 auto; padding: 3rem 1rem;">
+    <div class="entry-card" style="border: 3px solid #e74c3c;">
+        <div style="background: #e74c3c; color: white; padding: 1.5rem; border-radius: 12px 12px 0 0; margin: -1.5rem -1.5rem 1.5rem -1.5rem;">
+            <h3 style="margin: 0; font-size: 1.8rem; font-weight: 600;">⚠️ Confirmer la suppression</h3>
+        </div>
+
+        <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 1rem; margin-bottom: 1.5rem; border-radius: 8px;">
+            <strong style="color: #856404;">Attention !</strong> Cette action est irréversible.
+        </div>
+
+        <p style="font-size: 1.2rem; color: var(--text); margin-bottom: 1.5rem;">
+            Êtes-vous sûr de vouloir supprimer cet enregistrement ?
+        </p>
+
+        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+            <h5 style="color: var(--card-title-color); margin-bottom: 1rem; font-size: 1.2rem;">
+                📅 {{ record.date|date:"d F Y" }}
+            </h5>
+            <ul style="list-style: none; padding: 0; margin: 0;">
+                <li style="padding: 0.5rem 0; color: var(--text);">😊 Humeur: {{ record.mood_score }}/10</li>
+                <li style="padding: 0.5rem 0; color: var(--text);">⚡ Énergie: {{ record.energy_level }}/10</li>
+                <li style="padding: 0.5rem 0; color: var(--text);">🌙 Sommeil: {{ record.sleep_hours }}h</li>
+                <li style="padding: 0.5rem 0; color: var(--text);">📈 Productivité: {{ record.productivity_score }}/10</li>
+            </ul>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" 
+                        style="flex: 1; background: #e74c3c; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: opacity 0.3s;">
+                    🗑️ Oui, supprimer
+                </button>
+                <a href="{% url 'wellbeing:wellbeing_detail' record.pk %}" 
+                   style="flex: 1; text-align: center; background: #6c757d; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: opacity 0.3s;">
+                    ❌ Non, annuler
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+</file>
+
+<file path="templates/frontoffice/pages/wellbeing/wellbeing_detail.html">
+{% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
+{% block title %}Enregistrement du {{ record.date|date:"d/m/Y" }}{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 3rem 1rem;">
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+        <div>
+            <div class="entry-card" style="margin-bottom: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3 class="hero-title" style="font-size: 2rem; margin: 0;">
+                        📅 {{ record.date|date:"d F Y" }}
+                    </h3>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <a href="{% url 'wellbeing:wellbeing_update' record.pk %}" 
+                           style="background: #3498db; color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 500;">
+                            ✏️ Modifier
+                        </a>
+                        <a href="{% url 'wellbeing:wellbeing_delete' record.pk %}" 
+                           style="background: #e74c3c; color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 500;">
+                            🗑️ Supprimer
+                        </a>
+                    </div>
+                </div>
+
+                {% if messages %}
+                    {% for message in messages %}
+                    <div style="background: #d4edda; border-left: 4px solid #28a745; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div class="feature-card" style="border: 2px solid #3498db;">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">😊</div>
+                        <h4 style="margin: 0.5rem 0; font-size: 2rem; color: #3498db;">{{ record.mood_score }}/10</h4>
+                        <p style="margin: 0; color: var(--text); opacity: 0.7;">Humeur</p>
+                        <div style="background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 0.75rem;">
+                            <div style="background: #3498db; height: 100%; width: {{ record.mood_score }}0%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="feature-card" style="border: 2px solid #f39c12;">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">⚡</div>
+                        <h4 style="margin: 0.5rem 0; font-size: 2rem; color: #f39c12;">{{ record.energy_level }}/10</h4>
+                        <p style="margin: 0; color: var(--text); opacity: 0.7;">Niveau d'énergie</p>
+                        <div style="background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 0.75rem;">
+                            <div style="background: #f39c12; height: 100%; width: {{ record.energy_level }}0%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="feature-card" style="border: 2px solid #95a5a6;">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🌙</div>
+                        <h4 style="margin: 0.5rem 0; font-size: 2rem; color: #95a5a6;">{{ record.sleep_hours }}h</h4>
+                        <p style="margin: 0; color: var(--text); opacity: 0.7;">Heures de sommeil</p>
+                    </div>
+
+                    <div class="feature-card" style="border: 2px solid #27ae60;">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📈</div>
+                        <h4 style="margin: 0.5rem 0; font-size: 2rem; color: #27ae60;">{{ record.productivity_score }}/10</h4>
+                        <p style="margin: 0; color: var(--text); opacity: 0.7;">Productivité</p>
+                        <div style="background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 0.75rem;">
+                            <div style="background: #27ae60; height: 100%; width: {{ record.productivity_score }}0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if record.ai_summary %}
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px; border-left: 4px solid var(--accent);">
+                    <h5 style="color: var(--card-title-color); margin-bottom: 0.75rem;">🤖 Résumé IA</h5>
+                    <p style="margin: 0; color: var(--card-body-color); line-height: 1.6;">{{ record.ai_summary }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="entry-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h4 style="color: var(--card-title-color); margin: 0; font-size: 1.5rem;">💡 Recommandations de routine</h4>
+                    <a href="{% url 'wellbeing:recommendation_create' record.pk %}" 
+                       style="background: #27ae60; color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 500;">
+                        + Ajouter
+                    </a>
+                </div>
+
+                {% if recommendations %}
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        {% for recommendation in recommendations %}
+                        <div style="background: #f8f9fa; padding: 1.25rem; border-radius: 10px; border-left: 4px solid var(--accent);">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                    <span style="background: var(--accent); color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">
+                                        {{ recommendation.get_type_display }}
+                                    </span>
+                                    {% if recommendation.ai_generated %}
+                                    <span style="background: #3498db; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">
+                                        🤖 IA
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                <small style="color: var(--text); opacity: 0.6;">{{ recommendation.created_at|date:"d/m/Y H:i" }}</small>
+                            </div>
+                            <p style="margin-bottom: 0.5rem; color: var(--card-body-color); line-height: 1.6;">{{ recommendation.description }}</p>
+                            <small style="color: var(--text); opacity: 0.7;">
+                                ⭐ Efficacité: {{ recommendation.efficiency_score|floatformat:2 }}
+                            </small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div style="text-align: center; padding: 3rem 1rem;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;">📭</div>
+                        <p style="color: var(--text); opacity: 0.7; margin-bottom: 1.5rem;">Aucune recommandation pour le moment</p>
+                        <a href="{% url 'wellbeing:recommendation_create' record.pk %}" 
+                           style="display: inline-block; background: #27ae60; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                            + Ajouter une recommandation
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div>
+            <div class="entry-card" style="margin-bottom: 1.5rem;">
+                <h5 style="color: var(--card-title-color); margin-bottom: 1rem; font-size: 1.2rem;">⚙️ Actions</h5>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <a href="{% url 'wellbeing:wellbeing_list' %}" class="footer-link" style="padding: 0.75rem; background: #f8f9fa; border-radius: 6px; display: block;">
+                        ← Retour à la liste
+                    </a>
+                    <a href="{% url 'wellbeing:wellbeing_update' record.pk %}" class="footer-link" style="padding: 0.75rem; background: #f8f9fa; border-radius: 6px; display: block;">
+                        ✏️ Modifier cet enregistrement
+                    </a>
+                    <a href="{% url 'wellbeing:wellbeing_create' %}" class="footer-link" style="padding: 0.75rem; background: #f8f9fa; border-radius: 6px; display: block;">
+                        + Nouvel enregistrement
+                    </a>
+                    <a href="{% url 'wellbeing:wellbeing_delete' record.pk %}" class="footer-link" style="padding: 0.75rem; background: #ffe6e6; border-radius: 6px; display: block; color: #e74c3c !important;">
+                        🗑️ Supprimer
+                    </a>
+                </div>
+            </div>
+
+            <div class="feature-card" style="border: 2px solid var(--accent);">
+                <h5 style="color: var(--card-title-color); margin-bottom: 1rem;">📊 Statistiques</h5>
+                <p style="margin-bottom: 0.5rem; color: var(--card-body-color);">
+                    <strong>Score moyen:</strong> 
+                    {% widthratio record.mood_score|add:record.energy_level|add:record.productivity_score 3 1 %}/10
+                </p>
+                <p style="margin: 0; color: var(--card-body-color);">
+                    <strong>Recommandations:</strong> {{ recommendations|length }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+</file>
+
+<file path="templates/frontoffice/pages/wellbeing/wellbeing_form.html">
+{% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+<div style="max-width: 800px; margin: 0 auto; padding: 3rem 1rem;">
+    <div class="entry-card">
+        <div style="background: var(--accent); color: white; padding: 1.5rem; border-radius: 12px 12px 0 0; margin: -1.5rem -1.5rem 1.5rem -1.5rem;">
+            <h3 style="margin: 0; font-size: 1.8rem; font-weight: 600;">💚 {{ title }}</h3>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+            <div style="background: #d4edda; border-left: 4px solid #28a745; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                <div>
+                    <label for="{{ form.mood_score.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">
+                        😊 {{ form.mood_score.label }}
+                    </label>
+                    {{ form.mood_score }}
+                    {% if form.mood_score.errors %}
+                        <div style="color: #e74c3c; font-size: 0.9rem; margin-top: 0.25rem;">
+                            {{ form.mood_score.errors }}
+                        </div>
+                    {% endif %}
+                    <small style="color: var(--text); opacity: 0.7; display: block; margin-top: 0.25rem;">
+                        Comment vous sentez-vous aujourd'hui ? (1-10)
+                    </small>
+                </div>
+
+                <div>
+                    <label for="{{ form.energy_level.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">
+                        ⚡ {{ form.energy_level.label }}
+                    </label>
+                    {{ form.energy_level }}
+                    {% if form.energy_level.errors %}
+                        <div style="color: #e74c3c; font-size: 0.9rem; margin-top: 0.25rem;">
+                            {{ form.energy_level.errors }}
+                        </div>
+                    {% endif %}
+                    <small style="color: var(--text); opacity: 0.7; display: block; margin-top: 0.25rem;">
+                        Quel est votre niveau d'énergie ? (1-10)
+                    </small>
+                </div>
+
+                <div>
+                    <label for="{{ form.sleep_hours.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">
+                        🌙 {{ form.sleep_hours.label }}
+                    </label>
+                    {{ form.sleep_hours }}
+                    {% if form.sleep_hours.errors %}
+                        <div style="color: #e74c3c; font-size: 0.9rem; margin-top: 0.25rem;">
+                            {{ form.sleep_hours.errors }}
+                        </div>
+                    {% endif %}
+                    <small style="color: var(--text); opacity: 0.7; display: block; margin-top: 0.25rem;">
+                        Combien d'heures avez-vous dormi ?
+                    </small>
+                </div>
+
+                <div>
+                    <label for="{{ form.productivity_score.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">
+                        📈 {{ form.productivity_score.label }}
+                    </label>
+                    {{ form.productivity_score }}
+                    {% if form.productivity_score.errors %}
+                        <div style="color: #e74c3c; font-size: 0.9rem; margin-top: 0.25rem;">
+                            {{ form.productivity_score.errors }}
+                        </div>
+                    {% endif %}
+                    <small style="color: var(--text); opacity: 0.7; display: block; margin-top: 0.25rem;">
+                        Comment évaluez-vous votre productivité ? (1-10)
+                    </small>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button type="submit" 
+                        style="flex: 1; background: var(--accent); color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: opacity 0.3s;">
+                    ✅ Enregistrer
+                </button>
+                <a href="{% url 'wellbeing:wellbeing_list' %}" 
+                   style="flex: 1; text-align: center; background: #6c757d; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: opacity 0.3s;">
+                    ❌ Annuler
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="feature-card" style="margin-top: 2rem; border: 2px solid var(--accent);">
+        <h5 style="color: var(--card-title-color); margin-bottom: 1rem;">💡 Conseils</h5>
+        <ul style="text-align: left; color: var(--card-body-color); line-height: 1.8;">
+            <li>Soyez honnête dans vos évaluations pour obtenir des recommandations pertinentes</li>
+            <li>Essayez de remplir votre enregistrement à la même heure chaque jour</li>
+            <li>Les données collectées vous aideront à identifier des tendances</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+</file>
+
+<file path="templates/frontoffice/pages/wellbeing/wellbeing_list.html">
+{% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
+{% block title %}Mes enregistrements de bien-être{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 3rem 1rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 class="hero-title" style="font-size: 2.5rem; margin: 0;">Mes enregistrements</h1>
+        <a href="{% url 'wellbeing:wellbeing_create' %}" 
+           style="background: var(--accent); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: opacity 0.3s;">
+            + Nouvel enregistrement
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+        <div style="background: #d4edda; border-left: 4px solid #28a745; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if records %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+            {% for record in records %}
+            <div class="entry-card">
+                <div style="background: var(--accent); color: white; padding: 1rem; border-radius: 12px 12px 0 0; margin: -1.5rem -1.5rem 1rem -1.5rem;">
+                    <h5 style="margin: 0; font-size: 1.2rem; font-weight: 600;">📅 {{ record.date|date:"d/m/Y" }}</h5>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="color: var(--text); font-weight: 500;">😊 Humeur</span>
+                        <span style="background: #3498db; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600;">
+                            {{ record.mood_score }}/10
+                        </span>
+                    </div>
+                    <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: #3498db; height: 100%; width: {{ record.mood_score }}0%; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="color: var(--text); font-weight: 500;">⚡ Énergie</span>
+                        <span style="background: #f39c12; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600;">
+                            {{ record.energy_level }}/10
+                        </span>
+                    </div>
+                    <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: #f39c12; height: 100%; width: {{ record.energy_level }}0%; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: var(--text); font-weight: 500;">🌙 Sommeil</span>
+                        <span style="background: #95a5a6; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600;">
+                            {{ record.sleep_hours }}h
+                        </span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="color: var(--text); font-weight: 500;">📈 Productivité</span>
+                        <span style="background: #27ae60; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600;">
+                            {{ record.productivity_score }}/10
+                        </span>
+                    </div>
+                    <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: #27ae60; height: 100%; width: {{ record.productivity_score }}0%; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+
+                {% if record.ai_summary %}
+                <div style="background: #f8f9fa; padding: 0.75rem; border-radius: 8px; border-left: 3px solid var(--accent); margin-bottom: 1rem;">
+                    <small style="color: var(--text);">🤖 {{ record.ai_summary|truncatewords:15 }}</small>
+                </div>
+                {% endif %}
+
+                <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                    <a href="{% url 'wellbeing:wellbeing_detail' record.pk %}" 
+                       style="flex: 1; text-align: center; padding: 0.5rem; background: var(--accent); color: white; text-decoration: none; border-radius: 6px; font-weight: 500; transition: opacity 0.3s;">
+                        👁️ Détails
+                    </a>
+                    <a href="{% url 'wellbeing:wellbeing_update' record.pk %}" 
+                       style="padding: 0.5rem 1rem; background: #6c757d; color: white; text-decoration: none; border-radius: 6px; transition: opacity 0.3s;">
+                        ✏️
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 4rem 1rem;">
+            <div style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.3;">📭</div>
+            <h3 style="color: var(--text); margin-bottom: 0.5rem;">Aucun enregistrement</h3>
+            <p style="color: var(--text); opacity: 0.7; margin-bottom: 2rem;">Commencez à suivre votre bien-être dès aujourd'hui</p>
+            <a href="{% url 'wellbeing:wellbeing_create' %}" 
+               style="display: inline-block; background: var(--accent); color: white; padding: 1rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1.1rem;">
+                + Créer mon premier enregistrement
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+</file>
+
+<file path="templates/frontoffice/partials/sidebar.html">
+<aside class="bg-light border-end p-3" style="width: 220px; min-height: 100vh;">
+  <h6 class="text-muted text-uppercase mb-3">Quick Access</h6>
+  <ul class="nav flex-column gap-2">
+    <li class="nav-item"><a class="nav-link" href=""><i class="bi bi-pencil-square me-2"></i>New Entry</a></li>
+    <li class="nav-item"><a class="nav-link" href=""><i class="bi bi-mic me-2"></i>Record Voice</a></li>
+    <li class="nav-item"><a class="nav-link" href=""><i class="bi bi-image me-2"></i>Upload Image</a></li>
+    <li class="nav-item"><a class="nav-link" href=""><i class="bi bi-calendar-event me-2"></i>Calendar</a></li>
+    <li class="nav-item"><a class="nav-link" href=""><i class="bi bi-person me-2"></i>Profile</a></li>
+  </ul>
+</aside>
+</file>
+
+<file path="users/admin.py">
+from django.contrib import admin
+
+# Register your models here.
+</file>
+
+<file path="users/apps.py">
+from django.apps import AppConfig
+
+
+class UsersConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "users"
+</file>
+
+<file path="users/migrations/0001_initial.py">
+# Generated by Django 5.2.7 on 2025-10-05 20:19
+
+import django.contrib.auth.models
+import django.contrib.auth.validators
+import django.utils.timezone
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    initial = True
+
+    dependencies = [
+        ("auth", "0012_alter_user_first_name_max_length"),
+    ]
+
+    operations = [
+        migrations.CreateModel(
+            name="User",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("password", models.CharField(max_length=128, verbose_name="password")),
+                (
+                    "last_login",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="last login"
+                    ),
+                ),
+                (
+                    "is_superuser",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Designates that this user has all permissions without explicitly assigning them.",
+                        verbose_name="superuser status",
+                    ),
+                ),
+                (
+                    "username",
+                    models.CharField(
+                        error_messages={
+                            "unique": "A user with that username already exists."
+                        },
+                        help_text="Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.",
+                        max_length=150,
+                        unique=True,
+                        validators=[
+                            django.contrib.auth.validators.UnicodeUsernameValidator()
+                        ],
+                        verbose_name="username",
+                    ),
+                ),
+                (
+                    "first_name",
+                    models.CharField(
+                        blank=True, max_length=150, verbose_name="first name"
+                    ),
+                ),
+                (
+                    "last_name",
+                    models.CharField(
+                        blank=True, max_length=150, verbose_name="last name"
+                    ),
+                ),
+                (
+                    "email",
+                    models.EmailField(
+                        blank=True, max_length=254, verbose_name="email address"
+                    ),
+                ),
+                (
+                    "is_staff",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Designates whether the user can log into this admin site.",
+                        verbose_name="staff status",
+                    ),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(
+                        default=True,
+                        help_text="Designates whether this user should be treated as active. Unselect this instead of deleting accounts.",
+                        verbose_name="active",
+                    ),
+                ),
+                (
+                    "date_joined",
+                    models.DateTimeField(
+                        default=django.utils.timezone.now, verbose_name="date joined"
+                    ),
+                ),
+                (
+                    "role",
+                    models.CharField(
+                        choices=[("JOURNALIST", "Journalist"), ("ADMIN", "Admin")],
+                        default="JOURNALIST",
+                        help_text="Role of the user: Journalist or Admin",
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "profile_image",
+                    models.ImageField(
+                        blank=True, null=True, upload_to="profile_images/"
+                    ),
+                ),
+                (
+                    "groups",
+                    models.ManyToManyField(
+                        blank=True,
+                        help_text="The groups this user belongs to. A user will get all permissions granted to each of their groups.",
+                        related_name="user_set",
+                        related_query_name="user",
+                        to="auth.group",
+                        verbose_name="groups",
+                    ),
+                ),
+                (
+                    "user_permissions",
+                    models.ManyToManyField(
+                        blank=True,
+                        help_text="Specific permissions for this user.",
+                        related_name="user_set",
+                        related_query_name="user",
+                        to="auth.permission",
+                        verbose_name="user permissions",
+                    ),
+                ),
+            ],
+            options={
+                "verbose_name": "user",
+                "verbose_name_plural": "users",
+                "abstract": False,
+            },
+            managers=[
+                ("objects", django.contrib.auth.models.UserManager()),
+            ],
+        ),
+    ]
+</file>
+
+<file path="users/migrations/0002_alter_user_email.py">
+# Generated by Django 4.2 on 2025-10-12 11:37
+
+import django.core.validators
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('users', '0001_initial'),
+    ]
+
+    operations = [
+        migrations.AlterField(
+            model_name='user',
+            name='email',
+            field=models.EmailField(error_messages={'required': 'Email is required.', 'unique': 'A user with this email already exists.'}, max_length=254, unique=True, validators=[django.core.validators.EmailValidator(message='Enter a valid email address.')]),
+        ),
+    ]
+</file>
+
+<file path="users/tests.py">
+from django.test import TestCase
+
+# Create your tests here.
+</file>
+
+<file path="wellbeing/admin.py">
+from django.contrib import admin
+from .models import WellbeingRecord, RoutineRecommendation
+
+@admin.register(WellbeingRecord)
+class WellbeingRecordAdmin(admin.ModelAdmin):
+    list_display = ['user', 'date', 'mood_score', 'energy_level', 'sleep_hours', 'productivity_score']
+    list_filter = ['date', 'mood_score', 'productivity_score']
+    search_fields = ['user__username', 'ai_summary']
+    date_hierarchy = 'date'
+    readonly_fields = ['date']
+
+@admin.register(RoutineRecommendation)
+class RoutineRecommendationAdmin(admin.ModelAdmin):
+    list_display = ['wellbeing_record', 'type', 'ai_generated', 'efficiency_score', 'created_at']
+    list_filter = ['type', 'ai_generated', 'created_at']
+    search_fields = ['description', 'wellbeing_record__user__username']
+    readonly_fields = ['created_at']
+</file>
+
+<file path="wellbeing/apps.py">
+from django.apps import AppConfig
+
+
+class WellbeingConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'wellbeing'
+</file>
+
+<file path="wellbeing/forms.py">
+from django import forms
+from .models import WellbeingRecord, RoutineRecommendation
+
+class WellbeingRecordForm(forms.ModelForm):
+    class Meta:
+        model = WellbeingRecord
+        fields = ['mood_score', 'energy_level', 'sleep_hours', 'productivity_score']
+        widgets = {
+            'mood_score': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 1,
+                'max': 10,
+                'placeholder': 'Score de 1 à 10'
+            }),
+            'energy_level': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 1,
+                'max': 10,
+                'placeholder': 'Niveau de 1 à 10'
+            }),
+            'sleep_hours': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 0,
+                'max': 24,
+                'step': 0.5,
+                'placeholder': 'Heures de sommeil'
+            }),
+            'productivity_score': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 1,
+                'max': 10,
+                'placeholder': 'Score de 1 à 10'
+            }),
+        }
+        labels = {
+            'mood_score': 'Humeur',
+            'energy_level': 'Niveau d\'énergie',
+            'sleep_hours': 'Heures de sommeil',
+            'productivity_score': 'Productivité',
+        }
+
+class RoutineRecommendationForm(forms.ModelForm):
+    class Meta:
+        model = RoutineRecommendation
+        fields = ['type', 'description', 'efficiency_score']
+        widgets = {
+            'type': forms.Select(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Description de la recommandation...'
+            }),
+            'efficiency_score': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 0,
+                'max': 1,
+                'step': 0.01
+            }),
+        }
+</file>
+
+<file path="wellbeing/migrations/0001_initial.py">
+# Generated by Django 4.2 on 2025-10-12 10:46
+
+from django.conf import settings
+import django.core.validators
+from django.db import migrations, models
+import django.db.models.deletion
+
+
+class Migration(migrations.Migration):
+
+    initial = True
+
+    dependencies = [
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+    ]
+
+    operations = [
+        migrations.CreateModel(
+            name='WellbeingRecord',
+            fields=[
+                ('id', models.AutoField(primary_key=True, serialize=False)),
+                ('date', models.DateField(auto_now_add=True)),
+                ('mood_score', models.IntegerField(help_text='Mood score from 1-10', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(10)])),
+                ('energy_level', models.IntegerField(help_text='Energy level from 1-10', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(10)])),
+                ('sleep_hours', models.FloatField(help_text='Hours of sleep', validators=[django.core.validators.MinValueValidator(0), django.core.validators.MaxValueValidator(24)])),
+                ('productivity_score', models.IntegerField(help_text='Productivity score from 1-10', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(10)])),
+                ('ai_summary', models.TextField(blank=True, null=True)),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='wellbeing_records', to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'verbose_name': 'Wellbeing Record',
+                'verbose_name_plural': 'Wellbeing Records',
+                'ordering': ['-date'],
+            },
+        ),
+        migrations.CreateModel(
+            name='RoutineRecommendation',
+            fields=[
+                ('id', models.AutoField(primary_key=True, serialize=False)),
+                ('type', models.CharField(choices=[('morning', 'Morning Routine'), ('evening', 'Evening Routine'), ('exercise', 'Exercise'), ('meditation', 'Meditation'), ('nutrition', 'Nutrition'), ('sleep', 'Sleep Hygiene'), ('productivity', 'Productivity Tip'), ('stress', 'Stress Management')], max_length=50)),
+                ('description', models.TextField()),
+                ('ai_generated', models.BooleanField(default=True)),
+                ('efficiency_score', models.FloatField(help_text='Efficiency score from 0-1', validators=[django.core.validators.MinValueValidator(0), django.core.validators.MaxValueValidator(1)])),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('wellbeing_record', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='recommendations', to='wellbeing.wellbeingrecord')),
+            ],
+            options={
+                'verbose_name': 'Routine Recommendation',
+                'verbose_name_plural': 'Routine Recommendations',
+                'ordering': ['-created_at'],
+            },
+        ),
+    ]
+</file>
+
+<file path="wellbeing/models.py">
+from django.db import models
+from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator, MaxValueValidator
+
+User = get_user_model()
+
+class WellbeingRecord(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wellbeing_records')
+    date = models.DateField(auto_now_add=True)
+    mood_score = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
+        help_text="Mood score from 1-10"
+    )
+    energy_level = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
+        help_text="Energy level from 1-10"
+    )
+    sleep_hours = models.FloatField(
+        validators=[MinValueValidator(0), MaxValueValidator(24)],
+        help_text="Hours of sleep"
+    )
+    productivity_score = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
+        help_text="Productivity score from 1-10"
+    )
+    ai_summary = models.TextField(blank=True, null=True)
+    
+    class Meta:
+        ordering = ['-date']
+        verbose_name = 'Wellbeing Record'
+        verbose_name_plural = 'Wellbeing Records'
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.date}"
+
+
+class RoutineRecommendation(models.Model):
+    ROUTINE_TYPES = [
+        ('morning', 'Morning Routine'),
+        ('evening', 'Evening Routine'),
+        ('exercise', 'Exercise'),
+        ('meditation', 'Meditation'),
+        ('nutrition', 'Nutrition'),
+        ('sleep', 'Sleep Hygiene'),
+        ('productivity', 'Productivity Tip'),
+        ('stress', 'Stress Management'),
+    ]
+    
+    id = models.AutoField(primary_key=True)
+    wellbeing_record = models.ForeignKey(
+        WellbeingRecord, 
+        on_delete=models.CASCADE, 
+        related_name='recommendations'
+    )
+    type = models.CharField(max_length=50, choices=ROUTINE_TYPES)
+    description = models.TextField()
+    ai_generated = models.BooleanField(default=True)
+    efficiency_score = models.FloatField(
+        validators=[MinValueValidator(0), MaxValueValidator(1)],
+        help_text="Efficiency score from 0-1"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Routine Recommendation'
+        verbose_name_plural = 'Routine Recommendations'
+    
+    def __str__(self):
+        return f"{self.type} - {self.wellbeing_record.user.username}"
+</file>
+
+<file path="wellbeing/tests.py">
+from django.test import TestCase
+
+# Create your tests here.
+</file>
+
+<file path="wellbeing/urls.py">
+from django.urls import path
+from . import views
+
+app_name = 'wellbeing'
+
+urlpatterns = [
+    path('', views.wellbeing_list, name='wellbeing_list'),
+    path('create/', views.wellbeing_create, name='wellbeing_create'),
+    path('<int:pk>/', views.wellbeing_detail, name='wellbeing_detail'),
+    path('<int:pk>/update/', views.wellbeing_update, name='wellbeing_update'),
+    path('<int:pk>/delete/', views.wellbeing_delete, name='wellbeing_delete'),
+    path('<int:wellbeing_pk>/recommendation/create/', views.recommendation_create, name='recommendation_create'),
+]
+</file>
+
+<file path="wellbeing/views.py">
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import WellbeingRecord, RoutineRecommendation
+from .forms import WellbeingRecordForm, RoutineRecommendationForm
+
+@login_required
+def wellbeing_list(request):
+    """Liste des enregistrements de bien-être de l'utilisateur"""
+    records = WellbeingRecord.objects.filter(user=request.user)
+    return render(request, 'frontoffice/pages/wellbeing/wellbeing_list.html', {
+        'records': records
+    })
+
+@login_required
+def wellbeing_create(request):
+    """Créer un nouvel enregistrement de bien-être"""
+    if request.method == 'POST':
+        form = WellbeingRecordForm(request.POST)
+        if form.is_valid():
+            record = form.save(commit=False)
+            record.user = request.user
+            record.save()
+            messages.success(request, 'Enregistrement créé avec succès !')
+            return redirect('wellbeing:wellbeing_detail', pk=record.pk)
+    else:
+        form = WellbeingRecordForm()
+    
+    return render(request, 'frontoffice/pages/wellbeing/wellbeing_form.html', {
+        'form': form,
+        'title': 'Nouvel enregistrement'
+    })
+
+@login_required
+def wellbeing_detail(request, pk):
+    """Détail d'un enregistrement avec ses recommandations"""
+    record = get_object_or_404(WellbeingRecord, pk=pk, user=request.user)
+    recommendations = record.recommendations.all()
+    
+    return render(request, 'frontoffice/pages/wellbeing/wellbeing_detail.html', {
+        'record': record,
+        'recommendations': recommendations
+    })
+
+@login_required
+def wellbeing_update(request, pk):
+    """Modifier un enregistrement"""
+    record = get_object_or_404(WellbeingRecord, pk=pk, user=request.user)
+    
+    if request.method == 'POST':
+        form = WellbeingRecordForm(request.POST, instance=record)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Enregistrement modifié avec succès !')
+            return redirect('wellbeing:wellbeing_detail', pk=record.pk)
+    else:
+        form = WellbeingRecordForm(instance=record)
+    
+    return render(request, 'frontoffice/pages/wellbeing/wellbeing_form.html', {
+        'form': form,
+        'title': 'Modifier l\'enregistrement'
+    })
+
+@login_required
+def wellbeing_delete(request, pk):
+    """Supprimer un enregistrement"""
+    record = get_object_or_404(WellbeingRecord, pk=pk, user=request.user)
+    
+    if request.method == 'POST':
+        record.delete()
+        messages.success(request, 'Enregistrement supprimé avec succès !')
+        return redirect('wellbeing:wellbeing_list')
+    
+    return render(request, 'frontoffice/pages/wellbeing/wellbeing_confirm_delete.html', {
+        'record': record
+    })
+
+@login_required
+def recommendation_create(request, wellbeing_pk):
+    """Créer une recommandation pour un enregistrement"""
+    record = get_object_or_404(WellbeingRecord, pk=wellbeing_pk, user=request.user)
+    
+    if request.method == 'POST':
+        form = RoutineRecommendationForm(request.POST)
+        if form.is_valid():
+            recommendation = form.save(commit=False)
+            recommendation.wellbeing_record = record
+            recommendation.ai_generated = False  # Créé manuellement
+            recommendation.save()
+            messages.success(request, 'Recommandation ajoutée avec succès !')
+            return redirect('wellbeing:wellbeing_detail', pk=record.pk)
+    else:
+        form = RoutineRecommendationForm()
+    
+    return render(request, 'frontoffice/pages/wellbeing/recommendation_form.html', {
+        'form': form,
+        'record': record
+    })
+</file>
+
+<file path=".gitignore">
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+.env/
+
+# Django stuff
+db.sqlite3
+*.log
+media/profile_images/*
+staticfiles/
+*.pot
+*.pyc
+*.pyo
+*.pyd
+
+# VSCode
+.vscode/
+
+# Mac / Windows system files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+*.env
+.env.*
+
+*/migrations/__pycache__/
+venv/
+</file>
+
+<file path="audio/admin.py">
+from django.contrib import admin
+from .models import AudioEntry, AudioEmotionAnalysis
+
+@admin.register(AudioEntry)
+class AudioEntryAdmin(admin.ModelAdmin):
+    list_display = ('title', 'user', 'duration', 'created_at')
+    list_filter = ('user', 'created_at')
+    search_fields = ('title', 'user__username')
+
+@admin.register(AudioEmotionAnalysis)
+class AudioEmotionAnalysisAdmin(admin.ModelAdmin):
+    list_display = ('audio_entry', 'detected_emotion', 'intensity', 'created_at')
+    list_filter = ('detected_emotion', 'created_at')
+    search_fields = ('audio_entry__title', 'detected_emotion')
+</file>
+
+<file path="audio/urls.py">
+from django.urls import path
+from .views import audio_list, audio_create, audio_detail, audio_delete
+
+urlpatterns = [
+    path('audio/', audio_list, name='audio_list'),
+    path('audio/create/', audio_create, name='audio_create'),
+    path('audio/<int:pk>/', audio_detail, name='audio_detail'),
+    path('audio/<int:pk>/delete/', audio_delete, name='audio_delete'),
+]
+</file>
+
+<file path="static/css/audio.css">
+/* Audio Journal Page Styles */
+
+/* Hero Section */
+.audio-hero {
+  position: relative;
+  background: linear-gradient(135deg, var(--bg) 0%, #f8f9fa 100%);
+  padding: 4rem 0;
+  margin-bottom: 3rem;
+  overflow: hidden;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.audio-hero h2 {
+  font-family: "Playfair Display", serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* Floating Icons Animation */
+.floating-icons {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.float-icon {
+  position: absolute;
+  font-size: 2.5rem;
+  opacity: 0.15;
+  animation: float 15s infinite ease-in-out;
+  color: var(--accent);
+}
+
+.float-icon:nth-child(1) {
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+  animation-duration: 12s;
+}
+
+.float-icon:nth-child(2) {
+  top: 60%;
+  left: 20%;
+  animation-delay: 2s;
+  animation-duration: 14s;
+}
+
+.float-icon:nth-child(3) {
+  top: 40%;
+  right: 15%;
+  animation-delay: 4s;
+  animation-duration: 16s;
+}
+
+.float-icon:nth-child(4) {
+  top: 70%;
+  right: 25%;
+  animation-delay: 6s;
+  animation-duration: 13s;
+}
+
+.float-icon:nth-child(5) {
+  top: 30%;
+  left: 50%;
+  animation-delay: 8s;
+  animation-duration: 15s;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-30px) rotate(5deg);
+  }
+  50% {
+    transform: translateY(-60px) rotate(-5deg);
+  }
+  75% {
+    transform: translateY(-30px) rotate(3deg);
+  }
+}
+
+/* Create Button Styling */
+.btn-create-audio {
+  background: linear-gradient(135deg, var(--accent) 0%, #ff8fa3 100%);
+  color: white;
+  border: none;
+  padding: 0.875rem 2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 107, 129, 0.3);
+  position: relative;
+  z-index: 2;
+  margin-bottom: 2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-create-audio:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(255, 107, 129, 0.4);
+  color: white;
+}
+
+.btn-create-audio i {
+  font-size: 1.2rem;
+}
+
+/* Audio Entries Container */
+.audio-entries-container {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+/* Audio Entry Card */
+.audio-entry-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.audio-entry-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background: linear-gradient(180deg, var(--accent) 0%, #ff8fa3 100%);
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
+}
+
+.audio-entry-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.audio-entry-card:hover::before {
+  transform: scaleY(1);
+}
+
+/* Audio Entry Content */
+.audio-entry-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.audio-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, var(--accent) 0%, #ff8fa3 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 15px rgba(255, 107, 129, 0.3);
+}
+
+.audio-entry-info {
+  flex: 1;
+}
+
+.audio-entry-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.audio-entry-title:hover {
+  color: var(--accent);
+}
+
+.audio-entry-date {
+  font-size: 0.875rem;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.audio-entry-date i {
+  font-size: 0.875rem;
+}
+
+/* Delete Button */
+.btn-delete-audio {
+  background: transparent;
+  color: #dc3545;
+  border: 2px solid #dc3545;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-delete-audio:hover {
+  background: #dc3545;
+  color: white;
+  transform: scale(1.05);
+}
+
+/* Empty State */
+.audio-empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.audio-empty-state i {
+  font-size: 4rem;
+  color: var(--accent);
+  opacity: 0.3;
+  margin-bottom: 1rem;
+}
+
+.audio-empty-state h3 {
+  font-family: "Playfair Display", serif;
+  font-size: 1.5rem;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+.audio-empty-state p {
+  color: #6c757d;
+  font-size: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .audio-hero h2 {
+    font-size: 2rem;
+  }
+
+  .audio-entry-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .audio-entry-content {
+    width: 100%;
+  }
+
+  .btn-delete-audio {
+    width: 100%;
+  }
+
+  .float-icon {
+    font-size: 2rem;
+  }
+}
+
+/* Animation for new entries */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.audio-entry-card {
+  animation: slideIn 0.5s ease forwards;
+}
+
+.audio-entry-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.audio-entry-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.audio-entry-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.audio-entry-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.audio-entry-card:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* Play indicator animation */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.audio-icon {
+  animation: pulse 2s ease-in-out infinite;
+}
+/* ========================================
+   AUDIO DETAIL PAGE STYLES
+   ======================================== */
+
+/* Detail Page Container */
+.audio-detail-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Audio Detail Header */
+.audio-detail-header {
+  background: linear-gradient(135deg, var(--bg) 0%, #f8f9fa 100%);
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.audio-detail-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent) 0%, #ff8fa3 100%);
+}
+
+.audio-detail-header h2 {
+  font-family: "Playfair Display", serif;
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.audio-detail-header h2 i {
+  color: var(--accent);
+  font-size: 2rem;
+}
+
+/* Custom Audio Player */
+.audio-player-wrapper {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+}
+
+.audio-player-wrapper audio {
+  width: 100%;
+  height: 54px;
+  border-radius: 12px;
+  outline: none;
+}
+
+.audio-player-wrapper audio::-webkit-media-controls-panel {
+  background: linear-gradient(135deg, #f8f9fa 0%, white 100%);
+  border-radius: 12px;
+}
+
+.audio-player-wrapper audio::-webkit-media-controls-play-button {
+  background-color: var(--accent);
+  border-radius: 50%;
+}
+
+/* Transcript Section */
+.transcript-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+  border-left: 4px solid var(--accent);
+}
+
+.transcript-section h3 {
+  font-family: "Playfair Display", serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.transcript-section h3 i {
+  color: var(--accent);
+  font-size: 1.25rem;
+}
+
+.transcript-content {
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  color: #495057;
+  padding: 1.25rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  font-family: "Georgia", serif;
+  font-style: italic;
+}
+
+.transcript-content.empty {
+  color: #6c757d;
+  font-style: normal;
+  text-align: center;
+  padding: 2rem;
+}
+
+/* Emotion Analysis Section */
+.emotion-analysis-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+}
+
+.emotion-analysis-section h3 {
+  font-family: "Playfair Display", serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.emotion-analysis-section h3 i {
+  color: var(--accent);
+  font-size: 1.25rem;
+}
+
+/* Emotion List */
+.emotion-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.emotion-item {
+  background: linear-gradient(135deg, #f8f9fa 0%, white 100%);
+  padding: 1.25rem;
+  border-radius: 12px;
+  border-left: 4px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.emotion-item:hover {
+  transform: translateX(8px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.emotion-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.emotion-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--accent) 0%, #ff8fa3 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 15px rgba(255, 107, 129, 0.3);
+}
+
+.emotion-details {
+  flex: 1;
+}
+
+.emotion-name {
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+  text-transform: capitalize;
+}
+
+.emotion-intensity {
+  font-size: 0.875rem;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.intensity-bar {
+  width: 100px;
+  height: 6px;
+  background: #e9ecef;
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.intensity-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent) 0%, #ff8fa3 100%);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.emotion-timestamp {
+  font-size: 0.8125rem;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.emotion-timestamp i {
+  font-size: 0.75rem;
+}
+
+.emotion-list .empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #6c757d;
+}
+
+.emotion-list .empty-state i {
+  font-size: 3rem;
+  color: var(--accent);
+  opacity: 0.3;
+  margin-bottom: 1rem;
+}
+
+/* Emotion Chart Section */
+.emotion-chart-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+}
+
+.emotion-chart-section h3 {
+  font-family: "Playfair Display", serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.emotion-chart-section h3 i {
+  color: var(--accent);
+  font-size: 1.25rem;
+}
+
+#emotion-chart {
+  min-height: 300px;
+  position: relative;
+}
+
+#emotion-chart.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 12px;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* ========================================
+   AUDIO CREATE/RECORD PAGE STYLES
+   ======================================== */
+
+/* Create Form Container */
+.audio-create-container {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.audio-create-header {
+  background: linear-gradient(135deg, var(--bg) 0%, #f8f9fa 100%);
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.audio-create-header h2 {
+  font-family: "Playfair Display", serif;
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.audio-create-header h2 i {
+  color: var(--accent);
+}
+
+.audio-create-header p {
+  color: #6c757d;
+  font-size: 1rem;
+}
+
+/* Audio Form */
+.audio-form {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.audio-form .form-label {
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+.audio-form .form-label i {
+  color: var(--accent);
+  font-size: 1rem;
+}
+
+.audio-form input[type="text"],
+.audio-form textarea,
+.audio-form input[type="file"] {
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+}
+
+.audio-form input[type="text"]:focus,
+.audio-form textarea:focus,
+.audio-form input[type="file"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(255, 107, 129, 0.1);
+}
+
+.audio-form textarea {
+  min-height: 120px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+/* Recording Controls */
+.recording-controls {
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.recording-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.btn-record {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  padding: 0.875rem 2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.btn-record:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(40, 167, 69, 0.4);
+}
+
+.btn-record:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-record.recording {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+  animation: pulse-recording 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-recording {
+  0%,
+  100% {
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 25px rgba(220, 53, 69, 0.6);
+  }
+}
+
+.btn-stop-record {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+  border: none;
+  padding: 0.875rem 2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.btn-stop-record:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(220, 53, 69, 0.4);
+}
+
+.btn-stop-record:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#recordingStatus {
+  font-size: 0.9375rem;
+  color: #6c757d;
+  font-weight: 500;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+#recordingStatus.recording {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+#recordingStatus i {
+  animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* Audio Playback */
+#audioPlayback {
+  width: 100%;
+  margin-top: 1rem;
+  border-radius: 12px;
+}
+
+/* Submit Button */
+.btn-submit-audio {
+  background: linear-gradient(135deg, var(--accent) 0%, #ff8fa3 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2.5rem;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 1.0625rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 107, 129, 0.3);
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.btn-submit-audio:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(255, 107, 129, 0.4);
+}
+
+.btn-submit-audio i {
+  font-size: 1.25rem;
+}
+
+/* Back Button */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6c757d;
+  text-decoration: none;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+  color: var(--accent);
+  transform: translateX(-4px);
+}
+
+.btn-back i {
+  font-size: 1.125rem;
+}
+
+/* Responsive Design for Detail & Create Pages */
+@media (max-width: 768px) {
+  .audio-detail-header h2,
+  .audio-create-header h2 {
+    font-size: 1.75rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .emotion-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .emotion-timestamp {
+    width: 100%;
+  }
+
+  .recording-buttons {
+    flex-direction: column;
+  }
+
+  .btn-record,
+  .btn-stop-record {
+    width: 100%;
+  }
+
+  .audio-form {
+    padding: 1.5rem;
+  }
+}
+
+/* Loading State */
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* Form Group Spacing - Add this to your audio.css */
+.form-group {
+    margin-bottom: 1.5rem; /* Adds space between form sections */
+}
+
+/* Custom File Input Styling - UPDATED */
+.custom-file-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.file-input-hidden {
+    display: none;
+}
+
+.file-input-button {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.9), rgba(139, 92, 246, 0.9));
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem; /* Reduced from 0.75rem 1.5rem */
+    border-radius: 8px; /* Reduced from 12px */
+    font-weight: 500; /* Reduced from 600 */
+    font-size: 0.9rem; /* Added to make text slightly smaller */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem; /* Reduced from 0.5rem */
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25); /* Reduced shadow */
+}
+
+.file-input-button:hover {
+    transform: translateY(-1px); /* Reduced from -2px */
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+}
+
+.file-icon {
+    font-size: 1rem; /* Reduced from 1.2rem */
+}
+
+.file-name {
+    color: var(--text-secondary);
+    font-size: 0.85rem; /* Reduced from 0.9rem */
+    font-style: italic;
+}
+.audio-create-header p {
+    margin: 0.5rem 0;
+    font-size: 1rem;
+}
+
+.audio-create-header p strong {
+    color: #007bff;
+}
+
+.audio-create-header p[style*="color"] {
+    font-weight: bold;
+}
+</file>
+
+<file path="static/css/form.css">
+/* --- MindLens Unified Form Styles (Register + Login) --- */
+
+.register-section, 
+.login-section {
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  background-color: var(--bg);
+}
+
+.form-card {
+  background-color: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.form-card:hover {
+  transform: translateY(-5px);
+}
+
+.form-card::before,
+.form-card::after {
+  content: "";
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background: var(--accent);
+  border-radius: 50%;
+  opacity: 0.15;
+}
+
+.form-card::before {
+  top: -40px;
+  right: -40px;
+}
+
+.form-card::after {
+  bottom: -40px;
+  left: -40px;
+}
+
+.form-style input {
+  border: 2px solid #eaeaea;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-style input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-btn {
+  background-color: var(--accent);
+  color: white;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.form-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+.floating-icons {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.float-icon {
+  position: absolute;
+  font-size: 2rem;
+  opacity: 0.4;
+  animation: float 6s infinite ease-in-out;
+}
+
+.float-icon:nth-child(1) { top: 10%; left: 20%; color: var(--accent); }
+.float-icon:nth-child(2) { top: 40%; left: 75%; color: var(--accent); }
+.float-icon:nth-child(3) { bottom: 15%; left: 45%; color: var(--accent); }
+
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0); }
+}
+
+.form-label-color{
+    color: #2d3436 !important;
+}
+</file>
+
+<file path="templates/backoffice/pages/dashboard.html">
+{% extends 'frontoffice/layouts/base.html' %}
+{% block content %}
+<p> this is the admin dashboard the lyouts should change later since the user is an admin</p>
+
+{% endblock %}
+</file>
+
+<file path="templates/frontoffice/pages/audio/audio_detail.html">
+{% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/audio.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+{% endblock %}
+
+{% block content %}
+<div class="audio-page-wrapper">
+    <a href="{% url 'audio_list' %}" class="btn-back">
+        <i class="bi bi-arrow-left"></i> Back to Audio Entries
+    </a>
+
+    <div class="audio-detail-container">
+        <div class="audio-detail-header">
+            <h2>
+                <i class="bi bi-file-earmark-music"></i>
+                {{ entry.title|default:"Untitled" }}
+            </h2>
+            
+            <div class="audio-player-wrapper">
+                <audio controls src="{{ entry.audio_url.url }}"></audio>
+            </div>
+        </div>
+
+        <div class="transcript-section">
+            <h3>
+                <i class="bi bi-file-text"></i>
+                Transcript
+            </h3>
+            {% if entry.ai_transcript %}
+                <div class="transcript-content">
+                    {{ entry.ai_transcript }}
+                </div>
+            {% else %}
+                <div class="transcript-content empty">
+                    No transcript available yet.
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="emotion-analysis-section">
+            <h3>
+                <i class="bi bi-emoji-smile"></i>
+                Emotion Analysis
+            </h3>
+            <ul class="emotion-list">
+                {% for analysis in analyses %}
+                <li class="emotion-item">
+                    <div class="emotion-info">
+                        <div class="emotion-icon">
+                            <i class="bi bi-heart-pulse"></i>
+                        </div>
+                        <div class="emotion-details">
+                            <div class="emotion-name">{{ analysis.detected_emotion }}</div>
+                            <div class="emotion-intensity">
+                                Intensity:
+                                <div class="intensity-bar">
+                                    <div class="intensity-fill"></div>
+                                </div>
+                                {{ analysis.intensity }}%
+                            </div>
+                        </div>
+                    </div>
+                    <div class="emotion-timestamp">
+                        <i class="bi bi-clock"></i>
+                        {{ analysis.created_at|date:"M d, Y - g:i A" }}
+                    </div>
+                </li>
+                {% empty %}
+                <li class="empty-state">
+                    <i class="bi bi-emoji-neutral"></i>
+                    <p>No emotion analysis available yet.</p>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="emotion-chart-section">
+            <h3>
+                <i class="bi bi-graph-up"></i>
+                Emotion Evolution
+            </h3>
+            <div id="emotion-chart" class="{% if not analyses %}empty{% endif %}">
+                {% if not analyses %}
+                    Chart will appear here once emotion analysis is available
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    
+</script>
+{% endblock %}
+{% endblock %}
+</file>
+
+<file path="templates/frontoffice/pages/dashboard.html">
+{% extends 'frontoffice/layouts/base.html' %}
+{% block content %}
+<p> this is the journalist dashboard </p>
+
+{% endblock %}
+</file>
+
+<file path="templates/frontoffice/partials/footer.html">
+<footer class="footer bg-white border-top mt-5 py-4">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4">
+        <h6 class="fw-bold text-accent">MindLens</h6>
+        <p class="small text-muted">Designed to help you explore your thoughts, emotions, and inner clarity.</p>
+      </div>
+
+      <div class="col-md-4">
+        <h6 class="fw-semibold">Explore</h6>
+        <ul class="list-unstyled">
+          <li><a href="/journal" class="footer-link">Journal</a></li>
+          <li><a href="/voice" class="footer-link">Voice Notes</a></li>
+          <li><a href="/vision" class="footer-link">Gallery</a></li>
+          <li><a href="/dashboard" class="footer-link">Dashboard</a></li>
+        </ul>
+      </div>
+
+      <div class="col-md-4">
+        <h6 class="fw-semibold">Support</h6>
+        <ul class="list-unstyled">
+          <li><a href="/faq" class="footer-link">FAQs</a></li>
+          <li><a href="/contact" class="footer-link">Contact Us</a></li>
+          <li><a href="/privacy" class="footer-link">Privacy Policy</a></li>
+          <li><a href="/terms" class="footer-link">Terms of Service</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col text-end">
+        <p class="small text-muted mb-0">© 2025 MindLens. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+</footer>
+</file>
+
+<file path="users/models.py">
+from django.db import models
+from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator, EmailValidator
+from django.core.exceptions import ValidationError
+import re
+
+class User(AbstractUser):
+    JOURNALIST = 'JOURNALIST'
+    ADMIN = 'ADMIN'
+
+    ROLE_CHOICES = [
+        (JOURNALIST, 'Journalist'),
+        (ADMIN, 'Admin'),
+    ]
+
+    role = models.CharField(
+        max_length=10,
+        choices=ROLE_CHOICES,
+        default=JOURNALIST,
+        help_text="Role of the user: Journalist or Admin"
+    )
+
+    profile_image = models.ImageField(
+        upload_to='profile_images/',
+        blank=True,
+        null=True
+    )
+
+    email = models.EmailField(
+        unique=True,
+        validators=[EmailValidator(message="Enter a valid email address.")],
+        error_messages={
+            'required': 'Email is required.',
+            'unique': 'A user with this email already exists.'
+        }
+    )
+
+    def clean(self):
+        super().clean()
+
+        if not self.username:
+            raise ValidationError({'username': 'Username is required.'})
+
+        if self.password:
+            pattern = r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_]).{8,}$'
+            if not re.match(pattern, self.password):
+                raise ValidationError({'password': 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.'})
+
+    def is_journalist(self):
+        return self.role == self.JOURNALIST
+
+    def is_admin(self):
+        return self.role == self.ADMIN
+</file>
+
+<file path="audio/forms.py">
+from django import forms
+from .models import AudioEntry
+
+class AudioEntryForm(forms.ModelForm):
+    recorded_audio = forms.CharField(widget=forms.HiddenInput(), required=False)
+    
+    # Customize the audio_url field
+    audio_url = forms.FileField(
+        label="Upload Audio File (Optional)",
+        widget=forms.FileInput(attrs={
+            'accept': 'audio/*',
+            'class': 'custom-file-input'
+        }),
+        required=False
+    )
+
+    class Meta:
+        model = AudioEntry
+        fields = ['title', 'audio_url', 'recorded_audio']
+        
+    # You can also customize the title field if needed
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['title'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Enter a title for your audio entry'
+        })
+</file>
+
+<file path="audio/views.py">
+import logging
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.core.files.base import ContentFile
+from .models import AudioEntry, AudioEmotionAnalysis
+from .forms import AudioEntryForm
+from users.models import User
+import base64
+from django.utils import timezone
+from datetime import datetime, timedelta
+from django.db.models import Count, Avg
+from pydub import AudioSegment  # Import pydub
+import os
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+def perform_ai_analysis(audio_entry):
+    audio_entry.ai_transcript = "Mock transcription: Today I felt stressed about work."
+    audio_entry.save()
+    
+    AudioEmotionAnalysis.objects.create(
+        audio_entry=audio_entry,
+        detected_emotion='stress',
+        intensity=0.75,
+        ai_model_version='mock_v1'
+    )
+    AudioEmotionAnalysis.objects.create(
+        audio_entry=audio_entry,
+        detected_emotion='joy',
+        intensity=0.3,
+        ai_model_version='mock_v1'
+    )
+
+@login_required
+def audio_create(request):
+    if request.user.role != User.JOURNALIST:
+        return redirect('dashboard')
+    
+    # Define the daily limit
+    DAILY_ENTRY_LIMIT = 15  # Changed back to 15 (was 150, assuming typo)
+    
+    # Get the start and end of today
+    today = timezone.now().date()
+    start_of_day = timezone.make_aware(datetime.combine(today, datetime.min.time()))
+    end_of_day = timezone.make_aware(datetime.combine(today, datetime.max.time()))
+    
+    # Log first access of the day (optional)
+    last_access = request.session.get('last_entry_check_date')
+    if last_access != str(today):
+        logger.info(f"Daily audio entry limit reset for user {request.user.username} at {timezone.now()}")
+        request.session['last_entry_check_date'] = str(today)
+    
+    # Count entries for today
+    today_entries = AudioEntry.objects.filter(
+        user=request.user,
+        created_at__range=(start_of_day, end_of_day)
+    ).count()
+    
+    # Calculate remaining entries
+    remaining_entries = DAILY_ENTRY_LIMIT - today_entries
+    
+    # Check if limit is reached
+    if today_entries >= DAILY_ENTRY_LIMIT:
+        return render(request, 'frontoffice/pages/audio/audio_create.html', {
+            'form': AudioEntryForm(),
+            'error': 'You have reached the daily limit of 15 audio entries.',
+            'remaining_entries': 0
+        })
+    
+    if request.method == 'POST':
+        form = AudioEntryForm(request.POST, request.FILES)
+        if form.is_valid():
+            audio_entry = form.save(commit=False)
+            audio_entry.user = request.user
+            audio_entry.created_at = timezone.now()
+            
+            # Handle recorded audio if present
+            recorded_audio = form.cleaned_data.get('recorded_audio')
+            if recorded_audio:
+                format, audio_str = recorded_audio.split(';base64,')
+                ext = format.split('/')[-1]
+                audio_data = base64.b64decode(audio_str)
+                file_name = f"recording_{audio_entry.user.username}_{audio_entry.created_at.strftime('%Y%m%d%H%M%S')}.{ext}"
+                audio_entry.audio_url.save(file_name, ContentFile(audio_data))
+                
+                # Calculate duration for recorded audio
+                temp_file_path = os.path.join('media', file_name)
+                try:
+                    audio = AudioSegment.from_file(temp_file_path)
+                    audio_entry.duration = len(audio) / 1000.0  # Convert milliseconds to seconds
+                except Exception as e:
+                    logger.error(f"Error calculating duration for recorded audio: {e}")
+                    audio_entry.duration = 0.0  # Fallback to 0.0 if error occurs
+            
+            # Handle uploaded audio if present
+            elif form.cleaned_data.get('audio_url'):
+                audio_file = form.cleaned_data['audio_url']
+                audio_entry.audio_url = audio_file
+                try:
+                    # Save temporarily to get file path
+                    audio_entry.save()
+                    temp_file_path = audio_entry.audio_url.path
+                    audio = AudioSegment.from_file(temp_file_path)
+                    audio_entry.duration = len(audio) / 1000.0  # Convert milliseconds to seconds
+                except Exception as e:
+                    logger.error(f"Error calculating duration for uploaded audio: {e}")
+                    audio_entry.duration = 0.0  # Fallback to 0.0 if error occurs
+            
+            audio_entry.save()
+            perform_ai_analysis(audio_entry)
+            return redirect('audio_list')
+    else:
+        form = AudioEntryForm()
+    
+    return render(request, 'frontoffice/pages/audio/audio_create.html', {
+        'form': form,
+        'remaining_entries': remaining_entries
+    })
+
+@login_required
+def audio_list(request):
+    if request.user.role != User.JOURNALIST:
+        return redirect('dashboard')
+    
+    # Get all entries for the user
+    entries = AudioEntry.objects.filter(user=request.user).order_by('-created_at')
+    
+    # Get current time and date ranges
+    today = timezone.now().date()
+    # Week: Monday to Sunday
+    start_of_week = today - timedelta(days=today.weekday())
+    start_of_week = timezone.make_aware(datetime.combine(start_of_week, datetime.min.time()))
+    end_of_week = start_of_week + timedelta(days=6, hours=23, minutes=59, seconds=59)
+    # Month: First day to last day of current month
+    start_of_month = today.replace(day=1)
+    start_of_month = timezone.make_aware(datetime.combine(start_of_month, datetime.min.time()))
+    end_of_month = start_of_month + timedelta(days=31)
+    end_of_month = end_of_month.replace(day=1) - timedelta(seconds=1)
+    
+    # Total entries this week
+    weekly_entries = AudioEntry.objects.filter(
+        user=request.user,
+        created_at__range=(start_of_week, end_of_week)
+    ).count()
+    
+    # Total entries this month
+    monthly_entries = AudioEntry.objects.filter(
+        user=request.user,
+        created_at__range=(start_of_month, end_of_month)
+    ).count()
+    
+    # Most frequent emotion
+    emotion_counts = AudioEmotionAnalysis.objects.filter(
+        audio_entry__user=request.user
+    ).values('detected_emotion').annotate(count=Count('detected_emotion')).order_by('-count')
+    most_frequent_emotion = emotion_counts.first()['detected_emotion'] if emotion_counts.exists() else 'None'
+    
+    # Average duration (exclude None values)
+    avg_duration = AudioEntry.objects.filter(
+        user=request.user,
+        duration__isnull=False
+    ).aggregate(Avg('duration'))['duration__avg']
+    avg_duration = round(avg_duration, 2) if avg_duration else 0.0
+    
+    return render(request, 'frontoffice/pages/audio/audio_list.html', {
+        'entries': entries,
+        'weekly_entries': weekly_entries,
+        'monthly_entries': monthly_entries,
+        'most_frequent_emotion': most_frequent_emotion,
+        'avg_duration': avg_duration
+    })
+
+@login_required
+def audio_detail(request, pk):
+    if request.user.role != User.JOURNALIST:
+        return redirect('dashboard')
+    entry = get_object_or_404(AudioEntry, pk=pk, user=request.user)
+    analyses = entry.emotion_analyses.all()
+    return render(request, 'frontoffice/pages/audio/audio_detail.html', {'entry': entry, 'analyses': analyses})
+
+@login_required
+def audio_delete(request, pk):
+    if request.user.role != User.JOURNALIST:
+        return redirect('dashboard')
+    entry = get_object_or_404(AudioEntry, pk=pk, user=request.user)
+    if request.method == 'POST':
+        entry.delete()
+        return redirect('audio_list')
+    return redirect('audio_detail', pk=pk)
+</file>
+
+<file path="static/css/profile.css">
+.profile-container .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.3s ease;
+    font-weight: 500;
+    border: 1px solid transparent;
+}
+.profile-container .btn {
+    border-radius: 10px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    border: 2px solid transparent;
+}
+.floating-profile-icons {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.floating-profile-icons .float-icon {
+    position: absolute;
+    font-size: 1.5rem;
+    opacity: 0.1;
+    color: var(--accent);
+    animation: float 8s infinite ease-in-out;
+}
+
+.floating-profile-icons .float-icon:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
+.floating-profile-icons .float-icon:nth-child(2) { top: 20%; left: 85%; animation-delay: 1s; }
+.floating-profile-icons .float-icon:nth-child(3) { top: 60%; left: 10%; animation-delay: 2s; }
+.floating-profile-icons .float-icon:nth-child(4) { top: 40%; left: 90%; animation-delay: 3s; }
+.floating-profile-icons .float-icon:nth-child(5) { top: 80%; left: 15%; animation-delay: 4s; }
+.floating-profile-icons .float-icon:nth-child(6) { top: 70%; left: 80%; animation-delay: 5s; }
+
+.profile-header {
+    position: relative;
+    z-index: 2;
+}
+
+.avatar-container {
+    position: relative;
+}
+
+.avatar-gradient {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #667eea);
+    padding: 4px;
+    display: inline-block;
+}
+
+.profile-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid white;
+}
+
+.avatar-edit-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.avatar-edit-btn:hover {
+    transform: scale(1.1);
+    background: #ff8fa3;
+}
+
+.profile-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--title-color);
+    margin-bottom: 0.5rem;
+}
+
+.profile-username {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: #6c757d;
+}
+
+.profile-badges {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.profile-badge {
+    padding: 0.6rem 1.2rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    border: 2px solid var(--accent);
+}
+
+.role-badge {
+    background: linear-gradient(135deg, var(--accent), #d3cdce);
+    color: white;
+}
+
+.member-badge {
+    background: white;
+    color: var(--accent);
+    border: 2px solid var(--accent);
+}
+
+.profile-card {
+    background: white !important;
+    border-radius: 16px;
+    padding: 2rem;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    position: relative;
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+
+.profile-card:hover {
+    transform: translateY(-3px);
+}
+
+.settings-nav-card {
+    padding: 1.5rem;
+    position: sticky;
+    top: 2rem;
+    background: white !important;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.nav-header {
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--accent);
+    margin-bottom: 1rem;
+}
+
+.nav-header h5 {
+    margin: 0;
+    color: var(--title-color);
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.settings-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.nav-item:hover {
+   background: color-mix(in srgb, var(--accent) 5%, white);
+    color: var(--accent);
+    text-decoration: none;
+    border-color: rgba(255, 107, 129, 0.2);
+}
+
+.nav-item.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+.settings-section {
+    margin-bottom: 2rem;
+    background: white !important;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.section-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+}
+
+.section-header h4 {
+    color: var(--title-color);
+    margin-bottom: 0.5rem;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.section-description {
+    color: #6c757d;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.settings-form {
+    space-y: 2rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: var(--title-color);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.form-text {
+    color: #6c757d;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding-top: 1.5rem;
+    border-top: 2px solid rgba(0, 0, 0, 0.05);
+}
+
+.preferences-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.preference-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-radius: 12px;
+    background: #f8f9fa;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+}
+
+.preference-item:hover {
+    background: rgba(255, 107, 129, 0.05);
+    border-color: rgba(255, 107, 129, 0.2);
+}
+
+.preference-info h6 {
+    margin: 0 0 0.25rem 0;
+    color: var(--title-color);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.preference-info p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.security-actions, .account-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.security-item, .account-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-radius: 12px;
+    background: #f8f9fa;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+}
+
+.security-item:hover, .account-item:hover {
+    background: rgba(255, 107, 129, 0.05);
+    border-color: rgba(255, 107, 129, 0.2);
+}
+
+.security-info h6, .account-info h6 {
+    margin: 0 0 0.25rem 0;
+    color: var(--title-color);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.security-info p, .account-info p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.security-status {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.status-badge {
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid transparent;
+}
+
+.status-badge.disabled {
+    background: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+    border-color: rgba(108, 117, 125, 0.3);
+}
+
+.status-badge.enabled {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+    border-color: rgba(40, 167, 69, 0.3);
+}
+
+.danger-zone {
+    border: 2px solid rgba(220, 53, 69, 0.3);
+    background: rgba(220, 53, 69, 0.05);
+}
+
+.danger-zone:hover {
+    background: rgba(220, 53, 69, 0.08);
+    border-color: rgba(220, 53, 69, 0.4);
+}
+
+.form-control, .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    background: white;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--accent);
+    background: white;
+}
+
+.theme-select {
+    min-width: 200px;
+}
+
+
+.btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+.btn-primary:hover {
+    background: #ff8fa3;
+    border-color: #ff8fa3;
+    transform: translateY(-2px);
+}
+
+.btn-outline-primary {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: white;
+}
+
+.btn-outline-primary:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-danger {
+    background: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+    border-color: #bd2130;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    border-color: #545b62;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .preference-item, .security-item, .account-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .security-status {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .settings-nav-card {
+        position: static;
+        margin-bottom: 2rem;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .profile-name {
+        font-size: 2rem;
+    }
+    
+    .profile-badges {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-20px) rotate(10deg);
+    }
+}
+
+.password-fields .form-group {
+    position: relative;
+}
+
+.password-fields .form-control {
+    padding-right: 3rem;
+}
+
+.password-fields .btn[type="button"] {
+    z-index: 5;
+}
+
+.password-fields .btn[type="button"]:focus {
+    box-shadow: none;
+}
+
+.password-strength {
+    height: 4px;
+    background: #e9ecef;
+    border-radius: 2px;
+    margin-top: 0.25rem;
+    overflow: hidden;
+}
+
+.password-strength-bar {
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.strength-1 { width: 20%; background: #dc3545; }
+.strength-2 { width: 40%; background: #fd7e14; }
+.strength-3 { width: 60%; background: #ffc107; }
+.strength-4 { width: 80%; background: #20c997; }
+.strength-5 { width: 100%; background: #198754; }
+
+.toast {
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    min-width: 300px;
+}
+
+.toast.bg-success {
+    background-color: rgba(25, 135, 84, 0.95) !important;
+}
+
+.toast.bg-danger {
+    background-color: rgba(220, 53, 69, 0.95) !important;
+}
+
+.toast.bg-warning {
+    background-color: rgba(255, 193, 7, 0.95) !important;
+    color: #000 !important;
+}
+
+.toast.bg-info {
+    background-color: rgba(13, 202, 240, 0.95) !important;
+}
+
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.toast.show {
+    animation: slideInRight 0.3s ease-out;
+}
+</file>
+
+<file path="templates/frontoffice/layouts/base.html">
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MindLens</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Great+Vibes&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+      {% block extra_css %}{% endblock %}
+
+</head>
+<body>
+  {% include 'frontoffice/partials/navbar.html' %}
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+<section class="text-center py-4">
+  <p id="quote" class="quote-script mt-3"></p>
+</section>
+  {% include 'frontoffice/partials/footer.html' %}
+  <script>
+  const quotes = [
+    "“Your story is valid.”",
+    "“Feel it. Write it. Heal it.”",
+    "“You are more than your mood.”",
+    "“Reflection is a form of self-love.”"
+  ];
+  let i = 0;
+  const quoteEl = document.getElementById("quote");
+  if (quoteEl) {
+    quoteEl.textContent = quotes[i];
+    setInterval(() => {
+      i = (i + 1) % quotes.length;
+      quoteEl.textContent = quotes[i];
+    }, 4000);
+  }
+</script>
+</body>
+</html>
+</file>
+
+<file path="templates/frontoffice/pages/audio/audio_list.html">
+{% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/audio.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="audio-hero text-center">
+        <div class="floating-icons">
+            <i class="bi bi-mic-fill float-icon"></i>
+            <i class="bi bi-music-note-beamed float-icon"></i>
+            <i class="bi bi-headphones float-icon"></i>
+            <i class="bi bi-soundwave float-icon"></i>
+            <i class="bi bi-volume-up-fill float-icon"></i>
+        </div>
+        <h2>Your Audio Journal Entries</h2>
+        <a href="{% url 'audio_create' %}" class="btn btn-create-audio">
+            <i class="bi bi-mic-fill"></i> Record New Audio
+        </a>
+    </div>
+
+    <!-- Statistics Section -->
+    <div class="audio-stats-section text-center my-4">
+        <h3>Your Audio Journal Stats</h3>
+        <div class="stats-container">
+            <div class="stat-item">
+                <i class="bi bi-calendar-week"></i>
+                <p><strong>Entries This Week:</strong> {{ weekly_entries }}</p>
+            </div>
+            <div class="stat-item">
+                <i class="bi bi-calendar-month"></i>
+                <p><strong>Entries This Month:</strong> {{ monthly_entries }}</p>
+            </div>
+            <div class="stat-item">
+                <i class="bi bi-emoji-smile"></i>
+                <p><strong>Most Frequent Emotion:</strong> {{ most_frequent_emotion }}</p>
+            </div>
+            <div class="stat-item">
+                <i class="bi bi-clock"></i>
+                <p><strong>Average Duration:</strong> {{ avg_duration }} seconds</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="audio-entries-container">
+        {% for entry in entries %}
+        <div class="audio-entry-card">
+            <div class="audio-entry-content">
+                <div class="audio-icon">
+                    <i class="bi bi-play-fill"></i>
+                </div>
+                <div class="audio-entry-info">
+                    <a href="{% url 'audio_detail' entry.pk %}" class="audio-entry-title">
+                        {{ entry.title|default:"Untitled" }}
+                    </a>
+                    <div class="audio-entry-date">
+                        <i class="bi bi-calendar3"></i>
+                        {{ entry.created_at|date:"M d, Y" }}
+                    </div>
+                </div>
+            </div>
+            <form method="POST" action="{% url 'audio_delete' entry.pk %}" onsubmit="return confirm('Are you sure you want to delete this audio entry?');">
+                {% csrf_token %}
+                <button type="submit" class="btn-delete-audio">
+                    <i class="bi bi-trash"></i> Delete
+                </button>
+            </form>
+        </div>
+        {% empty %}
+        <div class="audio-empty-state">
+            <i class="bi bi-mic-mute"></i>
+            <h3>No Audio Entries Yet</h3>
+            <p>Start recording your first audio journal entry!</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+</file>
+
+<file path="templates/frontoffice/pages/profile.html">
+{% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+<div class="profile-container">
+    <div class="floating-profile-icons">
+        <i class="bi bi-gear-fill float-icon"></i>
+        <i class="bi bi-shield-check float-icon"></i>
+        <i class="bi bi-person-check float-icon"></i>
+        <i class="bi bi-bell float-icon"></i>
+        <i class="bi bi-palette float-icon"></i>
+        <i class="bi bi-lock float-icon"></i>
+    </div>
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+    {% for message in messages %}
+    <div class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                {{ message }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+    <div class="container py-5">
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-10">
+                <div class="profile-header text-center animate__animated animate__fadeInDown">
+                    <div class="avatar-container position-relative d-inline-block">
+                        <div class="avatar-gradient">
+                            <img src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static 'images/default-avatar.png' %}{% endif %}" 
+                                 class="profile-avatar" 
+                                 alt="Profile"
+                                 id="profile-avatar">
+                        </div>
+                        <button type="button" class="avatar-edit-btn" onclick="document.getElementById('profile_image').click()">
+                            <i class="bi bi-camera-fill"></i>
+                        </button>
+                    </div>
+                    <h1 class="profile-name mt-4">
+                        {% if user.first_name and user.last_name %}
+                            {{ user.first_name }} {{ user.last_name }}
+                        {% else %}
+                            {{ user.username }}
+                        {% endif %}
+                    </h1>
+                    <p class="profile-username text-muted">@{{ user.username }}</p>
+                    <div class="profile-badges">
+                        <span class="profile-badge role-badge">
+                            <i class="bi bi-person-badge me-1"></i>
+                            {{ user.role|title }}
+                        </span>
+                        <span class="profile-badge member-badge">
+                            <i class="bi bi-calendar-heart me-1"></i>
+                            Member since {{ user.date_joined|date:'M Y' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <div class="settings-nav-card profile-card animate__animated animate__fadeInLeft">
+                    <div class="nav-header">
+                        <h5><i class="bi bi-sliders me-2"></i>Account Settings</h5>
+                    </div>
+                    <nav class="settings-menu">
+                        <a href="#profile" class="nav-item active">
+                            <i class="bi bi-person-gear"></i>
+                            <span>Profile Info</span>
+                        </a>
+                        <a href="#preferences" class="nav-item">
+                            <i class="bi bi-palette"></i>
+                            <span>Appearance</span>
+                        </a>
+                         <a href="#security" class="nav-item">
+                            <i class="bi bi-shield-lock"></i>
+                            <span>Security</span>
+                        </a>
+                        <a href="#account" class="nav-item">
+                            <i class="bi bi-gear"></i>
+                            <span>Account</span>
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="col-lg-9">
+                <div class="settings-section profile-card animate__animated animate__fadeInRight">
+                    <div class="section-header">
+                        <h4><i class="bi bi-person-gear me-2"></i>Profile Information</h4>
+                        <p class="section-description">Manage your personal information</p>
+                    </div>
+
+                    <form method="POST" class="settings-form" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="section" value="profile">
+                        
+                        <div class="form-group mb-4" hidden>
+                            <label for="profile_image" class="form-label">
+                                <i class="bi bi-image me-2"></i>Profile Image
+                            </label>
+                            <input type="file" class="form-control {% if errors.profile_image %}is-invalid{% endif %}" 
+                                   id="profile_image" name="profile_image" 
+                                   accept="image/*">
+                            <div class="form-text">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Click the camera icon on your avatar or choose file here. 
+                                Supported formats: JPEG, PNG, GIF, WebP. Max size: 5MB
+                            </div>
+                            {% if errors.profile_image %}
+                            <div class="invalid-feedback">{{ errors.profile_image }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="firstName">
+                                    <i class="bi bi-person me-2"></i>First Name
+                                </label>
+                                <input type="text" class="form-control {% if errors.first_name %}is-invalid{% endif %}" 
+                                       id="firstName" name="first_name" 
+                                       value="{{ user.first_name }}" 
+                                       placeholder="Enter your first name">
+                                {% if errors.first_name %}
+                                <div class="invalid-feedback">{{ errors.first_name }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">
+                                    <i class="bi bi-person me-2"></i>Last Name
+                                </label>
+                                <input type="text" class="form-control {% if errors.last_name %}is-invalid{% endif %}" 
+                                       id="lastName" name="last_name" 
+                                       value="{{ user.last_name }}" 
+                                       placeholder="Enter your last name">
+                                {% if errors.last_name %}
+                                <div class="invalid-feedback">{{ errors.last_name }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                <label for="username">
+                                    <i class="bi bi-at me-2"></i>Username
+                                </label>
+                                <input type="text" class="form-control {% if errors.username %}is-invalid{% endif %}" 
+                                       id="username" name="username" 
+                                       value="{{ user.username }}" 
+                                       placeholder="Choose a username">
+                                <small class="form-text">This is how you'll appear on MindLens</small>
+                                {% if errors.username %}
+                                <div class="invalid-feedback">{{ errors.username }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                <label for="email">
+                                    <i class="bi bi-envelope me-2"></i>Email Address
+                                </label>
+                                <input type="email" class="form-control" 
+                                       id="email" name="email" 
+                                       value="{{ user.email }}" 
+                                       placeholder="your@email.com"
+                                       disabled>
+                                <small class="form-text text-muted">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Email address cannot be changed for security reasons
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                           <button type="submit" class="btn btn-primary" style="box-shadow:none; outline:none;">Save Changes</button>
+
+                        </div>
+                    </form>
+                </div>
+                <div class="settings-section profile-card animate__animated animate__fadeInRight">
+                    <div class="section-header">
+                        <h4><i class="bi bi-palette me-2"></i>Appearance</h4>
+                        <p class="section-description">Customize how MindLens looks to you</p>
+                    </div>
+                    <div class="preferences-grid">
+                        <div class="preference-item">
+                            <div class="preference-info">
+                                <h6>Theme</h6>
+                                <p>Choose your preferred theme</p>
+                            </div>
+                            <select class="form-select theme-select">
+                                <option value="blush" selected>Blush Theme</option>
+                                <option value="midnight">Midnight Theme</option>
+                                <option value="forest">Forest Theme</option>
+                                <option value="ocean">Ocean Theme</option>
+                                <option value="clay">Clay Theme</option>
+                            </select>
+                        </div>
+                        <div class="preference-item">
+                            <div class="preference-info">
+                                <h6>Time Format</h6>
+                                <p>How dates and times are displayed</p>
+                            </div>
+                            <select class="form-select">
+                                <option selected>12-hour format</option>
+                                <option>24-hour format</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+               <div class="settings-section profile-card animate__animated animate__fadeInRight">
+    <div class="section-header">
+        <h4><i class="bi bi-shield-lock me-2"></i>Security</h4>
+        <p class="section-description">Manage your account security</p>
+    </div>
+    <form method="POST" class="settings-form">
+        {% csrf_token %}
+        <input type="hidden" name="section" value="password">
+        
+        <div class="security-actions">
+            <div class="security-item">
+                <div class="security-info">
+                    <h6>Change Password</h6>
+                    <p>Update your password to keep your account secure</p>
+                </div>
+                
+                <div class="password-form" id="password-form" style="display: none;">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="current_password">
+                                <i class="bi bi-lock me-2"></i>Current Password
+                            </label>
+                            <input type="password" class="form-control {% if password_errors.current_password %}is-invalid{% endif %}" 
+                                   id="current_password" name="current_password" 
+                                   placeholder="Enter your current password">
+                            {% if password_errors.current_password %}
+                            <div class="invalid-feedback">{{ password_errors.current_password }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="new_password">
+                                <i class="bi bi-key me-2"></i>New Password
+                            </label>
+                            <input type="password" class="form-control {% if password_errors.new_password %}is-invalid{% endif %}" 
+                                   id="new_password" name="new_password" 
+                                   placeholder="Enter new password">
+                            {% if password_errors.new_password %}
+                            <div class="invalid-feedback">{{ password_errors.new_password }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm_password">
+                                <i class="bi bi-key-fill me-2"></i>Confirm New Password
+                            </label>
+                            <input type="password" class="form-control {% if password_errors.confirm_password %}is-invalid{% endif %}" 
+                                   id="confirm_password" name="confirm_password" 
+                                   placeholder="Confirm new password">
+                            {% if password_errors.confirm_password %}
+                            <div class="invalid-feedback">{{ password_errors.confirm_password }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-actions mt-3">
+                        <button type="button" class="btn btn-outline-secondary me-2" onclick="togglePasswordForm()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Password</button>
+                    </div>
+                </div>
+                
+                <button type="button" class="btn btn-outline-primary" onclick="togglePasswordForm()" id="change-password-btn">
+                    Change Password
+                </button>
+            </div>
+
+                        <div class="security-item">
+                            <div class="security-info">
+                                <h6>Two-Factor Authentication</h6>
+                                <p>Add an extra layer of security to your account</p>
+                            </div>
+                            <div class="security-status">
+                                <span class="status-badge disabled">Disabled</span>
+                                <button class="btn btn-outline-primary">Enable 2FA</button>
+                            </div>
+                        </div>
+
+                        <div class="security-item">
+                            <div class="security-info">
+                                <h6>Active Sessions</h6>
+                                <p>Manage devices that are logged into your account</p>
+                            </div>
+                            <button class="btn btn-outline-primary">View Sessions</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section profile-card animate__animated animate__fadeInRight">
+                    <div class="section-header">
+                        <h4><i class="bi bi-gear me-2"></i>Account Management</h4>
+                        <p class="section-description">Advanced account controls</p>
+                    </div>
+
+                    <div class="account-actions">
+                        <div class="account-item">
+                            <div class="account-info">
+                                <h6>Deactivate Account</h6>
+                                <p>Temporarily disable your account</p>
+                            </div>
+                            <button class="btn btn-outline-secondary">Deactivate</button>
+                        </div>
+
+                        <div class="account-item danger-zone">
+                            <div class="account-info">
+                                <h6>Delete Account</h6>
+                                <p>Permanently delete your account and all data</p>
+                                <small class="text-muted">This action cannot be undone</small>
+                            </div>
+                            <button class="btn btn-danger">Delete Account</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const profileImageInput = document.getElementById('profile_image');
+    const profileAvatar = document.getElementById('profile-avatar');
+    
+    if (profileImageInput && profileAvatar) {
+        profileImageInput.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profileAvatar.src = e.target.result;
+                };
+                reader.readAsDataURL(this.files[0]);
+                
+                this.form.submit();
+            }
+        });
+    }
+});
+function togglePasswordForm() {
+    const passwordForm = document.getElementById('password-form');
+    const changePasswordBtn = document.getElementById('change-password-btn');
+    
+    if (passwordForm.style.display === 'none') {
+        passwordForm.style.display = 'block';
+        changePasswordBtn.style.display = 'none';
+        
+        const inputs = passwordForm.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.value = '';
+            input.classList.remove('is-invalid');
+        });
+        
+        const errorMessages = passwordForm.querySelectorAll('.invalid-feedback');
+        errorMessages.forEach(error => error.style.display = 'none');
+    } else {
+        passwordForm.style.display = 'none';
+        changePasswordBtn.style.display = 'block';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const toastElList = document.querySelectorAll('.toast');
+    const toastList = [...toastElList].map(toastEl => {
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+        return toast;
+    });
+    
+    toastElList.forEach(toastEl => {
+        toastEl.addEventListener('hidden.bs.toast', function() {
+            this.remove();
+        });
+    });
+    
+    const profileImageInput = document.getElementById('profile_image');
+    const profileAvatar = document.getElementById('profile-avatar');
+    
+    if (profileImageInput && profileAvatar) {
+        profileImageInput.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profileAvatar.src = e.target.result;
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
+    
+    const successMessages = document.querySelectorAll('.toast-body');
+    let passwordSuccess = false;
+    
+    successMessages.forEach(message => {
+        if (message.textContent.includes('Password updated') || 
+            message.textContent.includes('Profile updated') ||
+            message.textContent.includes('Profile image updated')) {
+            passwordSuccess = true;
+        }
+    });
+    
+    if (passwordSuccess) {
+        const passwordForm = document.getElementById('password-form');
+        const changePasswordBtn = document.getElementById('change-password-btn');
+        
+        if (passwordForm && changePasswordBtn) {
+            passwordForm.style.display = 'none';
+            changePasswordBtn.style.display = 'block';
+        }
+    }
+});
+
+function togglePasswordForm() {
+    const passwordForm = document.getElementById('password-form');
+    const changePasswordBtn = document.getElementById('change-password-btn');
+    
+    if (passwordForm.style.display === 'none') {
+        passwordForm.style.display = 'block';
+        changePasswordBtn.style.display = 'none';
+        
+        const inputs = passwordForm.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.value = '';
+            input.classList.remove('is-invalid');
+        });
+        
+        const errorMessages = passwordForm.querySelectorAll('.invalid-feedback');
+        errorMessages.forEach(error => error.style.display = 'none');
+    } else {
+        passwordForm.style.display = 'none';
+        changePasswordBtn.style.display = 'block';
+    }
+}
+</script>
+{% endblock %}
+</file>
+
+<file path="templates/frontoffice/pages/register.html">
+{% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/form.css' %}">
+
+<section class="register-section py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        <div class="register-card p-5 shadow-lg rounded-4 bg-white position-relative">
+
+          <div class="text-center mb-4">
+            <h2 class="hero-title mb-2" style="color: #2d3436;">Join <span class="text-accent">MindLens</span></h2>
+            <p class="text-muted">Create your personal journal account</p>
+          </div>
+
+          <!-- Display general errors -->
+          {% if errors.general %}
+          <div class="alert alert-danger mb-3">
+            {{ errors.general }}
+          </div>
+          {% endif %}
+
+          <form method="POST" class="register-form" novalidate>
+              {% csrf_token %}
+            
+              <div class="mb-3">
+                  <label for="username" class="form-label fw-semibold" style="color: #2d3436;">Username</label>
+                  <input type="text" class="form-control rounded-pill {% if errors.username %}is-invalid{% endif %}" 
+                         id="username" name="username" placeholder="Choose a username" 
+                         value="{{ values.username|default:'' }}" required>
+                  {% if errors.username %}
+                      <div class="text-danger small mt-1">{{ errors.username }}</div>
+                  {% endif %}
+              </div>
+
+              <div class="mb-3">
+                  <label for="email" class="form-label fw-semibold" style="color: #2d3436;">Email address</label>
+                  <input type="email" class="form-control rounded-pill {% if errors.email %}is-invalid{% endif %}" 
+                         id="email" name="email" placeholder="Enter your email" 
+                         value="{{ values.email|default:'' }}" required>
+                  {% if errors.email %}
+                      <div class="text-danger small mt-1">{{ errors.email }}</div>
+                  {% endif %}
+              </div>
+
+              <div class="mb-3">
+                  <label for="password" class="form-label fw-semibold" style="color: #2d3436;">Password</label>
+                  <input type="password" class="form-control rounded-pill {% if errors.password %}is-invalid{% endif %}" 
+                         id="password" name="password" placeholder="Enter a password" required>
+                  {% if errors.password %}
+                      <div class="text-danger small mt-1">{{ errors.password }}</div>
+                  {% endif %}
+              </div>
+
+              <div class="mb-4">
+                  <label for="confirmPassword" class="form-label fw-semibold" style="color: #2d3436;">Confirm Password</label>
+                  <input type="password" class="form-control rounded-pill {% if errors.confirmPassword %}is-invalid{% endif %}" 
+                         id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+                  {% if errors.confirmPassword %}
+                      <div class="text-danger small mt-1">{{ errors.confirmPassword }}</div>
+                  {% endif %}
+              </div>
+
+                  <button type="submit" class="btn w-100 py-3 fw-semibold" 
+                    style="background: var(--accent); color: white; border: none; border-radius: 50px;">
+                  Create Account
+            </button>
+
+              <div class="text-center mt-4">
+                  <p class="mb-0" style="color: #2d3436;">Already have an account?
+                      <a href="{% url 'signin' %}" class="text-accent fw-semibold text-decoration-none">Sign in</a>
+                  </p>
+              </div>
+          </form>
+
+          <div class="floating-icons">
+            <i class="bi bi-heart-fill float-icon"></i>
+            <i class="bi bi-stars float-icon"></i>
+            <i class="bi bi-emoji-smile float-icon"></i>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+</file>
+
+<file path="MindLens/settings.py">
+"""
+Django settings for MindLens project.
+"""
+
+from pathlib import Path
+import os  
+
+# ------------------------------
+# BASE CONFIGURATION
+# ------------------------------
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+SECRET_KEY = "django-insecure-3gp)3x@ss^$7ohhkeca*!6os@vr5%c#x3hude^@ypsy2edyv(d"
+DEBUG = True
+ALLOWED_HOSTS = []
+
+# ------------------------------
+# APPLICATIONS
+# ------------------------------
+INSTALLED_APPS = [
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "users",
+    'wellbeing'  ,
+    'audio',
+    
+]
+
+# ------------------------------
+# MIDDLEWARE
+# ------------------------------
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+]
+
+ROOT_URLCONF = "MindLens.urls"
+
+# ------------------------------
+# TEMPLATES
+# ------------------------------
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [os.path.join(BASE_DIR, "templates")],  
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+            ],
+        },
+    },
+]
+
+WSGI_APPLICATION = "MindLens.wsgi.application"
+
+# ------------------------------
+# DATABASE
+# ------------------------------
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "mindlens_db",
+        "USER": "postgres",
+        "PASSWORD": "postgres",
+        "HOST": "localhost",
+        "PORT": "5433",
+    }
+}
+#
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
+
+# ------------------------------
+# PASSWORD VALIDATION
+# ------------------------------
+AUTH_PASSWORD_VALIDATORS = [
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+]
+
+# ------------------------------
+# INTERNATIONALIZATION
+# ------------------------------
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "UTC"
+USE_I18N = True
+USE_TZ = True
+
+# ------------------------------
+# STATIC & MEDIA FILES
+# ------------------------------
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]  
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")   
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+# ------------------------------
+# CUSTOM USER MODEL
+# ------------------------------
+AUTH_USER_MODEL = "users.User"
+
+# ------------------------------
+# DEFAULT AUTO FIELD
+# ------------------------------
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+</file>
+
+<file path="MindLens/urls.py">
+"""
+URL configuration for MindLens project.
+
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/4.2/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+"""
+
+from django.contrib import admin
+from django.urls import path,include  
+from django.conf import settings
+from django.conf.urls.static import static
+from users import views
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path("users/", include("users.urls")),
+    path('', views.home, name='home'),
+    path('account/', include('users.urls')),
+    path('journalist/', include('audio.urls')),
+    path('wellbeing/', include('wellbeing.urls')),
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+</file>
+
+<file path="static/css/main.css">
+:root {
+  --bg: #fff;
+  --text: #2d3436;
+  --title-color: var(--text);
+  --card-title-color: var(--text);
+  --card-body-color: var(--text);
+  --quote-color: var(--accent);
+}
+
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background 0.5s ease, color 0.5s ease;
+}
+
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+  color: var(--title-color);
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  color: var(--text);
+}
+
+.quote-script {
+  font-family: 'Great Vibes', cursive;
+  font-size: 1.5rem;
+  color: var(--quote-color);
+}
+
+.floating-icons {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.float-icon {
+  position: absolute;
+  font-size: 2rem;
+  opacity: 0.6;
+  animation: float 6s infinite ease-in-out;
+}
+
+.float-icon:nth-child(1) { top: 10%; left: 20%; color: var(--accent); }
+.float-icon:nth-child(2) { top: 30%; left: 70%; color: var(--accent); }
+.float-icon:nth-child(3) { top: 60%; left: 40%; color: var(--accent); }
+
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+  100% { transform: translateY(0); }
+}
+
+
+.entries .entry-card,
+.feature-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.feature-card {
+  text-align: center;
+  padding: 2rem;
+}
+
+.entries .entry-card:hover,
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.08);
+}
+
+.entry-card h5,
+.feature-card h5 {
+  color: var(--card-title-color);
+}
+
+.entry-card p,
+.feature-card p {
+  color: var(--card-body-color);
+}
+
+.theme-dropdown,
+.account-dropdown {
+  width: 180px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 2px solid var(--accent);
+  background-color: var(--bg);
+  color: var(--text);
+  transition: border 0.3s ease, background 0.3s ease;
+}
+
+.theme-dropdown:focus,
+.account-dropdown:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 0.2rem rgba(108, 92, 231, 0.25);
+}
+.account-dropdown option {
+  background-color: var(--bg);
+  color: var(--text);
+  font-weight: 500;
+  padding: 0.5rem;
+  border-bottom: 1px solid #ccc;
+}
+
+.account-dropdown option:hover,
+.account-dropdown option:focus {
+  background-color: var(--accent);
+  color: #fff;
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+.footer,
+.footer h6,
+.footer p,
+.footer ul,
+.footer li,
+.footer a {
+  color: #2d3436 !important;
+}
+
+.footer-link {
+  text-decoration: none;
+  color: #2d3436 !important;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+  color: var(--accent) !important;
+  text-decoration: underline;
+}
+
+nav.navbar .navbar-brand.mindlens-logo {
+  color: var(--accent) !important;
+  font-family: 'Playfair Display', serif !important;
+}
+
+nav.navbar .nav-link {
+  color: var(--text) !important;
+  text-decoration: none !important;
+  transition: color 0.3s ease !important;
+}
+
+nav.navbar .nav-link:hover {
+  color: var(--accent) !important;
+}
+
+nav.navbar .theme-dropdown,
+nav.navbar .account-dropdown {
+  width: 180px !important;
+  font-weight: 600 !important;
+  border-radius: 6px !important;
+  border: 2px solid var(--accent) !important;
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+  transition: border 0.3s ease, background 0.3s ease !important;
+}
+
+nav.navbar .theme-dropdown:focus,
+nav.navbar .account-dropdown:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 0.2rem rgba(108, 92, 231, 0.25) !important;
+}
+
+nav.navbar .account-dropdown option {
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+  font-weight: 500 !important;
+  padding: 0.5rem !important;
+}
+
+nav.navbar .account-dropdown option:hover,
+nav.navbar .account-dropdown option:focus {
+  background-color: var(--accent) !important;
+  color: #fff !important;
+}
+
+:root {
+  --bg: #fff;
+  --text: #2d3436;
+  --accent: #ff6b81;
+}
+</file>
+
+<file path="templates/frontoffice/pages/audio/audio_create.html">
+{% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/audio.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+{% endblock %}
+
+{% block content %}
+<div class="audio-page-wrapper">
+    <!-- Back Button -->
+    <a href="{% url 'audio_list' %}" class="btn-back">
+        <i class="bi bi-arrow-left"></i> Back to Audio Entries
+    </a>
+
+    <div class="audio-create-container">
+        <!-- Header -->
+        <div class="audio-create-header">
+            <h2>
+                <i class="bi bi-mic-fill"></i>
+                Create a New Audio Entry
+            </h2>
+            <p>Record your thoughts or upload an audio file</p>
+            <!-- Display remaining entries -->
+            <p><strong>Remaining entries today: {{ remaining_entries }} / 150</strong></p>
+            {% if error %}
+                <p style="color: #dc3545;">{{ error }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Audio Form -->
+        <form method="POST" enctype="multipart/form-data" id="audioForm" class="audio-form">
+            {% csrf_token %}
+
+            <!-- Title Field -->
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="bi bi-pencil"></i>
+                    Title
+                </label>
+                {{ form.title }}
+            </div>
+
+            <!-- Upload Field -->
+            <div class="form-group">
+                <label for="id_audio_url">Upload Audio File (Optional)</label>
+                <div class="custom-file-input-wrapper">
+                    <input type="file" id="id_audio_url" name="audio_url" accept="audio/*" class="file-input-hidden">
+                    <button type="button" class="file-input-button" onclick="document.getElementById('id_audio_url').click()">
+                        <span class="file-icon">📁</span>
+                        Choose Audio File
+                    </button>
+                    <span class="file-name" id="fileName">No file selected</span>
+                </div>
+            </div>
+
+            <!-- Recording Controls -->
+            <div class="recording-controls">
+                <label class="form-label">
+                    <i class="bi bi-mic"></i>
+                    Or Record Audio
+                </label>
+                <div class="recording-buttons">
+                    <button type="button" id="startRecording" class="btn-record" {% if remaining_entries == 0 %}disabled{% endif %}>
+                        <i class="bi bi-mic-fill"></i>
+                        Start Recording
+                    </button>
+                    <button type="button" id="stopRecording" class="btn-stop-record" disabled>
+                        <i class="bi bi-stop-circle"></i>
+                        Stop Recording
+                    </button>
+                </div>
+                <div id="recordingStatus"></div>
+                <audio id="audioPlayback" controls class="audio-playback hidden"></audio>
+            </div>
+
+            <!-- Hidden field to store recorded audio data -->
+            <input type="hidden" name="recorded_audio" id="recordedAudioInput">
+
+            <!-- Submit -->
+            <button type="submit" class="btn-submit-audio" {% if remaining_entries == 0 %}disabled{% endif %}>
+                <i class="bi bi-check-circle"></i>
+                Save and Analyze
+            </button>
+        </form>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const startButton = document.getElementById('startRecording');
+    const stopButton = document.getElementById('stopRecording');
+    const recordingStatus = document.getElementById('recordingStatus');
+    const audioPlayback = document.getElementById('audioPlayback');
+    const recordedAudioInput = document.getElementById('recordedAudioInput');
+    let mediaRecorder;
+    let audioChunks = [];
+
+    // Start recording
+    startButton.addEventListener('click', async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+
+            mediaRecorder.ondataavailable = (event) => {
+                audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                audioPlayback.src = audioUrl;
+                audioPlayback.classList.remove('hidden');
+
+                const reader = new FileReader();
+                reader.readAsDataURL(audioBlob);
+                reader.onloadend = () => {
+                    recordedAudioInput.value = reader.result;
+                };
+
+                // Stop microphone
+                stream.getTracks().forEach(track => track.stop());
+            };
+
+            mediaRecorder.start();
+            startButton.disabled = true;
+            startButton.classList.add('recording');
+            stopButton.disabled = false;
+            recordingStatus.innerHTML = '<i class="bi bi-record-circle"></i> Recording...';
+            recordingStatus.classList.add('recording');
+        } catch (err) {
+            recordingStatus.textContent = 'Error accessing microphone: ' + err.message;
+            recordingStatus.style.color = '#dc3545';
+        }
+    });
+
+    // Stop recording
+    stopButton.addEventListener('click', () => {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+            startButton.disabled = false;
+            startButton.classList.remove('recording');
+            stopButton.disabled = true;
+            recordingStatus.innerHTML = '<i class="bi bi-check-circle"></i> Recording stopped.';
+            recordingStatus.classList.remove('recording');
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}
+</file>
+
+<file path="templates/frontoffice/pages/home.html">
+{% extends 'frontoffice/layouts/base.html' %}
+{% block content %}
+
+<section class="hero text-center py-5 position-relative">
+  <div class="floating-icons">
+    <i class="bi bi-emoji-smile float-icon text-warning"></i>
+    <i class="bi bi-emoji-frown float-icon text-primary"></i>
+    <i class="bi bi-emoji-neutral float-icon text-success"></i>
+  </div>
+  <h1 class="hero-title animate__animated animate__fadeInDown">Reflect Your Mind</h1>
+    <p class="hero-subtitle animate__animated animate__fadeInUp">Your Personal Journaling Space</p>
+    <p class="lead mt-3">Start your journey of self-reflection and emotional awareness today.</p>
+  <p id="quote" class="quote-script mt-4"></p>
+</section>
+<section class="features container py-4">
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="feature-card animate__animated animate__fadeInUp">
+        <i class="bi bi-journal-text fs-2 text-accent mb-3"></i>
+        <h5>Journaling</h5>
+        <p>Capture your thoughts, emotions, and reflections in a private, expressive space.</p>
+        {% if not user.is_authenticated %}
+          <small class="text-muted">Sign up to start writing</small>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="feature-card animate__animated animate__fadeInUp">
+        <i class="bi bi-mic fs-2 text-accent mb-3"></i>
+        <h5>Voice Notes</h5>
+        <p>Record your feelings with your voice — perfect for moments when words flow freely.</p>
+        {% if not user.is_authenticated %}
+          <small class="text-muted">Create an account to record</small>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="feature-card animate__animated animate__fadeInUp">
+        <i class="bi bi-images fs-2 text-accent mb-3"></i>
+        <h5>Gallery</h5>
+        <p>Store meaningful visuals, memories, and snapshots that reflect your journey.</p>
+        {% if not user.is_authenticated %}
+          <small class="text-muted">Join to upload memories</small>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if not user.is_authenticated %}
+  <div class="row mt-5">
+    <div class="col-12">
+      <div class="cta-section text-center p-5 rounded-4" style="background: linear-gradient(135deg, var(--accent) 0%, #667eea 100%); color: white;">
+        <h3 class="mb-3">Ready to Begin Your Reflection Journey?</h3>
+        <p class="mb-4">Join thousands of users who use MindLens to capture memories, reflect deeply, and keep their stories alive.</p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+          <a href="{% url 'signup' %}" class="btn btn-light btn-lg">Create Your Account</a>
+          <a href="{% url 'signin' %}" class="btn btn-outline-light btn-lg">I Have an Account</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</section>
+
+<section class="benefits container py-5">
+  <div class="row text-center mb-5">
+    <div class="col-12">
+      <h2>Why Choose MindLens?</h2>
+      <p class="lead">MindLens helps you capture memories, reflect on your thoughts, and preserve life’s moments — all in one secure, beautifully simple space.</p>
+    </div>
+  </div>
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="benefit-item text-center p-4">
+        <i class="bi bi-shield-check fs-1 text-accent mb-3"></i>
+        <h5>Private & Secure</h5>
+        <p>Your thoughts are yours alone. We use encryption to keep your journal entries safe and private.</p>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="benefit-item text-center p-4">
+     <i class="bi bi-graph-up fs-1 text-accent mb-3"></i>
+      <h5>Stay Connected to Your Growth</h5>
+      <p>Track your emotions, insights, and milestones over time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+</file>
+
+<file path="templates/frontoffice/pages/login.html">
+{% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/form.css' %}">
+
+<section class="login-section py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        <div class="login-card p-5 shadow-lg rounded-4 bg-white position-relative">
+
+          <div class="text-center mb-4">
+            <h2 class="hero-title mb-2" style="color: #2d3436;">Welcome Back to <span class="text-accent">MindLens</span></h2>
+            <p class="text-muted">Sign in to your personal journal</p>
+          </div>
+
+          {% if errors.general %}
+          <div class="text-center mb-3">
+            <div class="text-danger small">{{ errors.general }}</div>
+          </div>
+          {% endif %}
+
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} mb-3">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+
+          <form method="POST" class="login-form" novalidate>
+              {% csrf_token %}
+            
+              {% if request.GET.next %}
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
+              {% endif %}
+            
+              <div class="mb-3">
+                  <label for="username" class="form-label fw-semibold" style="color: #2d3436;">Username or Email</label>
+                  <input type="text" class="form-control rounded-pill {% if errors.username %}is-invalid{% endif %}" 
+                         id="username" name="username" placeholder="Enter your username or email" 
+                         value="{{ values.username|default:'' }}" required>
+                  {% if errors.username %}
+                      <div class="text-danger small mt-1">{{ errors.username }}</div>
+                  {% endif %}
+              </div>
+
+              <div class="mb-4">
+                  <label for="password" class="form-label fw-semibold" style="color: #2d3436;">Password</label>
+                  <input type="password" class="form-control rounded-pill {% if errors.password %}is-invalid{% endif %}" 
+                         id="password" name="password" placeholder="Enter your password" required>
+                  {% if errors.password %}
+                      <div class="text-danger small mt-1">{{ errors.password }}</div>
+                  {% endif %}
+              </div>
+
+              <div class="mb-4 form-check">
+                  <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe">
+                  <label class="form-check-label" for="rememberMe" style="color: #2d3436;">
+                      Remember me
+                  </label>
+              </div>
+
+             <button type="submit" class="btn w-100 py-3 fw-semibold" 
+                    style="background: var(--accent); color: white; border: none; border-radius: 50px;">
+                   Sign In
+            </button>
+
+              <div class="text-center mt-4">
+                  <p class="mb-0" style="color: #2d3436;">Don't have an account?
+                      <a href="{% url 'signup' %}" class="text-accent fw-semibold text-decoration-none">Create account</a>
+                  </p>
+              </div>
+
+              <div class="text-center mt-3">
+                  <a href="" class="text-muted text-decoration-none">Forgot your password?</a>
+              </div>
+          </form>
+
+          <div class="floating-icons">
+            <i class="bi bi-heart-fill float-icon"></i>
+            <i class="bi bi-stars float-icon"></i>
+            <i class="bi bi-emoji-smile float-icon"></i>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+</file>
+
+<file path="users/urls.py">
+# users/urls.py
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('signin/', views.signin_view, name='signin'),
+    path('signup/', views.signup_view, name='signup'),
+    path('logout/', views.logout_view, name='logout'),
+    path('admin/dashboard/', views.admin_dashboard_view, name='dashboard'),
+    path('journalist/dashboard/', views.journalist_dashboard_view, name='journalist_dashboard'),
+    path('profile/', views.profile_view, name='profile'),
+
+]
+</file>
+
+<file path="users/views.py">
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import User
+import re
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+
+def test_template(request):
+    return render(request, 'test.html')
+
+def home(request):
+   return render(request, "frontoffice/pages/home.html")
+
+
+def signin_view(request):
+    context = {
+        'errors': {},
+        'values': {}
+    }
+    
+    if request.user.is_authenticated:
+        return redirect_based_on_role(request.user)
+    
+    if request.method == 'POST':
+        username_or_email = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
+        
+        context['values']['username'] = username_or_email
+        
+        has_errors = False
+        
+        if not username_or_email:
+            context['errors']['username'] = 'Username or email is required.'
+            has_errors = True
+        
+        if not password:
+            context['errors']['password'] = 'Password is required.'
+            has_errors = True
+        
+        if not has_errors:
+            user = authenticate(request, username=username_or_email, password=password)
+            
+            if user is None:
+                try:
+                    user_obj = User.objects.get(email=username_or_email)
+                    user = authenticate(request, username=user_obj.username, password=password)
+                except User.DoesNotExist:
+                    user = None
+            
+            if user is not None:
+                login(request, user)
+                
+                next_url = request.GET.get('next', 'journalist_dashboard' if user.role == User.JOURNALIST else 'dashboard')
+                return redirect(next_url)
+            else:
+                context['errors']['general'] = 'Invalid username/email or password. Please try again.'
+    
+    return render(request, 'frontoffice/pages/login.html', context)
+
+def signup_view(request):
+    context = {
+        'errors': {},
+        'values': {}
+    }
+    
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+        confirm_password = request.POST.get('confirmPassword', '')
+        
+        context['values']['username'] = username
+        context['values']['email'] = email
+        
+        has_errors = False
+        
+        if not username:
+            context['errors']['username'] = 'Username is required.'
+            has_errors = True
+        elif User.objects.filter(username=username).exists():
+            context['errors']['username'] = 'This username is already taken.'
+            has_errors = True
+        elif len(username) < 3:
+            context['errors']['username'] = 'Username must be at least 3 characters long.'
+            has_errors = True
+        else:
+            pass
+        
+        if not email:
+            context['errors']['email'] = 'Email is required.'
+            has_errors = True
+        elif User.objects.filter(email=email).exists():
+            context['errors']['email'] = 'A user with this email already exists.'
+            has_errors = True
+        elif '@' not in email or '.' not in email:
+            context['errors']['email'] = 'Please enter a valid email address.'
+            has_errors = True
+        else:
+            pass
+        
+        if not password:
+            context['errors']['password'] = 'Password is required.'
+            has_errors = True
+        else:
+            pattern = r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_]).{8,}$'
+            if not re.match(pattern, password):
+                context['errors']['password'] = 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.'
+                has_errors = True
+            else:
+                pass
+        
+        if not confirm_password:
+            context['errors']['confirmPassword'] = 'Please confirm your password.'
+            has_errors = True
+        elif password != confirm_password:
+            context['errors']['confirmPassword'] = 'Passwords do not match.'
+            has_errors = True
+        
+        if not has_errors:
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=password,
+                    role=User.JOURNALIST
+                )
+                
+                return redirect('signin') 
+        else:
+            if 'password' in context['errors'] or 'confirmPassword' in context['errors']:
+                context['values']['password'] = ''
+                context['values']['confirmPassword'] = ''
+            
+            if 'username' in context['errors']:
+                context['values']['username'] = ''
+            
+            if 'email' in context['errors']:
+                context['values']['email'] = ''
+    
+    return render(request, 'frontoffice/pages/register.html', context)
+
+@login_required
+def logout_view(request):
+    logout(request)
+    return redirect('signin')
+
+@login_required
+def journalist_dashboard_view(request):
+    return render(request, 'frontoffice/pages/dashboard.html')
+
+@login_required
+def admin_dashboard_view(request):
+    return render(request, 'backoffice/pages/dashboard.html')
+
+def redirect_based_on_role(user):
+    if user.role == User.ADMIN:
+        return redirect('dashboard')
+    elif user.role == User.JOURNALIST:
+        return redirect('journalist_dashboard')
+    else:
+        return redirect('signin')
+
+def handle_profile_update(request, context):
+    """Handle profile information update (name, username)"""
+    first_name = request.POST.get('first_name', '').strip()
+    last_name = request.POST.get('last_name', '').strip()
+    username = request.POST.get('username', '').strip()
+    
+    try:
+        if first_name:
+            request.user.first_name = first_name
+        if last_name:
+            request.user.last_name = last_name
+        
+        if username and username != request.user.username:
+            if len(username) < 3:
+                context['errors']['username'] = 'Username must be at least 3 characters long.'
+            elif User.objects.filter(username=username).exclude(pk=request.user.pk).exists():
+                context['errors']['username'] = 'This username is already taken.'
+            else:
+                request.user.username = username
+        
+        if not context['errors']:
+            request.user.save()
+            messages.success(request, 'Profile updated successfully!')
+            context['success'] = True
+            return True
+        return False
+            
+    except Exception as e:
+        context['errors']['general'] = 'An error occurred while updating your profile. Please try again.'
+        return False
+
+def handle_profile_image_update(request, context):
+    """Handle profile image upload and update"""
+    if 'profile_image' in request.FILES:
+        profile_image = request.FILES['profile_image']
+        
+        allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+        if profile_image.content_type not in allowed_types:
+            context['errors']['profile_image'] = 'Please upload a valid image file (JPEG, PNG, GIF, WebP).'
+            return False
+        elif profile_image.size > 5 * 1024 * 1024: 
+            context['errors']['profile_image'] = 'Image file too large. Maximum size is 5MB.'
+            return False
+        else:
+            if request.user.profile_image:
+                request.user.profile_image.delete(save=False)
+            request.user.profile_image = profile_image
+            request.user.save()
+            messages.success(request, 'Profile image updated successfully!')
+            return True
+    return False
+
+def handle_password_update(request, context):
+    """Handle password change"""
+    current_password = request.POST.get('current_password', '').strip()
+    new_password = request.POST.get('new_password', '').strip()
+    confirm_password = request.POST.get('confirm_password', '').strip()
+    
+    has_errors = False
+    
+    if not current_password:
+        context['password_errors']['current_password'] = 'Current password is required.'
+        has_errors = True
+    elif not request.user.check_password(current_password):
+        context['password_errors']['current_password'] = 'Current password is incorrect.'
+        has_errors = True
+    
+    if not new_password:
+        context['password_errors']['new_password'] = 'New password is required.'
+        has_errors = True
+    else:
+        try:
+            validate_password(new_password, request.user)
+        except ValidationError as e:
+            context['password_errors']['new_password'] = ' '.join(e.messages)
+            has_errors = True
+    
+    if not confirm_password:
+        context['password_errors']['confirm_password'] = 'Please confirm your new password.'
+        has_errors = True
+    elif new_password != confirm_password:
+        context['password_errors']['confirm_password'] = 'New passwords do not match.'
+        has_errors = True
+    
+    if not has_errors:
+        try:
+            request.user.set_password(new_password)
+            request.user.save()
+            
+            update_session_auth_hash(request, request.user)
+            
+            messages.success(request, 'Password updated successfully!')
+            context['password_success'] = True
+            return True
+            
+        except Exception as e:
+            context['password_errors']['general'] = 'An error occurred while updating your password. Please try again.'
+            return False
+    
+    return False
+
+@login_required
+def profile_view(request):
+    """Main profile view that orchestrates all update functions"""
+    context = {
+        'user': request.user,
+        'errors': {},
+        'success': False,
+        'password_errors': {},
+        'password_success': False
+    }
+    
+    if request.method == 'POST':
+        section = request.POST.get('section', 'profile')
+        
+        if section == 'password':
+            password_updated = handle_password_update(request, context)
+            if password_updated:
+                return redirect('profile')
+                
+        elif section == 'profile':
+            image_updated = handle_profile_image_update(request, context)
+            if image_updated:
+                return redirect('profile')
+            
+            profile_updated = handle_profile_update(request, context)
+            if profile_updated:
+                return redirect('profile')
+    
+    return render(request, 'frontoffice/pages/profile.html', context)
+</file>
+
+<file path="templates/frontoffice/partials/navbar.html">
+<nav class="navbar navbar-expand-lg bg-white shadow-sm px-4 py-3 sticky-top">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold mindlens-logo" href="{% url 'dashboard' %}">MindLens</a>
+    <div class="collapse navbar-collapse">
+         <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-3">
+        <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Journal</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'audio_list' %}">Voice</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Vision</a></li>
+        <select class="form-select-sm theme-dropdown" onchange="setTheme(this.value)">
+          <option value="" disabled>Theme</option>
+          <option value="blush" selected>Blush</option>
+          <option value="midnight">Midnight</option>
+          <option value="forest">Forest</option>
+          <option value="ocean">Ocean</option>
+          <option value="clay">Clay</option>
+        </select>
+      </ul>
+      <div class="d-flex align-items-center gap-3">
+        {% if user.is_authenticated %}
+          
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-person-circle fs-4 text-secondary"></i>
+            <span class="fw-semibold">
+              {% if user.first_name %}
+                {{ user.first_name }}
+              {% else %}
+                {{ user.username }}
+              {% endif %}
+            </span>
+          </div>
+        {% endif %}
+        <div class="account-switcher">
+          <select class="form-select-sm account-dropdown" onchange="handleAccountAction(this.value)">
+            <option value="" disabled selected>Account</option>
+            {% if user.is_authenticated %}
+              <option value="{% url 'profile' %}">My Profile</option>
+              <option value="settings">Settings</option>
+              <option value="-" disabled>──────────</option>
+              <option value="{% url 'logout' %}">Logout</option>
+            {% else %}
+              <option value="{% url 'signin' %}">Sign In</option>
+              <option value="{% url 'signup' %}">Sign Up</option>
+            {% endif %}
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<script>
+function setTheme(theme) {
+  const root = document.documentElement;
+  const logo = document.querySelector('.mindlens-logo');
+  const heroTitle = document.querySelector('.hero-title');
+  const heroSubtitle = document.querySelector('.hero-subtitle');
+  const themeDropdown = document.querySelector('.theme-dropdown');
+  const accountDropdown = document.querySelector('.account-dropdown');
+
+  let accent = '#ff6b81'; 
+  let bg = '#fff0f5';
+  let text = '#2d3436';
+  let dropdownText = '#2d3436';
+
+  if (theme === 'blush') {
+    bg = '#fff0f5';
+    accent = '#ff6b81';
+  } 
+  else if (theme === 'midnight') {
+    bg = '#1e1e2f';
+    accent = '#a29bfe';
+    dropdownText = '#ffffff'; 
+  } 
+  else if (theme === 'forest') {
+    bg = '#eafaf1';
+    accent = '#00b894';
+  } 
+  else if (theme === 'ocean') {
+    bg = '#e3f2fd';
+    accent = '#0984e3';
+  } 
+  else if (theme === 'clay') {
+    bg = '#fbeee0';
+    accent = '#d35400';
+  }
+
+  root.style.setProperty('--bg', bg);
+  root.style.setProperty('--text', text);
+  root.style.setProperty('--accent', accent);
+
+  if (heroTitle && heroSubtitle) {
+    if (theme === 'midnight') {
+      heroTitle.style.color = '#ffffff';
+      heroSubtitle.style.color = '#ffffff';
+    } else {
+      heroTitle.style.color = 'var(--title-color)';
+      heroSubtitle.style.color = 'var(--text)';
+    }
+  }
+
+  [themeDropdown, accountDropdown].forEach(dropdown => {
+    if (dropdown) {
+      dropdown.style.backgroundColor = bg;
+      dropdown.style.borderColor = accent;
+      dropdown.style.color = dropdownText;
+    }
+  });
+
+  if (logo) logo.style.color = accent;
+
+  localStorage.setItem('theme', theme);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const savedTheme = localStorage.getItem('theme') || 'clay';
+  const themeDropdown = document.querySelector('.theme-dropdown');
+  const accountDropdown = document.querySelector('.account-dropdown');
+  if (themeDropdown) themeDropdown.value = savedTheme;
+  setTheme(savedTheme);
+});
+
+function handleAccountAction(path) {
+  if (path && path !== '-') {
+    window.location.href = path;
+  }
+}
+</script>
+</file>
+
+</files>
