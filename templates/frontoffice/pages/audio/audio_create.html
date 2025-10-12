@@ -1,13 +1,153 @@
-<!-- Create templates/frontoffice/pages/audio_create.html (new file) -->
 {% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/audio.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+{% endblock %}
+
 {% block content %}
-<div class="container py-5">
-    <h2>Create New Audio Entry</h2>
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Save and Analyze</button>
-    </form>
-    <!-- TODO: Add client-side audio recording if desired (using MediaRecorder API) -->
+<div class="audio-page-wrapper">
+    <!-- Back Button -->
+    <a href="{% url 'audio_list' %}" class="btn-back">
+        <i class="bi bi-arrow-left"></i> Back to Audio Entries
+    </a>
+
+    <div class="audio-create-container">
+        <!-- Header -->
+        <div class="audio-create-header">
+            <h2>
+                <i class="bi bi-mic-fill"></i>
+                Create a New Audio Entry
+            </h2>
+            <p>Record your thoughts or upload an audio file</p>
+            <!-- Display remaining entries -->
+            <p><strong>Remaining entries today: {{ remaining_entries }} / 150</strong></p>
+            {% if error %}
+                <p style="color: #dc3545;">{{ error }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Audio Form -->
+        <form method="POST" enctype="multipart/form-data" id="audioForm" class="audio-form">
+            {% csrf_token %}
+
+            <!-- Title Field -->
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="bi bi-pencil"></i>
+                    Title
+                </label>
+                {{ form.title }}
+            </div>
+
+            <!-- Upload Field -->
+            <div class="form-group">
+                <label for="id_audio_url">Upload Audio File (Optional)</label>
+                <div class="custom-file-input-wrapper">
+                    <input type="file" id="id_audio_url" name="audio_url" accept="audio/*" class="file-input-hidden">
+                    <button type="button" class="file-input-button" onclick="document.getElementById('id_audio_url').click()">
+                        <span class="file-icon">📁</span>
+                        Choose Audio File
+                    </button>
+                    <span class="file-name" id="fileName">No file selected</span>
+                </div>
+            </div>
+
+            <!-- Recording Controls -->
+            <div class="recording-controls">
+                <label class="form-label">
+                    <i class="bi bi-mic"></i>
+                    Or Record Audio
+                </label>
+                <div class="recording-buttons">
+                    <button type="button" id="startRecording" class="btn-record" {% if remaining_entries == 0 %}disabled{% endif %}>
+                        <i class="bi bi-mic-fill"></i>
+                        Start Recording
+                    </button>
+                    <button type="button" id="stopRecording" class="btn-stop-record" disabled>
+                        <i class="bi bi-stop-circle"></i>
+                        Stop Recording
+                    </button>
+                </div>
+                <div id="recordingStatus"></div>
+                <audio id="audioPlayback" controls class="audio-playback hidden"></audio>
+            </div>
+
+            <!-- Hidden field to store recorded audio data -->
+            <input type="hidden" name="recorded_audio" id="recordedAudioInput">
+
+            <!-- Submit -->
+            <button type="submit" class="btn-submit-audio" {% if remaining_entries == 0 %}disabled{% endif %}>
+                <i class="bi bi-check-circle"></i>
+                Save and Analyze
+            </button>
+        </form>
+    </div>
 </div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const startButton = document.getElementById('startRecording');
+    const stopButton = document.getElementById('stopRecording');
+    const recordingStatus = document.getElementById('recordingStatus');
+    const audioPlayback = document.getElementById('audioPlayback');
+    const recordedAudioInput = document.getElementById('recordedAudioInput');
+    let mediaRecorder;
+    let audioChunks = [];
+
+    // Start recording
+    startButton.addEventListener('click', async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+
+            mediaRecorder.ondataavailable = (event) => {
+                audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                audioPlayback.src = audioUrl;
+                audioPlayback.classList.remove('hidden');
+
+                const reader = new FileReader();
+                reader.readAsDataURL(audioBlob);
+                reader.onloadend = () => {
+                    recordedAudioInput.value = reader.result;
+                };
+
+                // Stop microphone
+                stream.getTracks().forEach(track => track.stop());
+            };
+
+            mediaRecorder.start();
+            startButton.disabled = true;
+            startButton.classList.add('recording');
+            stopButton.disabled = false;
+            recordingStatus.innerHTML = '<i class="bi bi-record-circle"></i> Recording...';
+            recordingStatus.classList.add('recording');
+        } catch (err) {
+            recordingStatus.textContent = 'Error accessing microphone: ' + err.message;
+            recordingStatus.style.color = '#dc3545';
+        }
+    });
+
+    // Stop recording
+    stopButton.addEventListener('click', () => {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+            startButton.disabled = false;
+            startButton.classList.remove('recording');
+            stopButton.disabled = true;
+            recordingStatus.innerHTML = '<i class="bi bi-check-circle"></i> Recording stopped.';
+            recordingStatus.classList.remove('recording');
+        }
+    });
+});
+</script>
+{% endblock %}
 {% endblock %}
