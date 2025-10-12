@@ -1,0 +1,50 @@
+{% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
+{% block title %}Supprimer l'enregistrement{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+<div style="max-width: 600px; margin: 0 auto; padding: 3rem 1rem;">
+    <div class="entry-card" style="border: 3px solid #e74c3c;">
+        <div style="background: #e74c3c; color: white; padding: 1.5rem; border-radius: 12px 12px 0 0; margin: -1.5rem -1.5rem 1.5rem -1.5rem;">
+            <h3 style="margin: 0; font-size: 1.8rem; font-weight: 600;">⚠️ Confirmer la suppression</h3>
+        </div>
+
+        <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 1rem; margin-bottom: 1.5rem; border-radius: 8px;">
+            <strong style="color: #856404;">Attention !</strong> Cette action est irréversible.
+        </div>
+
+        <p style="font-size: 1.2rem; color: var(--text); margin-bottom: 1.5rem;">
+            Êtes-vous sûr de vouloir supprimer cet enregistrement ?
+        </p>
+
+        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+            <h5 style="color: var(--card-title-color); margin-bottom: 1rem; font-size: 1.2rem;">
+                📅 {{ record.date|date:"d F Y" }}
+            </h5>
+            <ul style="list-style: none; padding: 0; margin: 0;">
+                <li style="padding: 0.5rem 0; color: var(--text);">😊 Humeur: {{ record.mood_score }}/10</li>
+                <li style="padding: 0.5rem 0; color: var(--text);">⚡ Énergie: {{ record.energy_level }}/10</li>
+                <li style="padding: 0.5rem 0; color: var(--text);">🌙 Sommeil: {{ record.sleep_hours }}h</li>
+                <li style="padding: 0.5rem 0; color: var(--text);">📈 Productivité: {{ record.productivity_score }}/10</li>
+            </ul>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" 
+                        style="flex: 1; background: #e74c3c; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: opacity 0.3s;">
+                    🗑️ Oui, supprimer
+                </button>
+                <a href="{% url 'wellbeing:wellbeing_detail' record.pk %}" 
+                   style="flex: 1; text-align: center; background: #6c757d; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: opacity 0.3s;">
+                    ❌ Non, annuler
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,158 @@
+{% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
+{% block title %}Enregistrement du {{ record.date|date:"d/m/Y" }}{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 3rem 1rem;">
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+        <div>
+            <div class="entry-card" style="margin-bottom: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3 class="hero-title" style="font-size: 2rem; margin: 0;">
+                        📅 {{ record.date|date:"d F Y" }}
+                    </h3>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <a href="{% url 'wellbeing:wellbeing_update' record.pk %}" 
+                           style="background: #3498db; color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 500;">
+                            ✏️ Modifier
+                        </a>
+                        <a href="{% url 'wellbeing:wellbeing_delete' record.pk %}" 
+                           style="background: #e74c3c; color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 500;">
+                            🗑️ Supprimer
+                        </a>
+                    </div>
+                </div>
+
+                {% if messages %}
+                    {% for message in messages %}
+                    <div style="background: #d4edda; border-left: 4px solid #28a745; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div class="feature-card" style="border: 2px solid #3498db;">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">😊</div>
+                        <h4 style="margin: 0.5rem 0; font-size: 2rem; color: #3498db;">{{ record.mood_score }}/10</h4>
+                        <p style="margin: 0; color: var(--text); opacity: 0.7;">Humeur</p>
+                        <div style="background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 0.75rem;">
+                            <div style="background: #3498db; height: 100%; width: {{ record.mood_score }}0%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="feature-card" style="border: 2px solid #f39c12;">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">⚡</div>
+                        <h4 style="margin: 0.5rem 0; font-size: 2rem; color: #f39c12;">{{ record.energy_level }}/10</h4>
+                        <p style="margin: 0; color: var(--text); opacity: 0.7;">Niveau d'énergie</p>
+                        <div style="background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 0.75rem;">
+                            <div style="background: #f39c12; height: 100%; width: {{ record.energy_level }}0%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="feature-card" style="border: 2px solid #95a5a6;">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🌙</div>
+                        <h4 style="margin: 0.5rem 0; font-size: 2rem; color: #95a5a6;">{{ record.sleep_hours }}h</h4>
+                        <p style="margin: 0; color: var(--text); opacity: 0.7;">Heures de sommeil</p>
+                    </div>
+
+                    <div class="feature-card" style="border: 2px solid #27ae60;">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📈</div>
+                        <h4 style="margin: 0.5rem 0; font-size: 2rem; color: #27ae60;">{{ record.productivity_score }}/10</h4>
+                        <p style="margin: 0; color: var(--text); opacity: 0.7;">Productivité</p>
+                        <div style="background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 0.75rem;">
+                            <div style="background: #27ae60; height: 100%; width: {{ record.productivity_score }}0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if record.ai_summary %}
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px; border-left: 4px solid var(--accent);">
+                    <h5 style="color: var(--card-title-color); margin-bottom: 0.75rem;">🤖 Résumé IA</h5>
+                    <p style="margin: 0; color: var(--card-body-color); line-height: 1.6;">{{ record.ai_summary }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="entry-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h4 style="color: var(--card-title-color); margin: 0; font-size: 1.5rem;">💡 Recommandations de routine</h4>
+                    <a href="{% url 'wellbeing:recommendation_create' record.pk %}" 
+                       style="background: #27ae60; color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 500;">
+                        + Ajouter
+                    </a>
+                </div>
+
+                {% if recommendations %}
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        {% for recommendation in recommendations %}
+                        <div style="background: #f8f9fa; padding: 1.25rem; border-radius: 10px; border-left: 4px solid var(--accent);">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                    <span style="background: var(--accent); color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">
+                                        {{ recommendation.get_type_display }}
+                                    </span>
+                                    {% if recommendation.ai_generated %}
+                                    <span style="background: #3498db; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">
+                                        🤖 IA
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                <small style="color: var(--text); opacity: 0.6;">{{ recommendation.created_at|date:"d/m/Y H:i" }}</small>
+                            </div>
+                            <p style="margin-bottom: 0.5rem; color: var(--card-body-color); line-height: 1.6;">{{ recommendation.description }}</p>
+                            <small style="color: var(--text); opacity: 0.7;">
+                                ⭐ Efficacité: {{ recommendation.efficiency_score|floatformat:2 }}
+                            </small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div style="text-align: center; padding: 3rem 1rem;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;">📭</div>
+                        <p style="color: var(--text); opacity: 0.7; margin-bottom: 1.5rem;">Aucune recommandation pour le moment</p>
+                        <a href="{% url 'wellbeing:recommendation_create' record.pk %}" 
+                           style="display: inline-block; background: #27ae60; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                            + Ajouter une recommandation
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div>
+            <div class="entry-card" style="margin-bottom: 1.5rem;">
+                <h5 style="color: var(--card-title-color); margin-bottom: 1rem; font-size: 1.2rem;">⚙️ Actions</h5>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <a href="{% url 'wellbeing:wellbeing_list' %}" class="footer-link" style="padding: 0.75rem; background: #f8f9fa; border-radius: 6px; display: block;">
+                        ← Retour à la liste
+                    </a>
+                    <a href="{% url 'wellbeing:wellbeing_update' record.pk %}" class="footer-link" style="padding: 0.75rem; background: #f8f9fa; border-radius: 6px; display: block;">
+                        ✏️ Modifier cet enregistrement
+                    </a>
+                    <a href="{% url 'wellbeing:wellbeing_create' %}" class="footer-link" style="padding: 0.75rem; background: #f8f9fa; border-radius: 6px; display: block;">
+                        + Nouvel enregistrement
+                    </a>
+                    <a href="{% url 'wellbeing:wellbeing_delete' record.pk %}" class="footer-link" style="padding: 0.75rem; background: #ffe6e6; border-radius: 6px; display: block; color: #e74c3c !important;">
+                        🗑️ Supprimer
+                    </a>
+                </div>
+            </div>
+
+            <div class="feature-card" style="border: 2px solid var(--accent);">
+                <h5 style="color: var(--card-title-color); margin-bottom: 1rem;">📊 Statistiques</h5>
+                <p style="margin-bottom: 0.5rem; color: var(--card-body-color);">
+                    <strong>Score moyen:</strong> 
+                    {% widthratio record.mood_score|add:record.energy_level|add:record.productivity_score 3 1 %}/10
+                </p>
+                <p style="margin: 0; color: var(--card-body-color);">
+                    <strong>Recommandations:</strong> {{ recommendations|length }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
