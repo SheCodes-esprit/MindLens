@@ -10,7 +10,7 @@ class WellbeingRecordForm(forms.ModelForm):
                 'class': 'form-control',
                 'min': 1,
                 'max': 10,
-                'placeholder': 'Score de 1 à 10'
+                'placeholder': 'Score from 1 to 10'
             }),
             'energy_level': forms.NumberInput(attrs={
                 'class': 'form-control',
@@ -23,20 +23,20 @@ class WellbeingRecordForm(forms.ModelForm):
                 'min': 0,
                 'max': 24,
                 'step': 0.5,
-                'placeholder': 'Heures de sommeil'
+                'placeholder': 'Sleep hours'
             }),
             'productivity_score': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': 1,
                 'max': 10,
-                'placeholder': 'Score de 1 à 10'
+                'placeholder': 'Score from 1 to 10'
             }),
         }
         labels = {
-            'mood_score': 'Humeur',
-            'energy_level': 'Niveau d\'énergie',
-            'sleep_hours': 'Heures de sommeil',
-            'productivity_score': 'Productivité',
+            'mood_score': 'Mood score',
+            'energy_level': 'Energy Level',
+            'sleep_hours': 'Sleep Hours',
+            'productivity_score': 'Productivity Score',
         }
 
 class RoutineRecommendationForm(forms.ModelForm):

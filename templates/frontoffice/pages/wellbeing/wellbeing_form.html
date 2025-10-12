@@ -3,18 +3,27 @@
 
 {% block title %}{{ title }}{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/wellbeing-form.css' %}">
+{% endblock %}
+
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/main.css' %}">
-
-<div style="max-width: 800px; margin: 0 auto; padding: 3rem 1rem;">
-    <div class="entry-card">
-        <div style="background: var(--accent); color: white; padding: 1.5rem; border-radius: 12px 12px 0 0; margin: -1.5rem -1.5rem 1.5rem -1.5rem;">
-            <h3 style="margin: 0; font-size: 1.8rem; font-weight: 600;">💚 {{ title }}</h3>
+<div class="form-container">
+    <div class="form-hero text-center">
+        <div class="floating-icons">
+            <i class="bi bi-emoji-smile float-icon"></i>
+            <i class="bi bi-lightning-charge float-icon"></i>
+            <i class="bi bi-moon-stars float-icon"></i>
+            <i class="bi bi-graph-up-arrow float-icon"></i>
+            <i class="bi bi-heart-pulse float-icon"></i>
         </div>
+        <h3>{{ title }}</h3>
+    </div>
 
+    <div class="wellbeing-form-card">
         {% if messages %}
             {% for message in messages %}
-            <div style="background: #d4edda; border-left: 4px solid #28a745; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+            <div class="form-message">
                 {{ message }}
             </div>
             {% endfor %}
@@ -23,87 +32,124 @@
         <form method="post" novalidate>
             {% csrf_token %}
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
-                <div>
-                    <label for="{{ form.mood_score.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">
-                        😊 {{ form.mood_score.label }}
+            <div class="form-grid">
+                <!-- Mood -->
+                <div class="form-field">
+                    <label for="{{ form.mood_score.id_for_label }}" class="form-label">
+                        <span class="form-label-icon">😊</span>
+                        {{ form.mood_score.label }}
                     </label>
-                    {{ form.mood_score }}
+                    <input type="number" 
+                           name="{{ form.mood_score.name }}" 
+                           id="{{ form.mood_score.id_for_label }}"
+                           class="form-input"
+                           min="1" 
+                           max="10"
+                           {% if form.mood_score.value %}value="{{ form.mood_score.value }}"{% endif %}
+                           required>
                     {% if form.mood_score.errors %}
-                        <div style="color: #e74c3c; font-size: 0.9rem; margin-top: 0.25rem;">
+                        <div class="form-error">
                             {{ form.mood_score.errors }}
                         </div>
                     {% endif %}
-                    <small style="color: var(--text); opacity: 0.7; display: block; margin-top: 0.25rem;">
-                        Comment vous sentez-vous aujourd'hui ? (1-10)
+                    <small class="form-help-text">
+                        How do you feel today? (1–10)
                     </small>
                 </div>
 
-                <div>
-                    <label for="{{ form.energy_level.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">
-                        ⚡ {{ form.energy_level.label }}
+                <!-- Energy -->
+                <div class="form-field">
+                    <label for="{{ form.energy_level.id_for_label }}" class="form-label">
+                        <span class="form-label-icon">⚡</span>
+                        {{ form.energy_level.label }}
                     </label>
-                    {{ form.energy_level }}
+                    <input type="number" 
+                           name="{{ form.energy_level.name }}" 
+                           id="{{ form.energy_level.id_for_label }}"
+                           class="form-input"
+                           min="1" 
+                           max="10"
+                           {% if form.energy_level.value %}value="{{ form.energy_level.value }}"{% endif %}
+                           required>
                     {% if form.energy_level.errors %}
-                        <div style="color: #e74c3c; font-size: 0.9rem; margin-top: 0.25rem;">
+                        <div class="form-error">
                             {{ form.energy_level.errors }}
                         </div>
                     {% endif %}
-                    <small style="color: var(--text); opacity: 0.7; display: block; margin-top: 0.25rem;">
-                        Quel est votre niveau d'énergie ? (1-10)
+                    <small class="form-help-text">
+                        What is your current energy level? (1–10)
                     </small>
                 </div>
 
-                <div>
-                    <label for="{{ form.sleep_hours.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">
-                        🌙 {{ form.sleep_hours.label }}
+                <!-- Sleep -->
+                <div class="form-field">
+                    <label for="{{ form.sleep_hours.id_for_label }}" class="form-label">
+                        <span class="form-label-icon">🌙</span>
+                        {{ form.sleep_hours.label }}
                     </label>
-                    {{ form.sleep_hours }}
+                    <input type="number" 
+                           name="{{ form.sleep_hours.name }}" 
+                           id="{{ form.sleep_hours.id_for_label }}"
+                           class="form-input"
+                           min="0" 
+                           max="24"
+                           step="0.5"
+                           {% if form.sleep_hours.value %}value="{{ form.sleep_hours.value }}"{% endif %}
+                           required>
                     {% if form.sleep_hours.errors %}
-                        <div style="color: #e74c3c; font-size: 0.9rem; margin-top: 0.25rem;">
+                        <div class="form-error">
                             {{ form.sleep_hours.errors }}
                         </div>
                     {% endif %}
-                    <small style="color: var(--text); opacity: 0.7; display: block; margin-top: 0.25rem;">
-                        Combien d'heures avez-vous dormi ?
+                    <small class="form-help-text">
+                        How many hours did you sleep?
                     </small>
                 </div>
 
-                <div>
-                    <label for="{{ form.productivity_score.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">
-                        📈 {{ form.productivity_score.label }}
+                <!-- Productivity -->
+                <div class="form-field">
+                    <label for="{{ form.productivity_score.id_for_label }}" class="form-label">
+                        <span class="form-label-icon">📈</span>
+                        {{ form.productivity_score.label }}
                     </label>
-                    {{ form.productivity_score }}
+                    <input type="number" 
+                           name="{{ form.productivity_score.name }}" 
+                           id="{{ form.productivity_score.id_for_label }}"
+                           class="form-input"
+                           min="1" 
+                           max="10"
+                           {% if form.productivity_score.value %}value="{{ form.productivity_score.value }}"{% endif %}
+                           required>
                     {% if form.productivity_score.errors %}
-                        <div style="color: #e74c3c; font-size: 0.9rem; margin-top: 0.25rem;">
+                        <div class="form-error">
                             {{ form.productivity_score.errors }}
                         </div>
                     {% endif %}
-                    <small style="color: var(--text); opacity: 0.7; display: block; margin-top: 0.25rem;">
-                        Comment évaluez-vous votre productivité ? (1-10)
+                    <small class="form-help-text">
+                        How would you rate your productivity today? (1–10)
                     </small>
                 </div>
             </div>
 
-            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                <button type="submit" 
-                        style="flex: 1; background: var(--accent); color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: opacity 0.3s;">
-                    ✅ Enregistrer
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">
+                    <i class="bi bi-check-circle"></i>
+                    Save
                 </button>
-                <a href="{% url 'wellbeing:wellbeing_list' %}" 
-                   style="flex: 1; text-align: center; background: #6c757d; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: opacity 0.3s;">
-                    ❌ Annuler
+                <a href="{% url 'wellbeing:wellbeing_list' %}" class="btn-cancel">
+                    <i class="bi bi-x-circle"></i>
+                    Cancel
                 </a>
             </div>
         </form>
     </div>
 
-    <div class="feature-card" style="margin-top: 2rem; border: 2px solid var(--accent);">
-        <h5 style="color: var(--card-title-color); margin-bottom: 1rem;">💡 Conseils</h5>
-        <ul style="text-align: left; color: var(--card-body-color); line-height: 1.8;">
-            <li>Soyez honnête dans vos évaluations pour obtenir des recommandations pertinentes</li>
-            <li>Essayez de remplir votre enregistrement à la même heure chaque jour</li>
-            <li>Les données collectées vous aideront à identifier des tendances</li>
+    <div class="tips-card">
+        <h5>💡 Tips</h5>
+        <ul>
+            <li>Be honest in your evaluations to get more accurate insights.</li>
+            <li>Try to fill in your record at the same time each day.</li>
+            <li>The collected data will help you identify useful trends over time.</li>
         </ul>
     </div>
 </div>

@@ -1,0 +1,1167 @@
+/* Wellbeing Display - Enhanced to Match Main App Theme */
+
+/* Using main.css color scheme and variables */
+:root {
+  --bg: #fff;
+  --text: #2d3436;
+  --accent: #ff6b81;
+  --title-color: var(--text);
+  --card-title-color: var(--text);
+  --card-body-color: var(--text);
+
+  /* Updated wellbeing-specific colors to harmonize with accent */
+  --mood-color: #ff6b81;
+  --energy-color: #ffa502;
+  --sleep-color: #667eea;
+  --productivity-color: #48dbfb;
+
+  --card-bg: #ffffff;
+  --section-bg: #fafbfc;
+  --border-color: #e9ecef;
+  --text-secondary: #636e72;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--section-bg);
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", sans-serif;
+}
+
+/* Enhanced hero section with gradient matching home page CTA */
+.wellbeing-hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(255, 107, 129, 0.08) 0%, rgba(102, 126, 234, 0.08) 100%);
+  border-radius: 16px;
+  margin: 2rem auto;
+  max-width: 1400px;
+  padding: 3rem 2rem;
+}
+
+.floating-icons {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.float-icon {
+  position: absolute;
+  font-size: 2.5rem;
+  opacity: 0.3;
+  animation: float 6s infinite ease-in-out;
+  color: var(--accent);
+}
+
+.float-icon:nth-child(1) {
+  top: 10%;
+  left: 15%;
+  animation-delay: 0s;
+  animation-duration: 7s;
+}
+
+.float-icon:nth-child(2) {
+  top: 25%;
+  left: 75%;
+  animation-delay: 1s;
+  animation-duration: 6s;
+}
+
+.float-icon:nth-child(3) {
+  top: 60%;
+  left: 20%;
+  animation-delay: 2s;
+  animation-duration: 8s;
+}
+
+.float-icon:nth-child(4) {
+  top: 70%;
+  left: 80%;
+  animation-delay: 1.5s;
+  animation-duration: 7.5s;
+}
+
+.float-icon:nth-child(5) {
+  top: 40%;
+  left: 50%;
+  animation-delay: 0.5s;
+  animation-duration: 6.5s;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+  50% {
+    transform: translateY(-40px) rotate(-5deg);
+  }
+  75% {
+    transform: translateY(-20px) rotate(3deg);
+  }
+}
+
+/* Hero content with proper z-index and typography matching home page */
+.wellbeing-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-title {
+  font-family: "Playfair Display", serif;
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+  color: var(--title-color);
+  font-weight: 700;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  color: var(--text);
+  margin-bottom: 1.5rem;
+  font-weight: 400;
+}
+
+/* Button styling to exactly match home page buttons */
+.btn-accent {
+  background: linear-gradient(135deg, var(--accent) 0%, #ff8fa3 100%);
+  color: white;
+  padding: 0.875rem 1.75rem;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px rgba(255, 107, 129, 0.25);
+}
+
+.btn-accent:hover {
+  background: linear-gradient(135deg, #ff5370 0%, #ff7a8f 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 129, 0.35);
+  color: white;
+}
+
+/* Container matching main.css style */
+.wellbeing-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  min-height: 100vh;
+  font-family: "Inter", sans-serif;
+}
+
+/* Summary Stats */
+.summary-stats {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Enhanced stat cards to exactly match home page feature cards */
+.stat-card {
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  border: none;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08);
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.stat-icon.text-mood {
+  color: var(--mood-color);
+}
+
+.stat-icon.text-energy {
+  color: var(--energy-color);
+}
+
+.stat-icon.text-sleep {
+  color: var(--sleep-color);
+}
+
+.stat-icon.text-productivity {
+  color: var(--productivity-color);
+}
+
+.stat-card h5 {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text);
+  margin: 0;
+}
+
+/* Records Section */
+.records-section {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.timeline-date {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 1.5rem;
+  padding: 0 0.5rem;
+}
+
+/* Enhanced record cards to exactly match home page entry/feature cards */
+.record-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.record-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08);
+}
+
+.record-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--section-bg);
+}
+
+.record-date {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.record-time {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Metrics */
+.metrics {
+  flex: 1;
+}
+
+.metric-item {
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.metric-item > span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.metric-icon {
+  font-size: 1.25rem;
+}
+
+.metric-icon.text-mood {
+  color: var(--mood-color);
+}
+
+.metric-icon.text-energy {
+  color: var(--energy-color);
+}
+
+.metric-icon.text-sleep {
+  color: var(--sleep-color);
+}
+
+.metric-icon.text-productivity {
+  color: var(--productivity-color);
+}
+
+/* Enhanced progress bars with smoother animations */
+.progress {
+  height: 8px;
+  background: var(--section-bg);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.bg-mood {
+  background: linear-gradient(90deg, var(--mood-color), #ff8fa3);
+}
+
+.bg-energy {
+  background: linear-gradient(90deg, var(--energy-color), #ffb733);
+}
+
+.bg-sleep {
+  background: linear-gradient(90deg, var(--sleep-color), #8b9aff);
+}
+
+.bg-productivity {
+  background: linear-gradient(90deg, var(--productivity-color), #7ee5ff);
+}
+
+/* AI Summary with accent color gradient matching app theme */
+.ai-summary {
+  background: linear-gradient(135deg, var(--accent) 0%, #ff8fa3 100%);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-top: auto;
+  margin-bottom: 1rem;
+  position: relative;
+  overflow: hidden;
+  color: white;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  box-shadow: 0 4px 12px rgba(255, 107, 129, 0.2);
+}
+
+.ai-summary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+  animation: ai-glow 3s infinite;
+}
+
+@keyframes ai-glow {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.ai-summary i {
+  position: relative;
+  z-index: 1;
+}
+
+/* Card Actions */
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 2px solid var(--section-bg);
+}
+
+.card-actions .btn {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* Updated button colors to match accent theme */
+.card-actions .btn-primary {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 107, 129, 0.2);
+}
+
+.card-actions .btn-primary:hover {
+  background: #ff5370;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 129, 0.3);
+  color: white;
+}
+
+.card-actions .btn-outline-secondary {
+  background: transparent;
+  color: var(--text);
+  border: 2px solid var(--border-color);
+}
+
+.card-actions .btn-outline-secondary:hover {
+  background: var(--section-bg);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-2px);
+}
+
+/* Enhanced empty state to match home page style with better animations */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  max-width: 600px;
+  margin: 3rem auto;
+}
+
+.empty-state i {
+  font-size: 5rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.3;
+  animation: float-gentle 3s ease-in-out infinite;
+  color: var(--accent);
+}
+
+@keyframes float-gentle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.empty-state h3 {
+  font-family: "Playfair Display", serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.75rem;
+}
+
+.empty-state p {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+/* Added filter section styling to match app theme */
+.container.py-3.text-center form {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.container.py-3.text-center form label {
+  color: var(--text);
+  font-weight: 600;
+  margin: 0;
+}
+
+.container.py-3.text-center form .form-select {
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  color: var(--text);
+  transition: all 0.3s ease;
+  min-width: 200px;
+}
+
+.container.py-3.text-center form .form-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 0.2rem rgba(255, 107, 129, 0.25);
+  outline: none;
+}
+
+.container.py-3.text-center form .btn-primary {
+  background: var(--accent);
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(255, 107, 129, 0.2);
+}
+
+.container.py-3.text-center form .btn-primary:hover {
+  background: #ff5370;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 129, 0.3);
+}
+
+/* Added view toggle button styles */
+.view-toggle {
+  display: inline-flex;
+  background: white;
+  border-radius: 12px;
+  padding: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  gap: 0.5rem;
+}
+
+.view-toggle .btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.view-toggle .btn:hover {
+  background: var(--section-bg);
+  color: var(--text);
+}
+
+.view-toggle .btn.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(255, 107, 129, 0.3);
+}
+
+/* Calendar heatmap styles */
+.calendar-heatmap-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.calendar-heatmap-container h5 {
+  font-family: "Playfair Display", serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.calendar-grid {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.weekday {
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 0.5rem;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--section-bg);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text);
+  transition: all 0.3s ease;
+  position: relative;
+  cursor: default;
+}
+
+.calendar-day.empty {
+  background: transparent;
+}
+
+.calendar-day.has-data {
+  cursor: pointer;
+}
+
+.calendar-day.has-data:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+}
+
+/* Calendar day intensity levels based on wellbeing scores */
+.calendar-day[data-level="1"] {
+  background: rgba(255, 107, 129, 0.2);
+  color: var(--text);
+}
+
+.calendar-day[data-level="2"] {
+  background: rgba(255, 107, 129, 0.4);
+  color: var(--text);
+}
+
+.calendar-day[data-level="3"] {
+  background: rgba(255, 107, 129, 0.6);
+  color: white;
+}
+
+.calendar-day[data-level="4"] {
+  background: rgba(255, 107, 129, 0.8);
+  color: white;
+}
+
+.calendar-day[data-level="5"] {
+  background: var(--accent);
+  color: white;
+}
+
+.day-number {
+  position: relative;
+  z-index: 1;
+}
+
+/* Calendar legend */
+.calendar-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.legend-item {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: var(--section-bg);
+}
+
+.legend-item[data-level="0"] {
+  background: var(--section-bg);
+}
+
+.legend-item[data-level="1"] {
+  background: rgba(255, 107, 129, 0.2);
+}
+
+.legend-item[data-level="2"] {
+  background: rgba(255, 107, 129, 0.4);
+}
+
+.legend-item[data-level="3"] {
+  background: rgba(255, 107, 129, 0.6);
+}
+
+.legend-item[data-level="4"] {
+  background: var(--accent);
+}
+
+/* Selected day details section */
+.selected-day-details {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  animation: fadeInUp 0.4s ease;
+}
+
+.selected-day-details h5 {
+  font-family: "Playfair Display", serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+#selected-date {
+  color: var(--accent);
+}
+
+.day-record-card {
+  background: var(--section-bg);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+/* Added header with action buttons positioned in top-right */
+.day-record-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.record-date-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  font-family: "Playfair Display", serif;
+}
+
+/* New compact action buttons for top-right positioning */
+.card-actions-topright {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.btn-action {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.btn-action-primary {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 2px 6px rgba(255, 107, 129, 0.2);
+}
+
+.btn-action-primary:hover {
+  background: #ff5370;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(255, 107, 129, 0.35);
+  color: white;
+}
+
+.btn-action-secondary {
+  background: white;
+  color: var(--text);
+  border: 2px solid var(--border-color);
+}
+
+.btn-action-secondary:hover {
+  background: var(--section-bg);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* Updated compact record cards to have action buttons in top-right */
+.record-card-compact {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+  position: relative;
+}
+
+.record-card-compact:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.record-card-compact .record-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--section-bg);
+}
+
+.record-card-compact .record-date {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* Removed old bottom action buttons styling for compact cards */
+.card-actions-compact {
+  display: none;
+}
+
+/* Chart cards styling */
+.chart-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chart-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08);
+}
+
+.chart-card h6 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.chart-card canvas {
+  max-height: 250px;
+}
+
+/* Compact record cards for list view */
+.record-card-compact {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+  position: relative;
+}
+
+.record-card-compact:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.record-card-compact .record-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--section-bg);
+}
+
+.record-card-compact .record-date {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* Compact metrics with mini progress bars */
+.metrics-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.metric-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.metric-row i {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.metric-row span {
+  min-width: 60px;
+}
+
+.mini-progress {
+  flex: 1;
+  height: 6px;
+  background: var(--section-bg);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.mini-progress-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Compact card actions */
+.card-actions-compact {
+  display: flex;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 2px solid var(--section-bg);
+}
+
+.card-actions-compact .btn-sm {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-actions-compact .btn-primary {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 2px 6px rgba(255, 107, 129, 0.2);
+}
+
+.card-actions-compact .btn-primary:hover {
+  background: #ff5370;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(255, 107, 129, 0.3);
+  color: white;
+}
+
+.card-actions-compact .btn-outline-secondary {
+  background: transparent;
+  color: var(--text);
+  border: 2px solid var(--border-color);
+}
+
+.card-actions-compact .btn-outline-secondary:hover {
+  background: var(--section-bg);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-2px);
+}
+
+/* Load more button */
+#load-more-btn {
+  padding: 0.875rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  border: 2px solid var(--accent);
+  background: white;
+  color: var(--accent);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#load-more-btn:hover {
+  background: var(--accent);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 129, 0.3);
+}
+
+/* Fade in animation for selected day details */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .wellbeing-hero {
+    margin: 1rem;
+    padding: 2rem 1.5rem;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .btn-accent {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .summary-stats .row {
+    gap: 1rem;
+  }
+
+  .stat-card {
+    padding: 1.5rem;
+  }
+
+  .stat-value {
+    font-size: 1.75rem;
+  }
+
+  .float-icon {
+    font-size: 2rem;
+  }
+
+  .record-card {
+    padding: 1.25rem;
+  }
+
+  .record-date-label {
+    font-size: 0.875rem;
+  }
+
+  /* Ensure action buttons remain visible and usable on mobile */
+  .card-actions-topright {
+    gap: 0.375rem;
+  }
+
+  .btn-action {
+    width: 32px;
+    height: 32px;
+    font-size: 0.875rem;
+  }
+
+  .day-record-header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 1.75rem;
+  }
+
+  .stat-card {
+    padding: 1.25rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .card-actions {
+    flex-direction: column;
+  }
+
+  .card-actions .btn {
+    width: 100%;
+  }
+
+  .calendar-weekdays {
+    gap: 0.25rem;
+  }
+
+  .calendar-days {
+    gap: 0.25rem;
+  }
+
+  .weekday {
+    font-size: 0.65rem;
+  }
+
+  .calendar-day {
+    font-size: 0.7rem;
+  }
+
+  .view-toggle .btn {
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .btn-action {
+    width: 30px;
+    height: 30px;
+    font-size: 0.8rem;
+  }
+
+  .card-actions-topright {
+    gap: 0.25rem;
+  }
+}
