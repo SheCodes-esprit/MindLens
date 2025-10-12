@@ -25,13 +25,10 @@
         </div>
 
         <div class="transcript-section">
-            <h3>
-                <i class="bi bi-file-text"></i>
-                Transcript
-            </h3>
+            <h3><i class="bi bi-file-text"></i> Transcript</h3>
             {% if entry.ai_transcript %}
                 <div class="transcript-content">
-                    {{ entry.ai_transcript }}
+                    {{ entry.ai_transcript|linebreaks }}
                 </div>
             {% else %}
                 <div class="transcript-content empty">
@@ -39,6 +36,7 @@
                 </div>
             {% endif %}
         </div>
+
 
         <div class="emotion-analysis-section">
             <h3>

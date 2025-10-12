@@ -11,26 +11,43 @@ from datetime import datetime, timedelta
 from django.db.models import Count
 from pydub import AudioSegment
 import os
+import whisper
+from pydub import AudioSegment
+from pydub.utils import which
 
+AudioSegment.converter = r"C:\Users\chaym\Downloads\ffmpeg-8.0-essentials_build\ffmpeg-8.0-essentials_build\bin\ffmpeg.exe"
+AudioSegment.ffprobe = r"C:\Users\chaym\Downloads\ffmpeg-8.0-essentials_build\ffmpeg-8.0-essentials_build\bin\ffprobe.exe"
+# You can choose model sizes: tiny, base, small, medium, large
+whisper_model = whisper.load_model("base")
 # Configure logging
 logger = logging.getLogger(__name__)
 
 def perform_ai_analysis(audio_entry):
-    audio_entry.ai_transcript = "Mock transcription: Today I felt stressed about work."
-    audio_entry.save()
-    
-    AudioEmotionAnalysis.objects.create(
-        audio_entry=audio_entry,
-        detected_emotion='stress',
-        intensity=0.75,
-        ai_model_version='mock_v1'
-    )
-    AudioEmotionAnalysis.objects.create(
-        audio_entry=audio_entry,
-        detected_emotion='joy',
-        intensity=0.3,
-        ai_model_version='mock_v1'
-    )
+    if audio_entry.audio_url:
+        try:
+            # Transcribe the uploaded audio file
+            result = whisper_model.transcribe(audio_entry.audio_url.path)
+            audio_entry.ai_transcript = result['text']
+            audio_entry.save()
+
+            # Optionally, you can keep your emotion mock for now
+            AudioEmotionAnalysis.objects.create(
+                audio_entry=audio_entry,
+                detected_emotion='stress',
+                intensity=0.75,
+                ai_model_version='whisper_base'
+            )
+            AudioEmotionAnalysis.objects.create(
+                audio_entry=audio_entry,
+                detected_emotion='joy',
+                intensity=0.3,
+                ai_model_version='whisper_base'
+            )
+        except Exception as e:
+            # Logging in case transcription fails
+            logger.error(f"Whisper transcription failed: {e}")
+            audio_entry.ai_transcript = "Transcription failed."
+            audio_entry.save()
 
 @login_required
 def audio_create(request):
