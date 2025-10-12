@@ -1,0 +1,13 @@
+<!-- Create templates/frontoffice/pages/audio_create.html (new file) -->
+{% extends 'frontoffice/layouts/base.html' %}
+{% block content %}
+<div class="container py-5">
+    <h2>Create New Audio Entry</h2>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Save and Analyze</button>
+    </form>
+    <!-- TODO: Add client-side audio recording if desired (using MediaRecorder API) -->
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+<!-- Create templates/frontoffice/pages/audio_detail.html (new file) -->
+{% extends 'frontoffice/layouts/base.html' %}
+{% block content %}
+<div class="container py-5">
+    <h2>{{ entry.title|default:"Untitled" }}</h2>
+    <audio controls src="{{ entry.audio_url.url }}" class="mb-3"></audio>
+    <p><strong>Transcript:</strong> {{ entry.ai_transcript|default:"No transcript available." }}</p>
+    <h3>Emotion Analysis</h3>
+    <ul>
+        {% for analysis in analyses %}
+        <li>{{ analysis.detected_emotion }} (Intensity: {{ analysis.intensity }}) - {{ analysis.created_at }}</li>
+        {% empty %}
+        <li>No analysis available.</li>
+        {% endfor %}
+    </ul>
+    <!-- TODO: Add chart for emotion evolution -->
+    <div id="emotion-chart"></div>
+    <!-- Include Chart.js or similar for graphing -->
+</div>
+{% endblock %}
