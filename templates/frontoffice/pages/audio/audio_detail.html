@@ -75,24 +75,12 @@
             </ul>
         </div>
 
-        <div class="emotion-chart-section">
-            <h3>
-                <i class="bi bi-graph-up"></i>
-                Emotion Evolution
-            </h3>
-            <div id="emotion-chart" class="{% if not analyses %}empty{% endif %}">
-                {% if not analyses %}
-                    Chart will appear here once emotion analysis is available
-                {% endif %}
-            </div>
-        </div>
+        
     </div>
 </div>
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    
-</script>
+
 {% endblock %}
 {% endblock %}
