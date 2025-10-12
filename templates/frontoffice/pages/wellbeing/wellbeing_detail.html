@@ -54,7 +54,7 @@
                         <h4 class="metric-value mood">{{ record.mood_score }}/10</h4>
                         <p class="metric-label">Mood</p>
                         <div class="progress-bar-container">
-                            <div class="progress-bar mood" style="width: {{ record.mood_score }}0%;"></div>
+                            <div class="progress-bar mood" style="width: {{ record.mood_score|floatformat:0 }}0%;"></div>
                         </div>
                     </div>
 
@@ -64,7 +64,7 @@
                         <h4 class="metric-value energy">{{ record.energy_level }}/10</h4>
                         <p class="metric-label">Energy Level</p>
                         <div class="progress-bar-container">
-                            <div class="progress-bar energy" style="width: {{ record.energy_level }}0%;"></div>
+                            <div class="progress-bar energy" style="width: {{ record.energy_level|floatformat:0 }}0%;"></div>
                         </div>
                     </div>
 
@@ -81,7 +81,7 @@
                         <h4 class="metric-value productivity">{{ record.productivity_score }}/10</h4>
                         <p class="metric-label">Productivity</p>
                         <div class="progress-bar-container">
-                            <div class="progress-bar productivity" style="width: {{ record.productivity_score }}0%;"></div>
+                            <div class="progress-bar productivity" style="width: {{ record.productivity_score|floatformat:0 }}0%;"></div>
                         </div>
                     </div>
                 </div>
@@ -97,43 +97,37 @@
             <div class="entry-card">
                 <div class="recommendations-header">
                     <h4 class="recommendations-title"><i class="bi bi-lightbulb"></i> Routine Recommendations</h4>
-                    <a href="{% url 'wellbeing:recommendation_create' record.pk %}" class="btn-add">
-                        + Add
-                    </a>
                 </div>
 
                 {% if recommendations %}
-                    <div class="recommendations-list">
-                        {% for recommendation in recommendations %}
-                        <div class="recommendation-card">
-                            <div class="recommendation-header">
-                                <div class="recommendation-badges">
-                                    <span class="badge badge-type">
-                                        {{ recommendation.get_type_display }}
-                                    </span>
-                                    {% if recommendation.ai_generated %}
-                                    <span class="badge badge-ai">
-                                        <i class="bi bi-robot"></i> AI
-                                    </span>
-                                    {% endif %}
-                                </div>
-                                <small class="recommendation-date">{{ recommendation.created_at|date:"d/m/Y H:i" }}</small>
+                <div class="recommendations-list">
+                    {% for recommendation in recommendations %}
+                    {% if recommendation.ai_generated %}
+                    <div class="recommendation-card ai-card">
+                        <div class="recommendation-header">
+                            <div class="recommendation-badges">
+                                <span class="badge badge-type">
+                                    {{ recommendation.get_type_display }}
+                                </span>
+                                <span class="badge badge-ai">
+                                    <i class="bi bi-robot"></i> AI
+                                </span>
                             </div>
-                            <p class="recommendation-description">{{ recommendation.description }}</p>
-                            <small class="recommendation-efficiency">
-                                ⭐ Effectiveness: {{ recommendation.efficiency_score|floatformat:2 }}
-                            </small>
+                            <small class="recommendation-date">{{ recommendation.created_at|date:"d/m/Y H:i" }}</small>
                         </div>
-                        {% endfor %}
+                        <p class="recommendation-description">{{ recommendation.description }}</p>
+                        <small class="recommendation-efficiency">
+                            ⭐ Effectiveness: {{ recommendation.efficiency_score|floatformat:2 }}
+                        </small>
                     </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
                 {% else %}
-                    <div class="empty-state">
-                        <div class="empty-icon"><i class="bi bi-inbox"></i></div>
-                        <p class="empty-text">No recommendations yet</p>
-                        <a href="{% url 'wellbeing:recommendation_create' record.pk %}" class="btn-add">
-                            + Add a recommendation
-                        </a>
-                    </div>
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="bi bi-inbox"></i></div>
+                    <p class="empty-text">No AI recommendations yet</p>
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -171,7 +165,6 @@
     </div>
 </div>
 
-<!-- Script to auto-dismiss alerts after 3 seconds -->
 <script>
 window.addEventListener('DOMContentLoaded', () => {
     const alerts = document.querySelectorAll('#alert-container .alert');

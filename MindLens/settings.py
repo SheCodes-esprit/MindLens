@@ -4,6 +4,7 @@ Django settings for MindLens project.
 
 from pathlib import Path
 import os  
+from dotenv import load_dotenv
 
 # ------------------------------
 # BASE CONFIGURATION
@@ -125,3 +126,10 @@ AUTH_USER_MODEL = "users.User"
 # DEFAULT AUTO FIELD
 # ------------------------------
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+# ------------------------------
+#dotenv
+# ------------------------------
+load_dotenv()
+# Access the environment variables
+
+GROQ_API_KEY = os.getenv('GROQ_API_KEY')

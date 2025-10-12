@@ -5,8 +5,8 @@ from .models import WellbeingRecord, RoutineRecommendation
 from .forms import WellbeingRecordForm, RoutineRecommendationForm
 from datetime import date
 from django.db.models import Avg
-
-
+# Import your AI utilities
+from .ai_prompts import generate_summary_and_recommendations
 @login_required
 def wellbeing_list(request):
     """List the user's wellbeing records with monthly statistics."""
@@ -42,29 +42,59 @@ def wellbeing_list(request):
     })
 
 
+
 @login_required
 def wellbeing_create(request):
-    """Create a new wellbeing record."""
+    """Create a new wellbeing record with AI-generated summary and recommendations."""
     today = date.today()
-    
-    # Check if a record already exists for the user today
+
+    # Prevent duplicate record for today
     existing_record = WellbeingRecord.objects.filter(user=request.user, date=today).first()
     if existing_record:
-        messages.warning(request, "You’ve already created a record for today!")
-        # Redirect to the detail view of the existing record
+        messages.warning(request, "You've already created a record for today!")
         return redirect('wellbeing:wellbeing_detail', pk=existing_record.pk)
-    
+
     if request.method == 'POST':
         form = WellbeingRecordForm(request.POST)
         if form.is_valid():
+            # 1️⃣ Save the basic record
             record = form.save(commit=False)
             record.user = request.user
             record.save()
-            messages.success(request, 'Record created successfully!')
+
+            # 2️⃣ Generate AI summary and recommendations
+            try:
+                ai_results = generate_summary_and_recommendations(record, model="llama-3.1-8b-instant")
+                
+                # Save AI summary
+                if ai_results.get("summary") and not ai_results["summary"].startswith("Error:"):
+                    record.ai_summary = ai_results["summary"]
+                    record.save()
+                else:
+                    messages.warning(request, f"AI summary: {ai_results.get('summary')}")
+
+                # Save AI recommendations
+                recommendations = ai_results.get("recommendations", {})
+                for rec_type, description in recommendations.items():
+                    if description and not description.startswith("Error:"):
+                        RoutineRecommendation.objects.create(
+                            wellbeing_record=record,
+                            type=rec_type,
+                            description=description,
+                            ai_generated=True,
+                            efficiency_score=0.5  # placeholder score
+                        )
+                    else:
+                        messages.warning(request, f"AI recommendation ({rec_type}): {description}")
+
+            except Exception as e:
+                messages.warning(request, f"AI generation failed: {e}")
+
+            messages.success(request, 'Record created successfully with AI-generated insights!')
             return redirect('wellbeing:wellbeing_detail', pk=record.pk)
     else:
         form = WellbeingRecordForm()
-    
+
     return render(request, 'frontoffice/pages/wellbeing/wellbeing_form.html', {
         'form': form,
         'title': 'New Record'
@@ -85,23 +115,58 @@ def wellbeing_detail(request, pk):
 
 @login_required
 def wellbeing_update(request, pk):
-    """Edit an existing wellbeing record."""
+    """Edit an existing wellbeing record and regenerate AI insights."""
     record = get_object_or_404(WellbeingRecord, pk=pk, user=request.user)
-    
+
     if request.method == 'POST':
         form = WellbeingRecordForm(request.POST, instance=record)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Record updated successfully!')
+            # 1️⃣ Save the updated record
+            record = form.save()
+
+            # 2️⃣ Delete old AI-generated recommendations to avoid duplicates
+            RoutineRecommendation.objects.filter(
+                wellbeing_record=record,
+                ai_generated=True
+            ).delete()
+
+            # 3️⃣ Regenerate AI summary and recommendations based on new values
+            try:
+                ai_results = generate_summary_and_recommendations(record, model="llama-3.1-8b-instant")
+                
+                # Save AI summary
+                if ai_results.get("summary") and not ai_results["summary"].startswith("Error:"):
+                    record.ai_summary = ai_results["summary"]
+                    record.save()
+                else:
+                    messages.warning(request, f"AI summary: {ai_results.get('summary')}")
+
+                # Save AI recommendations
+                recommendations = ai_results.get("recommendations", {})
+                for rec_type, description in recommendations.items():
+                    if description and not description.startswith("Error:"):
+                        RoutineRecommendation.objects.create(
+                            wellbeing_record=record,
+                            type=rec_type,
+                            description=description,
+                            ai_generated=True,
+                            efficiency_score=0.5  # placeholder score
+                        )
+                    else:
+                        messages.warning(request, f"AI recommendation ({rec_type}): {description}")
+
+            except Exception as e:
+                messages.warning(request, f"AI generation failed: {e}")
+
+            messages.success(request, 'Record updated successfully with refreshed AI insights!')
             return redirect('wellbeing:wellbeing_detail', pk=record.pk)
     else:
         form = WellbeingRecordForm(instance=record)
-    
+
     return render(request, 'frontoffice/pages/wellbeing/wellbeing_form.html', {
         'form': form,
         'title': 'Edit Record'
     })
-
 
 @login_required
 def wellbeing_delete(request, pk):
