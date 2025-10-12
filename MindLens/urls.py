@@ -27,6 +27,7 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('account/', include('users.urls')),
     path('journalist/', include('audio.urls')),
+    path('wellbeing/', include('wellbeing.urls')),
 ]
 
 if settings.DEBUG:

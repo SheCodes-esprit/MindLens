@@ -1,0 +1,110 @@
+{% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
+{% block title %}Mes enregistrements de bien-être{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 3rem 1rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 class="hero-title" style="font-size: 2.5rem; margin: 0;">Mes enregistrements</h1>
+        <a href="{% url 'wellbeing:wellbeing_create' %}" 
+           style="background: var(--accent); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: opacity 0.3s;">
+            + Nouvel enregistrement
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+        <div style="background: #d4edda; border-left: 4px solid #28a745; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if records %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+            {% for record in records %}
+            <div class="entry-card">
+                <div style="background: var(--accent); color: white; padding: 1rem; border-radius: 12px 12px 0 0; margin: -1.5rem -1.5rem 1rem -1.5rem;">
+                    <h5 style="margin: 0; font-size: 1.2rem; font-weight: 600;">📅 {{ record.date|date:"d/m/Y" }}</h5>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="color: var(--text); font-weight: 500;">😊 Humeur</span>
+                        <span style="background: #3498db; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600;">
+                            {{ record.mood_score }}/10
+                        </span>
+                    </div>
+                    <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: #3498db; height: 100%; width: {{ record.mood_score }}0%; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="color: var(--text); font-weight: 500;">⚡ Énergie</span>
+                        <span style="background: #f39c12; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600;">
+                            {{ record.energy_level }}/10
+                        </span>
+                    </div>
+                    <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: #f39c12; height: 100%; width: {{ record.energy_level }}0%; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: var(--text); font-weight: 500;">🌙 Sommeil</span>
+                        <span style="background: #95a5a6; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600;">
+                            {{ record.sleep_hours }}h
+                        </span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="color: var(--text); font-weight: 500;">📈 Productivité</span>
+                        <span style="background: #27ae60; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600;">
+                            {{ record.productivity_score }}/10
+                        </span>
+                    </div>
+                    <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: #27ae60; height: 100%; width: {{ record.productivity_score }}0%; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+
+                {% if record.ai_summary %}
+                <div style="background: #f8f9fa; padding: 0.75rem; border-radius: 8px; border-left: 3px solid var(--accent); margin-bottom: 1rem;">
+                    <small style="color: var(--text);">🤖 {{ record.ai_summary|truncatewords:15 }}</small>
+                </div>
+                {% endif %}
+
+                <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                    <a href="{% url 'wellbeing:wellbeing_detail' record.pk %}" 
+                       style="flex: 1; text-align: center; padding: 0.5rem; background: var(--accent); color: white; text-decoration: none; border-radius: 6px; font-weight: 500; transition: opacity 0.3s;">
+                        👁️ Détails
+                    </a>
+                    <a href="{% url 'wellbeing:wellbeing_update' record.pk %}" 
+                       style="padding: 0.5rem 1rem; background: #6c757d; color: white; text-decoration: none; border-radius: 6px; transition: opacity 0.3s;">
+                        ✏️
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 4rem 1rem;">
+            <div style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.3;">📭</div>
+            <h3 style="color: var(--text); margin-bottom: 0.5rem;">Aucun enregistrement</h3>
+            <p style="color: var(--text); opacity: 0.7; margin-bottom: 2rem;">Commencez à suivre votre bien-être dès aujourd'hui</p>
+            <a href="{% url 'wellbeing:wellbeing_create' %}" 
+               style="display: inline-block; background: var(--accent); color: white; padding: 1rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1.1rem;">
+                + Créer mon premier enregistrement
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
