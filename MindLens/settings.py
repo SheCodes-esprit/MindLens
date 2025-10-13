@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "users",
     'wellbeing'  ,
     'audio',
+    'visual',
     
 ]
 
