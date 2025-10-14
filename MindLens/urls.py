@@ -28,6 +28,7 @@ urlpatterns = [
     path('account/', include('users.urls')),
     path('journalist/', include('audio.urls')),
     path('wellbeing/', include('wellbeing.urls')),
+    path('visual/', include('visual.urls')),
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,107 @@
+{% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/visual.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="visual-hero text-center">
+        <div class="floating-icons">
+            <i class="bi bi-image-fill float-icon"></i>
+            <i class="bi bi-camera-video float-icon"></i>
+            <i class="bi bi-eye-fill float-icon"></i>
+            <i class="bi bi-brush-fill float-icon"></i>
+            <i class="bi bi-palette-fill float-icon"></i>
+        </div>
+        <h2>Mes Entrées Visuelles</h2>
+        <a href="{% url 'visual_create' %}" class="btn btn-create-visual">
+            <i class="bi bi-plus-circle"></i> Ajouter
+        </a>
+    </div>
+
+    <div class="visual-entries-container">
+        {% for entry in entries %}
+        <div class="visual-entry-card">
+            <div class="visual-entry-content">
+                <div class="visual-icon">
+                    <i class="bi bi-eye-fill"></i>
+                </div>
+                <div class="visual-entry-info">
+                    <a href="{% url 'visual_detail' entry.pk %}" class="visual-entry-title">
+                        {{ entry.type }} - {{ entry.created_at|date:"M d, Y" }}
+                    </a>
+                </div>
+            </div>
+            <form method="POST" action="{% url 'visual_delete' entry.pk %}" onsubmit="event.preventDefault(); openDeleteModal(this);">
+                {% csrf_token %}
+                <button type="submit" class="btn-delete-visual">
+                    <i class="bi bi-trash"></i> Supprimer
+                </button>
+            </form>
+            {% if entry.type == 'image' %}
+                <img src="{{ entry.media_url.url }}" alt="Image" class="visual-media" style="width:200px;">
+            {% else %}
+                <video src="{{ entry.media_url.url }}" class="visual-media" style="width:200px;" controls></video>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="visual-empty-state">
+            <i class="bi bi-image"></i>
+            <h3>Aucune Entrée Visuelle</h3>
+            <p>Commencez à ajouter votre première entrée visuelle !</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div id="deleteModal" class="delete-modal">
+    <div class="delete-modal-content">
+        <div class="delete-modal-header">
+            <i class="bi bi-exclamation-triangle"></i>
+            <h3>Confirmer la Suppression</h3>
+        </div>
+        <div class="delete-modal-body">
+            <p>Êtes-vous sûr de vouloir supprimer cette entrée visuelle ?</p>
+            <p class="warning-text">Cette action est irréversible.</p>
+        </div>
+        <div class="delete-modal-footer">
+            <button type="button" class="btn-cancel" onclick="closeDeleteModal()">
+                <i class="bi bi-x-circle"></i> Annuler
+            </button>
+            <button type="button" class="btn-confirm-delete" onclick="confirmDelete()">
+                <i class="bi bi-trash"></i> Supprimer
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let deleteForm = null;
+
+function openDeleteModal(form) {
+    deleteForm = form;
+    document.getElementById('deleteModal').style.display = 'flex';
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+    deleteForm = null;
+}
+
+function confirmDelete() {
+    if (deleteForm) {
+        deleteForm.submit();
+    }
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('deleteModal');
+    if (event.target === modal) {
+        closeDeleteModal();
+    }
+}
+</script>
+{% endblock %}
