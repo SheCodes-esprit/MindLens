@@ -10,4 +10,8 @@ urlpatterns = [
     path('journalist/dashboard/', views.journalist_dashboard_view, name='journalist_dashboard'),
     path('profile/', views.profile_view, name='profile'),
 
+    path('profile/delete/', views.delete_account_view, name='delete_account'),
+    path('verify-email/<uidb64>/<token>/', views.verify_email, name='verify_email'),
+
+
 ]

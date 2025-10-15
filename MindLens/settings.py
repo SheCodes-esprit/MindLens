@@ -137,3 +137,13 @@ load_dotenv()
 # Access the environment variables
 
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
+
+# settings.py
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"          # Serveur SMTP
+EMAIL_PORT = 587                        # Port TLS
+EMAIL_USE_TLS = True                     # Sécurisé
+EMAIL_HOST_USER = "MindLens.Shecodes@gmail.com"  # L’email de la plateforme
+EMAIL_HOST_PASSWORD = "epnk ejhe ifvt npgt" # Mot de passe d’application Gmail
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

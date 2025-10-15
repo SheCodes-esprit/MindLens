@@ -1,0 +1,16 @@
+{% extends 'frontoffice/layouts/base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Delete Account</h2>
+    <p class="text-danger">Warning: This action is irreversible! All your data will be removed.</p>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="confirm" class="form-label">Type <strong>DELETE</strong> to confirm:</label>
+            <input type="text" class="form-control" id="confirm" name="confirm" required>
+        </div>
+        <button type="submit" class="btn btn-danger">Delete My Account</button>
+        <a href="{% url 'profile' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

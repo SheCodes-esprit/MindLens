@@ -39,7 +39,8 @@
             <option value="" disabled selected>Account</option>
             {% if user.is_authenticated %}
               <option value="{% url 'profile' %}">My Profile</option>
-              <option value="settings">Settings</option>
+              <option value="{% url 'delete_account' %}">Settings</option>
+              <option value="{% url 'delete_account' %}">Delete My Account</option>
               <option value="-" disabled>──────────</option>
               <option value="{% url 'logout' %}">Logout</option>
             {% else %}

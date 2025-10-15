@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 import re
 
 class User(AbstractUser):
+    is_email_verified = models.BooleanField(default=False)
     JOURNALIST = 'JOURNALIST'
     ADMIN = 'ADMIN'
 
