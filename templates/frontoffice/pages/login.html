@@ -54,6 +54,9 @@
                       <div class="text-danger small mt-1">{{ errors.password }}</div>
                   {% endif %}
               </div>
+              <div class="text-center mt-3">
+                  <a href="{% url 'forgot_password' %}" class="text-muted text-decoration-none">Forgot your password?</a>
+              </div>
 
               <div class="mb-4 form-check">
                   <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe">

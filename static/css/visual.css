@@ -990,7 +990,7 @@ canvas {
     }
 }
 .hero {
-  background: linear-gradient(135deg, var(--accent) 0%, #667eea 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, #c6cff8 100%);
   color: white;
   position: relative;
   overflow: hidden;
@@ -1049,4 +1049,27 @@ canvas {
 canvas {
   width: 100% !important;
   height: 260px !important;
+}
+
+
+
+/* Hero Section */
+.audio-hero {
+  position: relative;
+  background: linear-gradient(135deg, var(--bg) 0%, #f8f9fa 100%);
+  padding: 4rem 0;
+  margin-bottom: 3rem;
+  overflow: hidden;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.audio-hero h2 {
+  font-family: "Playfair Display", serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 2;
 }

@@ -2,57 +2,30 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import User
 import re
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.template.loader import render_to_string
-from django.conf import settings
-from .utils import email_verification_token
 from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
+from .utils import email_verification_token
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
+password_reset_token = PasswordResetTokenGenerator()
 
+# --------------------- Pages simples ---------------------
 def test_template(request):
     return render(request, 'test.html')
-
 
 def home(request):
     return render(request, "frontoffice/pages/home.html")
 
-
-@login_required
-def delete_account_view(request):
-    if request.method == 'POST':
-        confirm = request.POST.get('confirm', '')  # Champ venant du formulaire
-        if confirm == 'DELETE':
-            user = request.user
-            # Soft delete: on peut juste désactiver le compte et flagger comme supprimé
-            user.is_active = False
-            user.username = f'deleted_user_{user.pk}'  # Pour éviter conflit usernames
-            user.email = f'deleted_{user.pk}@example.com'  # Pour éviter conflit emails
-            user.save()
-            
-            # Déconnexion de l'utilisateur après suppression
-            logout(request)
-            messages.success(request, "Your account has been permanently deleted.")
-            return redirect('home')
-        else:
-            messages.error(request, "You must type 'DELETE' to confirm account deletion.")
-            return redirect('profile')
-
-    return render(request, 'frontoffice/pages/delete_account.html')
-
+# --------------------- Auth ---------------------
 def signin_view(request):
-    context = {
-        'errors': {},
-        'values': {}
-    }
+    context = {'errors': {}, 'values': {}}
 
     if request.user.is_authenticated:
         return redirect_based_on_role(request.user)
@@ -94,10 +67,7 @@ def signin_view(request):
 
 
 def signup_view(request):
-    context = {
-        'errors': {},
-        'values': {}
-    }
+    context = {'errors': {}, 'values': {}}
 
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
@@ -107,7 +77,6 @@ def signup_view(request):
 
         context['values']['username'] = username
         context['values']['email'] = email
-
         has_errors = False
 
         # Username validation
@@ -150,25 +119,17 @@ def signup_view(request):
             has_errors = True
 
         if not has_errors:
-            # Créer l'utilisateur désactivé
             user = User.objects.create_user(
                 username=username,
                 email=email,
                 password=password,
                 role=User.JOURNALIST,
-                is_active=False  # Désactiver le compte tant que l'email n'est pas vérifié
+                is_active=False
             )
-
-            # Générer token et uid
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = email_verification_token.make_token(user)
+            verification_link = request.build_absolute_uri(f"/users/verify-email/{uid}/{token}/")
 
-            # Construire le lien de vérification
-            verification_link = request.build_absolute_uri(
-                f"/users/verify-email/{uid}/{token}/"
-            )
-
-            # Envoyer l'email
             subject = "Verify your MindLens account"
             message = render_to_string("frontoffice/emails/verify_email.html", {
                 "user": user,
@@ -180,15 +141,6 @@ def signup_view(request):
 
             messages.success(request, "Account created! Please check your email to verify your account.")
             return redirect('signin')
-        else:
-            # Reset sensitive fields
-            if 'password' in context['errors'] or 'confirmPassword' in context['errors']:
-                context['values']['password'] = ''
-                context['values']['confirmPassword'] = ''
-            if 'username' in context['errors']:
-                context['values']['username'] = ''
-            if 'email' in context['errors']:
-                context['values']['email'] = ''
 
     return render(request, 'frontoffice/pages/register.html', context)
 
@@ -202,7 +154,7 @@ def verify_email(request, uidb64, token):
 
     if user is not None and email_verification_token.check_token(user, token):
         user.is_email_verified = True
-        user.is_active = True  # Activer le compte
+        user.is_active = True
         user.save()
         messages.success(request, "Email verified successfully! You can now log in.")
         return redirect('signin')
@@ -216,6 +168,75 @@ def logout_view(request):
     return redirect('signin')
 
 
+# --------------------- Mot de passe oublié / reset ---------------------
+def forgot_password_view(request):
+    if request.method == "POST":
+        email = request.POST.get('email', '').strip()
+        if not email:
+            messages.error(request, "Please enter your email address.")
+        else:
+            try:
+                user = User.objects.get(email=email)
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                token = password_reset_token.make_token(user)
+                reset_link = request.build_absolute_uri(
+                    f"/users/reset-password/{uid}/{token}/"
+                )
+                subject = "Reset your MindLens password"
+                message = render_to_string("frontoffice/emails/reset_password_email.html", {
+                    "user": user,
+                    "reset_link": reset_link
+                })
+                email_message = EmailMessage(subject, message, to=[user.email])
+                email_message.content_subtype = "html"
+                email_message.send()
+                messages.success(request, "Password reset email sent! Check your inbox.")
+                return redirect('signin')
+            except User.DoesNotExist:
+                messages.error(request, "No user found with this email address.")
+
+    return render(request, "frontoffice/pages/forgot_password.html")
+
+
+def reset_password_view(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is None or not password_reset_token.check_token(user, token):
+        messages.error(request, "Password reset link is invalid or expired.")
+        return redirect('forgot_password')
+
+    if request.method == "POST":
+        new_password = request.POST.get('new_password', '').strip()
+        confirm_password = request.POST.get('confirm_password', '').strip()
+        errors = {}
+
+        if not new_password:
+            errors['new_password'] = "New password is required."
+        else:
+            try:
+                validate_password(new_password, user)
+            except ValidationError as e:
+                errors['new_password'] = ' '.join(e.messages)
+
+        if new_password != confirm_password:
+            errors['confirm_password'] = "Passwords do not match."
+
+        if not errors:
+            user.set_password(new_password)
+            user.save()
+            messages.success(request, "Password updated successfully! You can now log in.")
+            return redirect('signin')
+        else:
+            return render(request, "frontoffice/pages/reset_password.html", {"errors": errors})
+
+    return render(request, "frontoffice/pages/reset_password.html", {"errors": {}})
+
+
+# --------------------- Dashboard ---------------------
 @login_required
 def journalist_dashboard_view(request):
     return render(request, 'frontoffice/pages/dashboard.html')
@@ -235,6 +256,7 @@ def redirect_based_on_role(user):
         return redirect('signin')
 
 
+# --------------------- Profile ---------------------
 def handle_profile_update(request, context):
     first_name = request.POST.get('first_name', '').strip()
     last_name = request.POST.get('last_name', '').strip()
@@ -269,7 +291,6 @@ def handle_profile_update(request, context):
 def handle_profile_image_update(request, context):
     if 'profile_image' in request.FILES:
         profile_image = request.FILES['profile_image']
-
         allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
         if profile_image.content_type not in allowed_types:
             context['errors']['profile_image'] = 'Please upload a valid image file (JPEG, PNG, GIF, WebP).'
@@ -361,3 +382,24 @@ def profile_view(request):
                 return redirect('profile')
 
     return render(request, 'frontoffice/pages/profile.html', context)
+
+
+# --------------------- Supprimer compte ---------------------
+@login_required
+def delete_account_view(request):
+    if request.method == 'POST':
+        confirm = request.POST.get('confirm', '')
+        if confirm == 'DELETE':
+            user = request.user
+            user.is_active = False
+            user.username = f'deleted_user_{user.pk}'
+            user.email = f'deleted_{user.pk}@example.com'
+            user.save()
+            logout(request)
+            messages.success(request, "Your account has been permanently deleted.")
+            return redirect('home')
+        else:
+            messages.error(request, "You must type 'DELETE' to confirm account deletion.")
+            return redirect('profile')
+
+    return render(request, 'frontoffice/pages/delete_account.html')
