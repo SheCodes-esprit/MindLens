@@ -743,3 +743,310 @@
     text-align: center;
     color: #6c757d;
 }
+
+/* ==============================
+   Variables Globales
+============================== */
+:root {
+    --bg-light: #f8f9fa;
+    --bg-white: #ffffff;
+    --text-dark: #212529;
+    --text-muted: #6c757d;
+    --accent: #ff6b81;
+    --accent-dark: #e63946;
+    --card-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    --transition: all 0.3s ease;
+}
+
+/* ==============================
+   Page Wrapper
+============================== */
+.visual-page-wrapper {
+    max-width: 950px;
+    margin: 30px auto;
+    padding: 25px;
+    background: var(--bg-white);
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ==============================
+   Headings
+============================== */
+.visual-page-wrapper h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 1.5rem;
+}
+
+/* ==============================
+   Stats Cards
+============================== */
+.stats-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stats-cards .card {
+    flex: 1;
+    min-width: 260px;
+    background: var(--bg-white);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: var(--card-shadow);
+    transition: var(--transition);
+}
+
+.stats-cards .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+}
+
+.stats-cards h4 {
+    margin-bottom: 1rem;
+    font-size: 1.125rem;
+    color: var(--text-dark);
+}
+
+/* ==============================
+   Charts
+============================== */
+canvas {
+    width: 100% !important;
+    height: 220px !important;
+}
+
+/* ==============================
+   Top Objects Section
+============================== */
+.top-objects-section {
+    margin-top: 2rem;
+}
+
+/* ==============================
+   Empty State
+============================== */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-muted);
+    background: var(--bg-light);
+    border-radius: 16px;
+    font-size: 1rem;
+}
+
+/* ==============================
+   Buttons
+============================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.btn-accent {
+    background: linear-gradient(135deg, var(--accent) 0%, #ff8fa3 100%);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(255, 107, 129, 0.3);
+}
+
+.btn-accent:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(255, 107, 129, 0.4);
+}
+
+.btn-back {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.btn-back:hover {
+    color: var(--accent-dark);
+}
+
+/* ==============================
+   Visual Entry Cards
+============================== */
+.visual-entry-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-white);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: var(--card-shadow);
+    transition: var(--transition);
+    margin-bottom: 1.5rem;
+}
+
+.visual-entry-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+}
+
+.visual-entry-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.visual-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent) 0%, #ff8fa3 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.visual-entry-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    transition: var(--transition);
+}
+
+.visual-entry-title:hover {
+    color: var(--accent);
+}
+
+.visual-media {
+    margin-top: 1rem;
+    border-radius: 12px;
+    object-fit: cover;
+    width: 100%;
+    box-shadow: var(--card-shadow);
+}
+
+/* ==============================
+   Insight & Analysis
+============================== */
+.insight-section, .analysis-section {
+    margin-top: 2rem;
+}
+
+.insight-section h3, .analysis-section h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: var(--text-dark);
+}
+
+.insight-content, .analysis-list {
+    background: var(--bg-light);
+    padding: 1rem;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+}
+
+.analysis-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+    background: #e9ecef;
+    border-radius: 8px;
+}
+
+.analysis-icon i {
+    color: var(--accent);
+    font-size: 20px;
+}
+
+/* ==============================
+   Responsive
+============================== */
+@media (max-width: 768px) {
+    .stats-cards {
+        flex-direction: column;
+    }
+
+    .visual-entry-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    canvas {
+        height: 200px !important;
+    }
+}
+.hero {
+  background: linear-gradient(135deg, var(--accent) 0%, #667eea 100%);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+.floating-icons .float-icon {
+  position: absolute;
+  font-size: 2rem;
+  opacity: 0.15;
+  animation: float 6s ease-in-out infinite;
+}
+
+.float-icon:nth-child(1) { top: 20%; left: 15%; animation-delay: 0s; }
+.float-icon:nth-child(2) { top: 50%; right: 20%; animation-delay: 2s; }
+.float-icon:nth-child(3) { bottom: 15%; left: 30%; animation-delay: 4s; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+.feature-card {
+  background: white;
+  border-radius: 14px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 3px 10px rgba(13, 71, 161, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 18px rgba(13, 71, 161, 0.15);
+}
+
+.feature-card h5 {
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.container {
+  max-width: 1100px;
+}
+
+canvas {
+  width: 100% !important;
+  height: 260px !important;
+}

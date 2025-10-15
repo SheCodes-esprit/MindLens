@@ -14,6 +14,14 @@ import numpy as np
 from moviepy.editor import VideoFileClip
 from io import BytesIO
 
+# ----------------------  STATISTIQUES ----------------------
+
+from django.db.models import Count, Avg
+from django.db.models.functions import TruncDay
+from django.http import JsonResponse
+from django.views.decorators.cache import cache_page
+from datetime import date, timedelta
+from django.db.models.functions import TruncWeek
 
 # ---------------------- LIST & DETAIL ----------------------
 
@@ -144,3 +152,129 @@ def analyze_visual(entry):
     except Exception as e:
         entry.ai_description = f"Erreur pendant l'analyse : {e}"
         entry.save()
+
+
+@login_required
+def stats_page(request):
+    return render(request, 'frontoffice/pages/visual/visual_stats.html', {})
+
+
+# ---------------------- API: trend posts ----------------------
+@login_required
+@cache_page(60*5)  # cache 5 minutes
+def api_posts_trend(request):
+    user = request.user
+    days = int(request.GET.get('days', 30))
+    start_date = date.today() - timedelta(days=days-1)
+
+    qs = (
+        VisualEntry.objects
+        .filter(user=user, created_at__date__gte=start_date)
+        .annotate(day=TruncDay('created_at'))
+        .values('day')
+        .annotate(count=Count('id'))
+        .order_by('day')
+    )
+
+    series = {r['day'].date().isoformat(): r['count'] for r in qs}
+    out = []
+    for i in range(days):
+        d = start_date + timedelta(days=i)
+        out.append({'date': d.isoformat(), 'count': series.get(d.isoformat(), 0)})
+
+    return JsonResponse({'series': out})
+
+
+# ---------------------- API: distribution émotions ----------------------
+
+@login_required
+@cache_page(60*5)
+def api_posts_trend_weekly(request):
+    user = request.user
+    weeks = int(request.GET.get('weeks', 8))
+    today = date.today()
+    start_date = today - timedelta(weeks=weeks-1)
+
+    qs = (
+        VisualEntry.objects
+        .filter(user=user, created_at__date__gte=start_date)
+        .annotate(week=TruncWeek('created_at'))
+        .values('week')
+        .annotate(count=Count('id'))
+        .order_by('week')
+    )
+
+    series = {r['week'].date().isoformat(): r['count'] for r in qs}
+
+    out = []
+    for i in range(weeks):
+        d = start_date + timedelta(weeks=i)
+        week_start = d - timedelta(days=d.weekday())
+        out.append({
+            'week_start': week_start.isoformat(),
+            'count': series.get(week_start.isoformat(), 0)
+        })
+
+    return JsonResponse({'series': out})
+
+
+@login_required
+@cache_page(60*5)
+def api_emotions_distribution(request):
+    user = request.user
+    qs = (
+        VisualInsight.objects
+        .filter(visual_entry__user=user)
+        .values('emotion_detected')
+        .annotate(count=Count('id'))
+        .order_by('-count')
+    )
+    data = [{'emotion': r['emotion_detected'] or 'unknown', 'count': r['count']} for r in qs]
+    return JsonResponse({'data': data})
+
+
+@login_required
+@cache_page(60*5)
+def api_top_objects(request):
+    user = request.user
+    qs = VisualInsight.objects.filter(visual_entry__user=user).values('detected_objects')
+    counter = {}
+    for rec in qs:
+        objs = rec['detected_objects'] or []
+        for o in objs:
+            name = str(o).strip().lower()
+            if not name: continue
+            counter[name] = counter.get(name, 0) + 1
+    top = sorted(counter.items(), key=lambda x: x[1], reverse=True)[:20]
+    data = [{'object': k, 'count': v} for k, v in top]
+    return JsonResponse({'data': data})
+
+
+@login_required
+def api_posts_trend_week_days(request):
+    """
+    Retourne le nombre de posts pour chaque jour de la semaine contenant des posts,
+    même si les autres jours sont à 0.
+    """
+    user = request.user
+    # prendre la dernière semaine où il y a des posts
+    last_entry = VisualEntry.objects.filter(user=user).order_by('-created_at').first()
+    if not last_entry:
+        return JsonResponse({'series': []})
+
+    # lundi de cette semaine
+    week_start = last_entry.created_at.date() - timedelta(days=last_entry.created_at.weekday())
+    week_days = [week_start + timedelta(days=i) for i in range(7)]
+
+    qs = (
+        VisualEntry.objects
+        .filter(user=user, created_at__date__gte=week_start, created_at__date__lte=week_start + timedelta(days=6))
+        .annotate(day=TruncDay('created_at'))
+        .values('day')
+        .annotate(count=Count('id'))
+    )
+
+    counts_dict = {r['day'].date(): r['count'] for r in qs}
+
+    series = [{'date': d.isoformat(), 'count': counts_dict.get(d, 0)} for d in week_days]
+    return JsonResponse({'series': series})

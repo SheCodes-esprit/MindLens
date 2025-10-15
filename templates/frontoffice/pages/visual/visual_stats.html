@@ -1,0 +1,132 @@
+{% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/visual.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+{% endblock %}
+
+{% block content %}
+
+<!-- 🌟 HERO SECTION -->
+<section class="hero text-center py-5 position-relative">
+  <div class="floating-icons">
+    <i class="bi bi-graph-up float-icon text-accent"></i>
+    <i class="bi bi-bar-chart float-icon text-primary"></i>
+    <i class="bi bi-pie-chart-fill float-icon text-success"></i>
+  </div>
+  <h1 class="hero-title animate__animated animate__fadeInDown">Vos Statistiques</h1>
+  <p class="hero-subtitle animate__animated animate__fadeInUp">Visualisez vos posts, émotions et objets les plus fréquents</p>
+</section>
+
+<!-- 📊 STATS SECTION -->
+<section class="features container py-4">
+  <div class="row g-4">
+    <!-- Graphique posts -->
+    <div class="col-md-6">
+      <div class="feature-card animate__animated animate__fadeInUp">
+        <i class="bi bi-calendar-week fs-2 text-accent mb-3"></i>
+        <h5>Posts (30 derniers jours)</h5>
+        <canvas id="postsTrendChart" height="120"></canvas>
+      </div>
+    </div>
+
+    <!-- Graphique émotions -->
+    <div class="col-md-6">
+      <div class="feature-card animate__animated animate__fadeInUp">
+        <i class="bi bi-emoji-smile fs-2 text-accent mb-3"></i>
+        <h5>Répartition des émotions</h5>
+        <canvas id="emotionsPieChart" height="120"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Objets les plus fréquents -->
+  <div class="row g-4 mt-4">
+    <div class="col-12">
+      <div class="feature-card animate__animated animate__fadeInUp">
+        <i class="bi bi-box-seam fs-2 text-accent mb-3"></i>
+        <h5>Objets les plus fréquents</h5>
+        <canvas id="topObjectsChart" height="120"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+async function fetchJson(url) {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('Erreur fetch ' + r.status);
+    return r.json();
+}
+
+function renderPostsTrend(data) {
+    const labels = data.series.map(d => d.date);
+    const counts = data.series.map(d => d.count);
+    new Chart(document.getElementById('postsTrendChart').getContext('2d'), {
+        type: 'line',
+        data: { 
+            labels, 
+            datasets: [{
+                label: 'Posts par jour',
+                data: counts,
+                fill: true,
+                tension: 0.3,
+                borderColor: 'var(--accent)',
+                backgroundColor: 'rgba(100, 149, 237, 0.2)',
+                pointBackgroundColor: 'var(--accent)'
+            }] 
+        },
+        options: { 
+            responsive:true, 
+            plugins:{legend:{display:false}},
+            scales:{ y:{ beginAtZero:true } }
+        }
+    });
+}
+
+function renderEmotionsPie(data) {
+    const labels = data.data.map(d => d.emotion);
+    const counts = data.data.map(d => d.count);
+    const colors = ['#54a0ff','#ff6b81','#1dd1a1','#feca57','#5f27cd','#ff9ff3'];
+    new Chart(document.getElementById('emotionsPieChart').getContext('2d'), {
+        type: 'pie',
+        data: { 
+            labels, 
+            datasets: [{ data: counts, backgroundColor: colors.slice(0, counts.length) }] 
+        },
+        options: { responsive:true }
+    });
+}
+
+function renderTopObjectsBar(data) {
+    const labels = data.data.map(d => d.object);
+    const counts = data.data.map(d => d.count);
+    new Chart(document.getElementById('topObjectsChart').getContext('2d'), {
+        type: 'bar',
+        data: { 
+            labels, 
+            datasets: [{ label: 'Occurrences', data: counts, backgroundColor: 'var(--accent)' }] 
+        },
+        options: { indexAxis: 'y', responsive:true }
+    });
+}
+
+async function initStats() {
+    try {
+        const posts = await fetchJson("{% url 'api_posts_trend' %}?days=30");
+        renderPostsTrend(posts);
+        const emotions = await fetchJson("{% url 'api_emotions_distribution' %}");
+        renderEmotionsPie(emotions);
+        const top = await fetchJson("{% url 'api_top_objects' %}");
+        renderTopObjectsBar(top);
+    } catch(e) { console.error(e); }
+}
+
+document.addEventListener('DOMContentLoaded', initStats);
+</script>
+{% endblock %}
