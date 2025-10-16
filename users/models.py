@@ -26,7 +26,12 @@ class User(AbstractUser):
         blank=True,
         null=True
     )
+    
+    # Add these fields to your User model:
 
+    is_2fa_enabled = models.BooleanField(default=False)
+    otp_code = models.CharField(max_length=6, blank=True, null=True)
+    otp_created_at = models.DateTimeField(blank=True, null=True)
     email = models.EmailField(
         unique=True,
         validators=[EmailValidator(message="Enter a valid email address.")],

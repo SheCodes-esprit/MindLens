@@ -15,6 +15,8 @@ from .utils import email_verification_token
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.db.models import Q
 password_reset_token = PasswordResetTokenGenerator()
+from .utils import email_verification_token, generate_otp, is_otp_valid 
+from django.utils import timezone
 
 # --------------------- Pages simples ---------------------
 def test_template(request):
@@ -61,7 +63,29 @@ def signin_view(request):
             if user is not None:
                 if not user.is_email_verified:
                     context['errors']['general'] = 'Please verify your email before logging in.'
+                elif user.is_2fa_enabled:
+                    # Generate and send OTP for 2FA
+                    otp = generate_otp()
+                    user.otp_code = otp
+                    user.otp_created_at = timezone.now()
+                    user.save()
+                    
+                    # Send OTP email
+                    subject = "Your MindLens Login Code"
+                    message = render_to_string("frontoffice/emails/otp_email.html", {
+                        "user": user,
+                        "otp": otp
+                    })
+                    email_message = EmailMessage(subject, message, to=[user.email])
+                    email_message.content_subtype = "html"
+                    email_message.send()
+                    
+                    # Store user ID in session for 2FA verification
+                    request.session['2fa_user_id'] = user.pk
+                    messages.success(request, "A verification code has been sent to your email.")
+                    return redirect('verify_2fa_login')
                 else:
+                    # No 2FA, login directly
                     login(request, user)
                     next_url = request.GET.get('next', 'journalist_dashboard' if user.role == User.JOURNALIST else 'dashboard')
                     return redirect(next_url)
@@ -69,7 +93,6 @@ def signin_view(request):
                 context['errors']['general'] = 'Invalid username/email or password. Please try again.'
 
     return render(request, 'frontoffice/pages/login.html', context)
-
 
 def signup_view(request):
     context = {'errors': {}, 'values': {}}
@@ -708,3 +731,118 @@ def edit_user_view(request, user_id):
                 has_errors = True
 
     return render(request, 'backoffice/pages/edit_user.html', context)
+
+
+@login_required
+def enable_2fa_view(request):
+    print("Enable 2FA view called")  # <-- debug
+    if request.method == "POST":
+        if request.user.is_2fa_enabled:
+            messages.warning(request, "2FA is already enabled on your account.")
+            return redirect('profile')
+
+        otp = generate_otp()
+        request.user.otp_code = otp
+        request.user.otp_created_at = timezone.now()
+        request.user.save()
+
+        print(f"OTP generated: {otp}")  # <-- debug
+
+        # send email
+        subject = "Enable Two-Factor Authentication - MindLens"
+        message = render_to_string("frontoffice/emails/otp_email.html", {
+            "user": request.user,
+            "otp": otp
+        })
+        email_message = EmailMessage(subject, message, to=[request.user.email])
+        email_message.content_subtype = "html"
+        email_message.send()
+        print(f"OTP email sent to {request.user.email}")  # <-- debug
+
+        messages.success(request, "OTP sent to your email. Please verify to enable 2FA.")
+        return redirect('verify_2fa_setup')
+    else:
+        return redirect('profile')
+
+@login_required
+def verify_2fa_setup(request):
+    """Verify OTP to enable 2FA"""
+    context = {'errors': {}}
+    
+    if request.user.is_2fa_enabled:
+        messages.warning(request, "2FA is already enabled.")
+        return redirect('profile')
+    
+    if request.method == 'POST':
+        otp_input = request.POST.get('otp', '').strip()
+        
+        if not otp_input:
+            context['errors']['otp'] = 'OTP is required.'
+        elif not is_otp_valid(request.user.otp_created_at):
+            context['errors']['otp'] = 'OTP has expired. Please request a new one.'
+        elif otp_input != request.user.otp_code:
+            context['errors']['otp'] = 'Invalid OTP. Please try again.'
+        else:
+            # Enable 2FA
+            request.user.is_2fa_enabled = True
+            request.user.otp_code = None
+            request.user.otp_created_at = None
+            request.user.save()
+            messages.success(request, "Two-Factor Authentication enabled successfully!")
+            return redirect('profile')
+    
+    return render(request, 'frontoffice/pages/verify_2fa.html', context)
+
+@login_required
+def disable_2fa_view(request):
+    """Disable 2FA"""
+    if request.method == 'POST':
+        request.user.is_2fa_enabled = False
+        request.user.otp_code = None
+        request.user.otp_created_at = None
+        request.user.save()
+        messages.success(request, "Two-Factor Authentication disabled.")
+        return redirect('profile')
+    
+    return render(request, 'frontoffice/pages/disable_2fa.html')
+
+def verify_2fa_login(request):
+    """Verify OTP during login"""
+    context = {'errors': {}}
+    
+    # Get user_id from session (set during password verification)
+    user_id = request.session.get('2fa_user_id')
+    
+    if not user_id:
+        messages.error(request, "Session expired. Please log in again.")
+        return redirect('signin')
+    
+    try:
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        messages.error(request, "User not found.")
+        return redirect('signin')
+    
+    if request.method == 'POST':
+        otp_input = request.POST.get('otp', '').strip()
+        
+        if not otp_input:
+            context['errors']['otp'] = 'OTP is required.'
+        elif not is_otp_valid(user.otp_created_at):
+            context['errors']['otp'] = 'OTP has expired. Please log in again.'
+            del request.session['2fa_user_id']
+            return redirect('signin')
+        elif otp_input != user.otp_code:
+            context['errors']['otp'] = 'Invalid OTP. Please try again.'
+        else:
+            # OTP verified, log in user
+            login(request, user)
+            user.otp_code = None
+            user.otp_created_at = None
+            user.save()
+            del request.session['2fa_user_id']
+            messages.success(request, "Logged in successfully!")
+            return redirect_based_on_role(user)
+    
+    context['user_email'] = user.email
+    return render(request, 'frontoffice/pages/verify_2fa_login.html', context)

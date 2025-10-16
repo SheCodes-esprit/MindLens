@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #ff6b81; color: white; padding: 20px; text-align: center; border-radius: 8px; }
+        .content { padding: 20px; background-color: #f9f9f9; margin-top: 20px; border-radius: 8px; }
+        .otp-box { background-color: #fff; border: 2px solid #ff6b81; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px; }
+        .otp-code { font-size: 32px; font-weight: bold; color: #ff6b81; letter-spacing: 5px; }
+        .footer { text-align: center; color: #999; font-size: 12px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>MindLens Security Code</h1>
+        </div>
+        
+        <div class="content">
+            <p>Hi {{ user.first_name|default:user.username }},</p>
+            
+            <p>Your One-Time Password (OTP) for MindLens is:</p>
+            
+            <div class="otp-box">
+                <div class="otp-code">{{ otp }}</div>
+            </div>
+            
+            <p><strong>This code expires in 5 minutes.</strong></p>
+            
+            <p>If you didn't request this code, please ignore this email and your account will remain secure.</p>
+            
+            <p>Best regards,<br>The MindLens Team</p>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2025 MindLens. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
