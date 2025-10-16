@@ -1,0 +1,161 @@
+{% extends 'backoffice/layouts/base.html' %}
+
+{% block title %}Users List - MindLens Admin{% endblock %}
+
+{% block page_title %}Users List{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
+<li class="breadcrumb-item active" aria-current="page">Users List</li>
+{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title">All Users ({{ users_count }})</h5>
+        <a href="{% url 'add_user' %}" class="btn btn-admin-secondary btn-sm">Add New User</a>
+    </div>
+    
+    <div class="card-body p-0">
+        <!-- Added search and filter section -->
+        <div class="p-3 border-bottom">
+            <form method="get" action="{% url 'list_users' %}" class="row g-3">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" 
+                               class="form-control" 
+                               name="search" 
+                               placeholder="Search by username, email, or name..." 
+                               value="{{ search_query }}">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" name="role">
+                        <option value="">All Roles</option>
+                        <option value="JOURNALIST" {% if role_filter == 'JOURNALIST' %}selected{% endif %}>Journalist</option>
+                        <option value="ADMIN" {% if role_filter == 'ADMIN' %}selected{% endif %}>Admin</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" name="status">
+                        <option value="">All Status</option>
+                        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" name="verified">
+                        <option value="">All Verification</option>
+                        <option value="verified" {% if verified_filter == 'verified' %}selected{% endif %}>Verified</option>
+                        <option value="not_verified" {% if verified_filter == 'not_verified' %}selected{% endif %}>Not Verified</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-admin-primary w-100">
+                        <i class="bi bi-funnel"></i> Filter
+                    </button>
+                    <a href="{% url 'list_users' %}" class="btn btn-admin-secondary w-100 mt-2">
+                        <i class="bi bi-x-circle"></i> Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+        
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+        
+        <div class="admin-table">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Email Verified</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if user.profile_image %}
+                                <img src="{{ user.profile_image.url }}" alt="{{ user.username }}" class="rounded-circle me-2" width="32" height="32">
+                                {% else %}
+                                <img src="https://tryeasel.dev/placeholder.svg?width=32&height=32" alt="{{ user.username }}" class="rounded-circle me-2" width="32" height="32">
+                                {% endif %}
+                                <span>{{ user.username }}</span>
+                            </div>
+                        </td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.get_role_display }}</td>
+                        <td>
+                            <span class="status-badge {% if user.is_active %}status-active{% else %}status-inactive{% endif %}">
+                                {{ user.is_active|yesno:"Active,Inactive" }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-badge {% if user.is_email_verified %}status-active{% else %}status-pending{% endif %}">
+                                {{ user.is_email_verified|yesno:"Verified,Not Verified" }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'edit_user' user.pk %}" class="btn btn-sm btn-outline-primary me-1" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <button type="button" class="btn btn-sm btn-outline-danger" title="Delete" 
+                                    data-bs-toggle="modal" data-bs-target="#deleteUserModal{{ user.pk }}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.3;"></i>
+                            <p class="mt-2 mb-0">No users found matching your criteria.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Moved all delete modals outside the table structure -->
+{% for user in users %}
+<div class="modal fade" id="deleteUserModal{{ user.pk }}" tabindex="-1" 
+     aria-labelledby="deleteUserModalLabel{{ user.pk }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteUserModalLabel{{ user.pk }}">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the user <strong>{{ user.username }}</strong>? 
+                This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-admin-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" action="{% url 'delete_user' user.pk %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

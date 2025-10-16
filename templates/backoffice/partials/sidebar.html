@@ -22,12 +22,12 @@
 
     <div class="nav-section">
       <div class="nav-section-title">User Management</div>
-      <a href="#" class="nav-link">
+      <a href="{% url 'list_users' %}" class="nav-link">
         <i class="bi bi-people"></i>
         All Users
-        <span class="badge bg-primary">1,234</span>
+        <span class="badge bg-primary">{{ users_count }}</span>
       </a>
-      <a href="#" class="nav-link">
+      <a href="{% url 'add_user' %}" class="nav-link">
         <i class="bi bi-person-plus"></i>
         Add User
       </a>

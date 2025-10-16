@@ -1,0 +1,161 @@
+{% extends 'backoffice/layouts/base.html' %}
+
+{% block title %}Edit User - MindLens Admin{% endblock %}
+
+{% block page_title %}Edit User{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
+<li class="breadcrumb-item"><a href="{% url 'list_users' %}">Users List</a></li>
+<li class="breadcrumb-item active" aria-current="page">Edit User</li>
+{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div class="card-header">
+        <h5 class="card-title">Edit User: {{ user_to_edit.username }}</h5>
+    </div>
+    
+    <div class="card-body">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="row">
+                <!-- Profile Image Section -->
+                <div class="col-md-4 mb-4">
+                    <div class="text-center">
+                        <div class="mb-3">
+                            {% if user_to_edit.profile_image %}
+                            <img src="{{ user_to_edit.profile_image.url }}" alt="{{ user_to_edit.username }}" 
+                                 class="rounded-circle" width="150" height="150" style="object-fit: cover;">
+                            {% else %}
+                            <img src="https://tryeasel.dev/placeholder.svg?width=150&height=150" 
+                                 alt="{{ user_to_edit.username }}" class="rounded-circle" width="150" height="150">
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="profile_image" class="form-label">Change Profile Image</label>
+                            <input type="file" class="form-control" id="profile_image" name="profile_image" accept="image/*">
+                            {% if errors.profile_image %}
+                            <div class="text-danger mt-2">{{ errors.profile_image }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Information Section -->
+                <div class="col-md-8">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control {% if errors.username %}is-invalid{% endif %}" 
+                                   id="username" name="username" 
+                                   value="{{ values.username|default:user_to_edit.username }}" required>
+                            {% if errors.username %}
+                            <div class="invalid-feedback">{{ errors.username }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control {% if errors.email %}is-invalid{% endif %}" 
+                                   id="email" name="email" 
+                                   value="{{ values.email|default:user_to_edit.email }}" required>
+                            {% if errors.email %}
+                            <div class="invalid-feedback">{{ errors.email }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="first_name" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" 
+                                   value="{{ values.first_name|default:user_to_edit.first_name }}">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="last_name" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="last_name" name="last_name" 
+                                   value="{{ values.last_name|default:user_to_edit.last_name }}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="role" class="form-label">Role <span class="text-danger">*</span></label>
+                            <select class="form-select {% if errors.role %}is-invalid{% endif %}" 
+                                    id="role" name="role" required>
+                                <option value="">Select Role</option>
+                                <!-- Fixed role values to match User model constants (JOURNALIST, ADMIN) -->
+                                <option value="JOURNALIST" {% if values.role == 'JOURNALIST' or user_to_edit.role == 'JOURNALIST' %}selected{% endif %}>Journalist</option>
+                                <option value="ADMIN" {% if values.role == 'ADMIN' or user_to_edit.role == 'ADMIN' %}selected{% endif %}>Admin</option>
+                            </select>
+                            {% if errors.role %}
+                            <div class="invalid-feedback">{{ errors.role }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Account Status</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
+                                       {% if user_to_edit.is_active %}checked{% endif %}>
+                                <label class="form-check-label" for="is_active">Active</label>
+                            </div>
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" id="is_email_verified" name="is_email_verified" 
+                                       {% if user_to_edit.is_email_verified %}checked{% endif %}>
+                                <label class="form-check-label" for="is_email_verified">Email Verified</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Password Change Section (Optional) -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="mb-3">Change Password (Optional)</h6>
+                            <p class="text-muted small">Leave blank to keep current password</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="new_password" class="form-label">New Password</label>
+                            <input type="password" class="form-control {% if errors.new_password %}is-invalid{% endif %}" 
+                                   id="new_password" name="new_password">
+                            {% if errors.new_password %}
+                            <div class="invalid-feedback">{{ errors.new_password }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="confirm_password" class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control {% if errors.confirm_password %}is-invalid{% endif %}" 
+                                   id="confirm_password" name="confirm_password">
+                            {% if errors.confirm_password %}
+                            <div class="invalid-feedback">{{ errors.confirm_password }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{% url 'list_users' %}" class="btn btn-admin-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Users List
+                </a>
+                <button type="submit" class="btn btn-admin-primary">
+                    <i class="bi bi-check-circle me-2"></i>Update User
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

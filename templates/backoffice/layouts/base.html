@@ -100,6 +100,17 @@
           }, 200);
         }, 5000);
       }
+
+      // Initialize Bootstrap modals
+      const modals = document.querySelectorAll('.modal');
+      modals.forEach(modal => {
+        modal.addEventListener('show.bs.modal', function () {
+          console.log('Modal opened:', modal.id);
+        });
+        modal.addEventListener('hide.bs.modal', function () {
+          console.log('Modal closed:', modal.id);
+        });
+      });
     });
 
     // Add fade animation for quotes

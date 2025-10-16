@@ -637,3 +637,50 @@ main {
   background: rgba(var(--accent-rgb), 0.15);
   color: var(--text);
 }
+.btn-admin-primary {
+  background-color: var(--admin-primary);
+  color: #fff;
+  border: none;
+}
+
+.btn-admin-primary:hover {
+  background-color: darken(var(--admin-primary), 10%);
+}
+
+.btn-admin-secondary {
+  background-color: var(--admin-secondary);
+  color: #fff;
+  border: none;
+}
+
+.btn-admin-secondary:hover {
+  background-color: darken(var(--admin-secondary), 10%);
+}
+.btn-admin-secondary {
+  background-color: var(--admin-secondary, #6c757d);
+  color: #fff;
+  border: none;
+}
+
+.btn-admin-secondary:hover {
+  background-color: #5a6268;
+}
+
+.alert-success {
+  background-color: rgba(0, 184, 148, 0.1);
+  color: var(--success, #00b894);
+}
+
+.alert-danger {
+  background-color: rgba(255, 107, 129, 0.1);
+  color: var(--danger, #ff6b81);
+}
+.modal {
+  z-index: 1060 !important; /* Ensure modal is above backdrop */
+}
+.modal-dialog {
+  z-index: 1065 !important; /* Ensure dialog is above modal */
+}
+.modal-backdrop {
+  z-index: 1050 !important; /* Ensure backdrop is below modal */
+}
