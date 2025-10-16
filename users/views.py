@@ -87,7 +87,7 @@ def signin_view(request):
                 else:
                     # No 2FA, login directly
                     login(request, user)
-                    next_url = request.GET.get('next', 'journalist_dashboard' if user.role == User.JOURNALIST else 'dashboard')
+                    next_url = request.GET.get('next', 'home' if user.role == User.JOURNALIST else 'dashboard')
                     return redirect(next_url)
             else:
                 context['errors']['general'] = 'Invalid username/email or password. Please try again.'
