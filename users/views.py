@@ -17,6 +17,8 @@ from django.db.models import Q
 password_reset_token = PasswordResetTokenGenerator()
 from .utils import email_verification_token, generate_otp, is_otp_valid 
 from django.utils import timezone
+from django.contrib.sessions.models import Session
+from .models import UserSession
 
 # --------------------- Pages simples ---------------------
 def test_template(request):
@@ -732,7 +734,7 @@ def edit_user_view(request, user_id):
 
     return render(request, 'backoffice/pages/edit_user.html', context)
 
-
+#--------------------- 2FA ---------------------
 @login_required
 def enable_2fa_view(request):
     print("Enable 2FA view called")  # <-- debug
@@ -846,3 +848,97 @@ def verify_2fa_login(request):
     
     context['user_email'] = user.email
     return render(request, 'frontoffice/pages/verify_2fa_login.html', context)
+
+#--------------------- Active Sessions ---------------------
+
+@login_required
+def active_sessions_view(request):
+    # Get all active sessions for the user
+    user_sessions = UserSession.objects.filter(
+        user=request.user,
+        is_active=True
+    ).select_related('user')
+    
+    # Clean up expired sessions
+    for user_session in user_sessions:
+        try:
+            Session.objects.get(session_key=user_session.session_key)
+        except Session.DoesNotExist:
+            user_session.is_active = False
+            user_session.save()
+    
+    # Refresh active sessions
+    active_sessions = user_sessions.filter(is_active=True)
+    
+    # Mark current session
+    current_session_key = request.session.session_key
+    
+    context = {
+        'sessions': active_sessions,
+        'current_session_key': current_session_key,
+        'total_sessions': active_sessions.count(),
+        'suspicious_sessions': active_sessions.filter(is_suspicious=True).count(),
+    }
+    
+    return render(request, 'frontoffice/pages/active_sessions.html', context)
+
+
+@login_required
+def terminate_session_view(request, session_id):
+    if request.method == 'POST':
+        try:
+            user_session = UserSession.objects.get(
+                id=session_id,
+                user=request.user
+            )
+            
+            # Prevent terminating current session
+            if user_session.session_key == request.session.session_key:
+                messages.error(request, "You cannot terminate your current session.")
+                return redirect('active_sessions')
+            
+            # Delete Django session
+            try:
+                session = Session.objects.get(session_key=user_session.session_key)
+                session.delete()
+            except Session.DoesNotExist:
+                pass
+            
+            # Mark user session as inactive
+            user_session.is_active = False
+            user_session.save()
+            
+            messages.success(request, f"Session from {user_session.device_type} ({user_session.location}) has been terminated.")
+        except UserSession.DoesNotExist:
+            messages.error(request, "Session not found.")
+    
+    return redirect('active_sessions')
+
+
+@login_required
+def terminate_all_sessions_view(request):
+    if request.method == 'POST':
+        current_session_key = request.session.session_key
+        
+        # Get all user sessions except current
+        user_sessions = UserSession.objects.filter(
+            user=request.user,
+            is_active=True
+        ).exclude(session_key=current_session_key)
+        
+        count = 0
+        for user_session in user_sessions:
+            try:
+                session = Session.objects.get(session_key=user_session.session_key)
+                session.delete()
+                count += 1
+            except Session.DoesNotExist:
+                pass
+            
+            user_session.is_active = False
+            user_session.save()
+        
+        messages.success(request, f"Successfully terminated {count} session(s).")
+        return redirect('active_sessions')
+    
+    return redirect('active_sessions')

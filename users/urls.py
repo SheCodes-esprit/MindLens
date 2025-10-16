@@ -24,4 +24,8 @@ urlpatterns = [
     path('verify-2fa-setup/', views.verify_2fa_setup, name='verify_2fa_setup'),
     path('disable-2fa/', views.disable_2fa_view, name='disable_2fa'),
     path('verify-2fa-login/', views.verify_2fa_login, name='verify_2fa_login'),
+    
+    path('sessions/', views.active_sessions_view, name='active_sessions'),
+    path('sessions/terminate/<int:session_id>/', views.terminate_session_view, name='terminate_session'),
+    path('sessions/terminate-all/', views.terminate_all_sessions_view, name='terminate_all_sessions'),
 ]

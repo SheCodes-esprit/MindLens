@@ -1,0 +1,235 @@
+{% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Updated header to use entry-card and hero-title classes from main.css -->
+            <div class="entry-card mb-4 animate__animated animate__fadeInDown">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="hero-title" style="font-size: 2rem;"><i class="bi bi-display me-2 text-accent"></i>Active Sessions</h2>
+                        <p class="hero-subtitle mb-0" style="font-size: 1rem;">Manage devices that are logged into your account</p>
+                    </div>
+                    <a href="{% url 'profile' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Profile
+                    </a>
+                </div>
+            </div>
+
+            <!-- Updated stats cards to use feature-card class -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="feature-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-primary">
+                                <i class="bi bi-laptop"></i>
+                            </div>
+                            <div class="ms-3">
+                                <h3 class="mb-0 text-accent">{{ total_sessions }}</h3>
+                                <p class="text-muted mb-0">Active Sessions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="feature-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stats-icon bg-warning">
+                                <i class="bi bi-exclamation-triangle"></i>
+                            </div>
+                            <div class="ms-3">
+                                <h3 class="mb-0 text-accent">{{ suspicious_sessions }}</h3>
+                                <p class="text-muted mb-0">Suspicious Activity</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Updated terminate all button card to use entry-card -->
+            {% if sessions.count > 1 %}
+            <div class="entry-card mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1 text-accent">Security Action</h6>
+                        <small class="text-muted">Log out of all other sessions</small>
+                    </div>
+                    <form method="POST" action="{% url 'terminate_all_sessions' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger" 
+                                onclick="return confirm('This will log you out of all other devices. Continue?')">
+                            <i class="bi bi-power me-2"></i>Terminate All Other Sessions
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Updated sessions list card to use entry-card -->
+            <div class="entry-card">
+                <h4 class="mb-4 text-accent"><i class="bi bi-list-ul me-2"></i>All Sessions</h4>
+                
+                {% if sessions %}
+                    <div class="sessions-list">
+                        {% for session in sessions %}
+                        <div class="session-item {% if session.is_suspicious %}suspicious{% endif %} {% if session.session_key == current_session_key %}current{% endif %}">
+                            <div class="session-icon">
+                                {% if session.device_type == 'Mobile' %}
+                                    <i class="bi bi-phone"></i>
+                                {% elif session.device_type == 'Tablet' %}
+                                    <i class="bi bi-tablet"></i>
+                                {% else %}
+                                    <i class="bi bi-laptop"></i>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="session-info flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="mb-1">
+                                            {{ session.get_device_info }}
+                                            {% if session.session_key == current_session_key %}
+                                                <span class="badge bg-success ms-2">Current Session</span>
+                                            {% endif %}
+                                            {% if session.is_suspicious %}
+                                                <span class="badge bg-warning ms-2">
+                                                    <i class="bi bi-exclamation-triangle"></i> Suspicious
+                                                </span>
+                                            {% endif %}
+                                        </h6>
+                                        <div class="session-details">
+                                            <span><i class="bi bi-geo-alt me-1"></i>{{ session.location }}</span>
+                                            <span><i class="bi bi-router me-1"></i>{{ session.ip_address }}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if session.session_key != current_session_key %}
+                                    <form method="POST" action="{% url 'terminate_session' session.id %}" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                onclick="return confirm('Terminate this session?')">
+                                            <i class="bi bi-x-circle"></i> Terminate
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="session-meta">
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock me-1"></i>
+                                        Last active: {{ session.last_activity|timesince }} ago
+                                    </small>
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar me-1"></i>
+                                        Signed in: {{ session.created_at|date:"M d, Y H:i" }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-inbox" style="font-size: 3rem; color: #ddd;"></i>
+                        <p class="text-muted mt-3">No active sessions found</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Kept minimal inline styles for session-specific components -->
+<style>
+.stats-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+}
+
+.stats-icon.bg-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stats-icon.bg-warning {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.sessions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.session-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.session-item.current {
+    border-color: #28a745;
+    background: #d4edda;
+}
+
+.session-item.suspicious {
+    border-color: #ffc107;
+    background: #fff3cd;
+}
+
+.session-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.session-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: var(--accent);
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.session-info h6 {
+    color: var(--card-title-color);
+    font-weight: 600;
+}
+
+.session-details {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.session-details span {
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+.session-meta {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+</style>
+
+{% endblock %}

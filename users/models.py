@@ -3,6 +3,8 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator, EmailValidator
 from django.core.exceptions import ValidationError
 import re
+from django.utils import timezone
+from django.contrib.sessions.models import Session
 
 class User(AbstractUser):
     is_email_verified = models.BooleanField(default=False)
@@ -57,3 +59,31 @@ class User(AbstractUser):
 
     def is_admin(self):
         return self.role == self.ADMIN
+
+
+#USER SESSION MODEL
+class UserSession(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sessions')
+    session_key = models.CharField(max_length=40, unique=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True)
+    device_type = models.CharField(max_length=50, blank=True)  # Mobile, Desktop, Tablet
+    browser = models.CharField(max_length=50, blank=True)
+    operating_system = models.CharField(max_length=50, blank=True)
+    location = models.CharField(max_length=200, blank=True)  # City, Country
+    is_active = models.BooleanField(default=True)
+    is_suspicious = models.BooleanField(default=False)
+    last_activity = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-last_activity']
+        
+    def __str__(self):
+        return f"{self.user.username} - {self.device_type} - {self.created_at}"
+    
+    def is_current_session(self, request):
+        return self.session_key == request.session.session_key
+    
+    def get_device_info(self):
+        return f"{self.browser} on {self.operating_system}"
