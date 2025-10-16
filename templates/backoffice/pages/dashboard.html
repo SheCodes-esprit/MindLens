@@ -1,5 +1,168 @@
-{% extends 'frontoffice/layouts/base.html' %}
+{% extends 'backoffice/layouts/base.html' %}
+
+{% block title %}Dashboard - MindLens Admin{% endblock %}
+
 {% block content %}
-<p> this is the admin dashboard the lyouts should change later since the user is an admin</p>
+<!-- Stats Overview -->
+<div class="row g-4 mb-4">
+  <div class="col-xl-3 col-md-6">
+    <div class="stats-card">
+      <div class="stats-icon" style="background: rgba(255, 107, 129, 0.1); color: var(--accent);">
+        <i class="bi bi-people"></i>
+      </div>
+      <div class="stats-value">1,234</div>
+      <div class="stats-label">Total Users</div>
+      <div class="stats-change text-success">
+        <i class="bi bi-arrow-up"></i> +12% from last month
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-xl-3 col-md-6">
+    <div class="stats-card">
+      <div class="stats-icon" style="background: rgba(108, 92, 231, 0.1); color: var(--admin-primary);">
+        <i class="bi bi-journal-text"></i>
+      </div>
+      <div class="stats-value">5,678</div>
+      <div class="stats-label">Journal Entries</div>
+      <div class="stats-change text-success">
+        <i class="bi bi-arrow-up"></i> +8% from last month
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-xl-3 col-md-6">
+    <div class="stats-card">
+      <div class="stats-icon" style="background: rgba(0, 184, 148, 0.1); color: var(--success);">
+        <i class="bi bi-mic"></i>
+      </div>
+      <div class="stats-value">892</div>
+      <div class="stats-label">Voice Notes</div>
+      <div class="stats-change text-success">
+        <i class="bi bi-arrow-up"></i> +15% from last month
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-xl-3 col-md-6">
+    <div class="stats-card">
+      <div class="stats-icon" style="background: rgba(253, 203, 110, 0.1); color: var(--warning);">
+        <i class="bi bi-images"></i>
+      </div>
+      <div class="stats-value">2,341</div>
+      <div class="stats-label">Gallery Items</div>
+      <div class="stats-change text-success">
+        <i class="bi bi-arrow-up"></i> +5% from last month
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Activity & Quick Actions -->
+<div class="row g-4 mb-4">
+  <div >
+    <div class="content-card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title">Recent Activity</h5>
+        <a href="#" class="btn btn-admin-secondary btn-sm">View All</a>
+      </div>
+      <div class="card-body p-0">
+        <div class="admin-table">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Action</th>
+                <th>Time</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <img src="https://tryeasel.dev/placeholder.svg?width=32&height=32" alt="User" class="rounded-circle me-2" width="32" height="32">
+                    <span>Sarah Johnson</span>
+                  </div>
+                </td>
+                <td>Created journal entry</td>
+                <td>2 minutes ago</td>
+                <td><span class="status-badge status-active">Active</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <img src="https://tryeasel.dev/placeholder.svg?width=32&height=32" alt="User" class="rounded-circle me-2" width="32" height="32">
+                    <span>Mike Chen</span>
+                  </div>
+                </td>
+                <td>Uploaded voice note</td>
+                <td>15 minutes ago</td>
+                <td><span class="status-badge status-active">Active</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <img src="https://tryeasel.dev/placeholder.svg?width=32&height=32" alt="User" class="rounded-circle me-2" width="32" height="32">
+                    <span>Emma Davis</span>
+                  </div>
+                </td>
+                <td>Added gallery image</td>
+                <td>1 hour ago</td>
+                <td><span class="status-badge status-pending">Pending</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <img src="https://tryeasel.dev/placeholder.svg?width=32&height=32" alt="User" class="rounded-circle me-2" width="32" height="32">
+                    <span>Alex Rodriguez</span>
+                  </div>
+                </td>
+                <td>Reported content</td>
+                <td>3 hours ago</td>
+                <td><span class="status-badge status-inactive">Review</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="content-card">
+      <div class="card-header">
+        <h5 class="card-title">User Growth</h5>
+      </div>
+      <div class="card-body">
+        <div class="text-center py-5">
+          <i class="bi bi-graph-up fs-1 text-muted mb-3"></i>
+          <p class="text-muted">Chart visualization would go here</p>
+          <small class="text-muted">Integration with Chart.js or similar library</small>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-lg-6">
+    <div class="content-card">
+      <div class="card-header">
+        <h5 class="card-title">Content Distribution</h5>
+      </div>
+      <div class="card-body">
+        <div class="text-center py-5">
+          <i class="bi bi-pie-chart fs-1 text-muted mb-3"></i>
+          <p class="text-muted">Pie chart visualization would go here</p>
+          <small class="text-muted">Shows distribution of journal entries, voice notes, and gallery items</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}

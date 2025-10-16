@@ -23,6 +23,11 @@ def test_template(request):
 def home(request):
     return render(request, "frontoffice/pages/home.html")
 
+from django.shortcuts import render
+
+def dashboard(request):
+    return render(request, 'backoffice/pages/dashboard.html')  # or 'home.html' if you want to reuse it
+
 # --------------------- Auth ---------------------
 def signin_view(request):
     context = {'errors': {}, 'values': {}}
