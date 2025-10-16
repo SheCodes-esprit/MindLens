@@ -19,4 +19,9 @@ urlpatterns = [
     path('admin/users/add/', views.add_user_view, name='add_user'),
     path('admin/users/delete/<int:user_id>/', views.delete_user_view, name='delete_user'),
     path('admin/users/edit/<int:user_id>/', views.edit_user_view, name='edit_user'),
+
+    path('enable-2fa/', views.enable_2fa_view, name='enable_2fa'),
+    path('verify-2fa-setup/', views.verify_2fa_setup, name='verify_2fa_setup'),
+    path('disable-2fa/', views.disable_2fa_view, name='disable_2fa'),
+    path('verify-2fa-login/', views.verify_2fa_login, name='verify_2fa_login'),
 ]

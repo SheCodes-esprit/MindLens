@@ -272,16 +272,29 @@
                 </button>
             </div>
 
-                        <div class="security-item">
-                            <div class="security-info">
-                                <h6>Two-Factor Authentication</h6>
-                                <p>Add an extra layer of security to your account</p>
-                            </div>
-                            <div class="security-status">
-                                <span class="status-badge disabled">Disabled</span>
-                                <button class="btn btn-outline-primary">Enable 2FA</button>
-                            </div>
-                        </div>
+                    <div class="security-item">
+    <div class="security-info">
+        <h6>Two-Factor Authentication</h6>
+        <p>Add an extra layer of security to your account</p>
+    </div>
+    <div class="security-status">
+        {% if user.is_2fa_enabled %}
+            <span class="status-badge status-enabled">
+                <i class="bi bi-check-circle-fill me-1"></i>Enabled
+            </span>
+            <button type="button" class="btn btn-outline-danger" onclick="disableTwoFA()">
+                Disable 2FA
+            </button>
+        {% else %}
+            <span class="status-badge status-disabled">
+                <i class="bi bi-x-circle-fill me-1"></i>Disabled
+            </span>
+            <button type="button" class="btn btn-outline-primary" onclick="enableTwoFA()">
+                Enable 2FA
+            </button>
+        {% endif %}
+    </div>
+</div>
 
                         <div class="security-item">
                             <div class="security-info">
@@ -433,6 +446,30 @@ function togglePasswordForm() {
     } else {
         passwordForm.style.display = 'none';
         changePasswordBtn.style.display = 'block';
+    }
+}
+
+function enableTwoFA() {
+    if (confirm('Enable Two-Factor Authentication? You will receive a verification code via email.')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{% url "enable_2fa" %}';
+        
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken;
+        
+        form.appendChild(csrfInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function disableTwoFA() {
+    if (confirm('Are you sure you want to disable 2FA? This will make your account less secure.')) {
+        window.location.href = '{% url "disable_2fa" %}';
     }
 }
 </script>
