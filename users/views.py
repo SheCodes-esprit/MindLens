@@ -13,7 +13,7 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse
 from .utils import email_verification_token
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-
+from django.db.models import Q
 password_reset_token = PasswordResetTokenGenerator()
 
 # --------------------- Pages simples ---------------------
@@ -22,6 +22,11 @@ def test_template(request):
 
 def home(request):
     return render(request, "frontoffice/pages/home.html")
+
+from django.shortcuts import render
+
+def dashboard(request):
+    return render(request, 'backoffice/pages/dashboard.html')  # or 'home.html' if you want to reuse it
 
 # --------------------- Auth ---------------------
 def signin_view(request):
@@ -403,3 +408,303 @@ def delete_account_view(request):
             return redirect('profile')
 
     return render(request, 'frontoffice/pages/delete_account.html')
+
+
+@login_required
+def list_users_view(request):
+    if not request.user.is_admin():
+        messages.error(request, "You do not have permission to access this page.")
+        return redirect('journalist_dashboard' if request.user.is_journalist() else 'signin')
+
+    # Start with all users
+    users = User.objects.all()
+    
+    # Get filter parameters from GET request
+    search_query = request.GET.get('search', '').strip()
+    role_filter = request.GET.get('role', '')
+    status_filter = request.GET.get('status', '')
+    verified_filter = request.GET.get('verified', '')
+    
+    # Apply search filter - searches across username, email, first_name, last_name
+    if search_query:
+        users = users.filter(
+            Q(username__icontains=search_query) |
+            Q(email__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query)
+        )
+    
+    # Apply role filter (JOURNALIST or ADMIN)
+    if role_filter:
+        users = users.filter(role=role_filter)
+    
+    # Apply status filter (active/inactive)
+    if status_filter == 'active':
+        users = users.filter(is_active=True)
+    elif status_filter == 'inactive':
+        users = users.filter(is_active=False)
+    
+    # Apply email verification filter (verified/not_verified)
+    if verified_filter == 'verified':
+        users = users.filter(is_email_verified=True)
+    elif verified_filter == 'not_verified':
+        users = users.filter(is_email_verified=False)
+    
+    # Order by username and get count
+    users = users.order_by('username')
+    users_count = users.count()
+
+    # Pass everything to template
+    context = {
+        'users': users,
+        'users_count': users_count,  # This is the stat - filtered user count
+        'search_query': search_query,
+        'role_filter': role_filter,
+        'status_filter': status_filter,
+        'verified_filter': verified_filter,
+    }
+    return render(request, 'backoffice/pages/list_users.html', context)
+@login_required
+def add_user_view(request):
+    if not request.user.is_admin():
+        messages.error(request, "You do not have permission to access this page.")
+        return redirect('journalist_dashboard' if request.user.is_journalist() else 'signin')
+
+    context = {'errors': {}, 'values': {}}
+
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+        confirm_password = request.POST.get('confirmPassword', '')
+        role = request.POST.get('role', '')
+        profile_image = request.FILES.get('profile_image')
+
+        context['values']['first_name'] = first_name
+        context['values']['last_name'] = last_name
+        context['values']['username'] = username
+        context['values']['email'] = email
+        context['values']['role'] = role
+
+        has_errors = False
+
+        # Username validation
+        if not username:
+            context['errors']['username'] = 'Username is required.'
+            has_errors = True
+        elif User.objects.filter(username=username).exists():
+            context['errors']['username'] = 'This username is already taken.'
+            has_errors = True
+        elif len(username) < 3:
+            context['errors']['username'] = 'Username must be at least 3 characters long.'
+            has_errors = True
+
+        # Email validation
+        if not email:
+            context['errors']['email'] = 'Email is required.'
+            has_errors = True
+        elif User.objects.filter(email=email).exists():
+            context['errors']['email'] = 'A user with this email already exists.'
+            has_errors = True
+        elif '@' not in email or '.' not in email:
+            context['errors']['email'] = 'Please enter a valid email address.'
+            has_errors = True
+
+        # Password validation
+        if not password:
+            context['errors']['password'] = 'Password is required.'
+            has_errors = True
+        else:
+            pattern = r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_]).{8,}$'
+            if not re.match(pattern, password):
+                context['errors']['password'] = 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.'
+                has_errors = True
+
+        if not confirm_password:
+            context['errors']['confirmPassword'] = 'Please confirm your password.'
+            has_errors = True
+        elif password != confirm_password:
+            context['errors']['confirmPassword'] = 'Passwords do not match.'
+            has_errors = True
+
+        # Role validation
+        if role not in [User.JOURNALIST, User.ADMIN]:
+            context['errors']['role'] = 'Invalid role selected.'
+            has_errors = True
+
+        # Profile image validation
+        if profile_image:
+            allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+            if profile_image.content_type not in allowed_types:
+                context['errors']['profile_image'] = 'Please upload a valid image file (JPEG, PNG, GIF, WebP).'
+                has_errors = True
+            elif profile_image.size > 5 * 1024 * 1024:
+                context['errors']['profile_image'] = 'Image file too large. Maximum size is 5MB.'
+                has_errors = True
+
+        if not has_errors:
+            try:
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=password,
+                    first_name=first_name,
+                    last_name=last_name,
+                    role=role,
+                    is_active=False,
+                    is_email_verified=False
+                )
+                if profile_image:
+                    user.profile_image = profile_image
+                    user.save()
+
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                token = email_verification_token.make_token(user)
+                verification_link = request.build_absolute_uri(f"/users/verify-email/{uid}/{token}/")
+
+                subject = "Verify your MindLens account"
+                message = render_to_string("frontoffice/emails/verify_email.html", {
+                    "user": user,
+                    "verification_link": verification_link
+                })
+                email_message = EmailMessage(subject, message, to=[user.email])
+                email_message.content_subtype = "html"
+                email_message.send()
+
+                messages.success(request, "User created successfully! An email verification link has been sent to the user.")
+                return redirect('list_users')
+            except Exception as e:
+                context['errors']['general'] = f'An error occurred: {str(e)}'
+                has_errors = True
+
+    return render(request, 'backoffice/pages/add_user.html', context)
+
+@login_required
+def delete_user_view(request, user_id):
+    if not request.user.is_admin():
+        messages.error(request, "You do not have permission to perform this action.")
+        return redirect('journalist_dashboard' if request.user.is_journalist() else 'signin')
+    
+    try:
+        user = User.objects.get(pk=user_id)
+        if user == request.user:
+            messages.error(request, "You cannot delete your own account from this page.")
+            return redirect('list_users')
+        
+        username = user.username  # Store username for success message
+        user.delete()  # Hard delete the user
+        messages.success(request, f"User {username} has been deleted successfully.")
+    except User.DoesNotExist:
+        messages.error(request, "The user you are trying to delete does not exist.")
+    
+    return redirect('list_users')
+@login_required
+def edit_user_view(request, user_id):
+    if not request.user.is_admin():
+        messages.error(request, "You do not have permission to access this page.")
+        return redirect('journalist_dashboard' if request.user.is_journalist() else 'signin')
+
+    try:
+        user_to_edit = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        messages.error(request, "The user you are trying to edit does not exist.")
+        return redirect('list_users')
+
+    context = {'errors': {}, 'values': {}, 'user_to_edit': user_to_edit}
+
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        role = request.POST.get('role', '')
+        is_active = request.POST.get('is_active') == 'on'
+        is_email_verified = request.POST.get('is_email_verified') == 'on'
+        new_password = request.POST.get('new_password', '').strip()
+        confirm_password = request.POST.get('confirm_password', '').strip()
+        profile_image = request.FILES.get('profile_image')
+
+        context['values']['username'] = username
+        context['values']['email'] = email
+        context['values']['first_name'] = first_name
+        context['values']['last_name'] = last_name
+        context['values']['role'] = role
+
+        has_errors = False
+
+        # Username validation
+        if not username:
+            context['errors']['username'] = 'Username is required.'
+            has_errors = True
+        elif username != user_to_edit.username and User.objects.filter(username=username).exists():
+            context['errors']['username'] = 'This username is already taken.'
+            has_errors = True
+        elif len(username) < 3:
+            context['errors']['username'] = 'Username must be at least 3 characters long.'
+            has_errors = True
+
+        # Email validation
+        if not email:
+            context['errors']['email'] = 'Email is required.'
+            has_errors = True
+        elif email != user_to_edit.email and User.objects.filter(email=email).exists():
+            context['errors']['email'] = 'A user with this email already exists.'
+            has_errors = True
+        elif '@' not in email or '.' not in email:
+            context['errors']['email'] = 'Please enter a valid email address.'
+            has_errors = True
+
+        # Role validation
+        if role not in [User.JOURNALIST, User.ADMIN]:
+            context['errors']['role'] = 'Invalid role selected.'
+            has_errors = True
+
+        # Password validation (only if provided)
+        if new_password:
+            pattern = r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_]).{8,}$'
+            if not re.match(pattern, new_password):
+                context['errors']['new_password'] = 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.'
+                has_errors = True
+            elif new_password != confirm_password:
+                context['errors']['confirm_password'] = 'Passwords do not match.'
+                has_errors = True
+
+        # Profile image validation
+        if profile_image:
+            allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+            if profile_image.content_type not in allowed_types:
+                context['errors']['profile_image'] = 'Please upload a valid image file (JPEG, PNG, GIF, WebP).'
+                has_errors = True
+            elif profile_image.size > 5 * 1024 * 1024:
+                context['errors']['profile_image'] = 'Image file too large. Maximum size is 5MB.'
+                has_errors = True
+
+        if not has_errors:
+            try:
+                user_to_edit.username = username
+                user_to_edit.email = email
+                user_to_edit.first_name = first_name
+                user_to_edit.last_name = last_name
+                user_to_edit.role = role
+                user_to_edit.is_active = is_active
+                user_to_edit.is_email_verified = is_email_verified
+
+                if new_password:
+                    user_to_edit.set_password(new_password)
+
+                if profile_image:
+                    if user_to_edit.profile_image:
+                        user_to_edit.profile_image.delete(save=False)
+                    user_to_edit.profile_image = profile_image
+
+                user_to_edit.save()
+
+                messages.success(request, f"User {username} has been updated successfully.")
+                return redirect('list_users')
+            except Exception as e:
+                context['errors']['general'] = f'An error occurred: {str(e)}'
+                has_errors = True
+
+    return render(request, 'backoffice/pages/edit_user.html', context)
