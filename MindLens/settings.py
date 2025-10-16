@@ -76,7 +76,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "mindlens_db",
         "USER": "postgres",
-        "PASSWORD": "mouna",
+        "PASSWORD": "postgres",
         "HOST": "localhost",
         "PORT": "5433",
         "OPTIONS": {
