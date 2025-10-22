@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'wellbeing'  ,
     'audio',
     'visual',
+    'textEntries'
     
 ]
 

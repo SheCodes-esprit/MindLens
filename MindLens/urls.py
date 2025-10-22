@@ -30,6 +30,7 @@ urlpatterns = [
     path('journalist/', include('audio.urls')),
     path('wellbeing/', include('wellbeing.urls')),
     path('visual/', include('visual.urls')),
+    path('entries/', include('textEntries.urls')),
 ]
 
 if settings.DEBUG:

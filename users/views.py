@@ -66,13 +66,11 @@ def signin_view(request):
                 if not user.is_email_verified:
                     context['errors']['general'] = 'Please verify your email before logging in.'
                 elif user.is_2fa_enabled:
-                    # Generate and send OTP for 2FA
                     otp = generate_otp()
                     user.otp_code = otp
                     user.otp_created_at = timezone.now()
                     user.save()
                     
-                    # Send OTP email
                     subject = "Your MindLens Login Code"
                     message = render_to_string("frontoffice/emails/otp_email.html", {
                         "user": user,

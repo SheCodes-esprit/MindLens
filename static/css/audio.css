@@ -1,6 +1,4 @@
-/* Audio Journal Page Styles */
 
-/* Hero Section */
 .audio-hero {
   position: relative;
   background: linear-gradient(135deg, var(--bg) 0%, #f8f9fa 100%);
@@ -21,7 +19,6 @@
   z-index: 2;
 }
 
-/* Floating Icons Animation */
 .floating-icons {
   position: absolute;
   top: 0;
@@ -91,7 +88,6 @@
   }
 }
 
-/* Create Button Styling */
 .btn-create-audio {
   background: linear-gradient(135deg, var(--accent) 0%, #ff8fa3 100%);
   color: white;
@@ -120,14 +116,12 @@
   font-size: 1.2rem;
 }
 
-/* Audio Entries Container */
 .audio-entries-container {
   display: grid;
   gap: 1.5rem;
   margin-top: 2rem;
 }
 
-/* Audio Entry Card */
 .audio-entry-card {
   background: white;
   border-radius: 16px;
@@ -163,7 +157,6 @@
   transform: scaleY(1);
 }
 
-/* Audio Entry Content */
 .audio-entry-content {
   flex: 1;
   display: flex;
@@ -214,7 +207,6 @@
   font-size: 0.875rem;
 }
 
-/* Delete Button */
 .btn-delete-audio {
   background: transparent;
   color: #dc3545;
@@ -286,7 +278,6 @@
   }
 }
 
-/* Animation for new entries */
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -318,7 +309,6 @@
   animation-delay: 0.5s;
 }
 
-/* Play indicator animation */
 @keyframes pulse {
   0%,
   100% {
@@ -336,13 +326,11 @@
    AUDIO DETAIL PAGE STYLES
    ======================================== */
 
-/* Detail Page Container */
 .audio-detail-container {
   max-width: 900px;
   margin: 0 auto;
 }
 
-/* Audio Detail Header */
 .audio-detail-header {
   background: linear-gradient(135deg, var(--bg) 0%, #f8f9fa 100%);
   padding: 2.5rem;
@@ -379,7 +367,6 @@
   font-size: 2rem;
 }
 
-/* Custom Audio Player */
 .audio-player-wrapper {
   background: white;
   padding: 1.5rem;
@@ -405,7 +392,6 @@
   border-radius: 50%;
 }
 
-/* Transcript Section */
 .transcript-section {
   background: white;
   padding: 2rem;
@@ -449,7 +435,6 @@
   padding: 2rem;
 }
 
-/* Emotion Analysis Section */
 .emotion-analysis-section {
   background: white;
   padding: 2rem;
@@ -474,7 +459,6 @@
   font-size: 1.25rem;
 }
 
-/* Emotion List */
 .emotion-list {
   list-style: none;
   padding: 0;
@@ -582,7 +566,6 @@
   margin-bottom: 1rem;
 }
 
-/* Emotion Chart Section */
 .emotion-chart-section {
   background: white;
   padding: 2rem;
@@ -626,7 +609,6 @@
    AUDIO CREATE/RECORD PAGE STYLES
    ======================================== */
 
-/* Create Form Container */
 .audio-create-container {
   max-width: 700px;
   margin: 0 auto;
@@ -662,7 +644,6 @@
   font-size: 1rem;
 }
 
-/* Audio Form */
 .audio-form {
   background: white;
   padding: 2.5rem;
@@ -711,7 +692,6 @@
   font-family: inherit;
 }
 
-/* Recording Controls */
 .recording-controls {
   background: #f8f9fa;
   padding: 2rem;
@@ -825,14 +805,12 @@
   }
 }
 
-/* Audio Playback */
 #audioPlayback {
   width: 100%;
   margin-top: 1rem;
   border-radius: 12px;
 }
 
-/* Submit Button */
 .btn-submit-audio {
   background: linear-gradient(135deg, var(--accent) 0%, #ff8fa3 100%);
   color: white;
@@ -860,7 +838,6 @@
   font-size: 1.25rem;
 }
 
-/* Back Button */
 .btn-back {
   display: inline-flex;
   align-items: center;
@@ -881,7 +858,6 @@
   font-size: 1.125rem;
 }
 
-/* Responsive Design for Detail & Create Pages */
 @media (max-width: 768px) {
   .audio-detail-header h2,
   .audio-create-header h2 {
@@ -914,7 +890,6 @@
   }
 }
 
-/* Loading State */
 .loading-spinner {
   display: inline-block;
   width: 20px;
@@ -930,12 +905,10 @@
     transform: rotate(360deg);
   }
 }
-/* Form Group Spacing - Add this to your audio.css */
 .form-group {
-    margin-bottom: 1.5rem; /* Adds space between form sections */
+    margin-bottom: 1.5rem;
 }
 
-/* Custom File Input Styling - UPDATED */
 .custom-file-input-wrapper {
     display: flex;
     align-items: center;
@@ -951,30 +924,30 @@
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.9), rgba(139, 92, 246, 0.9));
     color: white;
     border: none;
-    padding: 0.5rem 1rem; /* Reduced from 0.75rem 1.5rem */
-    border-radius: 8px; /* Reduced from 12px */
-    font-weight: 500; /* Reduced from 600 */
-    font-size: 0.9rem; /* Added to make text slightly smaller */
+    padding: 0.5rem 1rem; 
+    border-radius: 8px; 
+    font-weight: 500;
+    font-size: 0.9rem; 
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 0.4rem; /* Reduced from 0.5rem */
+    gap: 0.4rem;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25); /* Reduced shadow */
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25); 
 }
 
 .file-input-button:hover {
-    transform: translateY(-1px); /* Reduced from -2px */
+    transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
 }
 
 .file-icon {
-    font-size: 1rem; /* Reduced from 1.2rem */
+    font-size: 1rem; 
 }
 
 .file-name {
     color: var(--text-secondary);
-    font-size: 0.85rem; /* Reduced from 0.9rem */
+    font-size: 0.85rem;
     font-style: italic;
 }
 .audio-create-header p {
@@ -989,9 +962,6 @@
 .audio-create-header p[style*="color"] {
     font-weight: bold;
 }
-/* ========================================
-   AUDIO STATISTICS SECTION - THEME COMPATIBLE
-   ======================================== */
 
 .audio-stats-section {
   background: white;
@@ -1063,7 +1033,6 @@
   margin-bottom: 0.25rem;
 }
 
-/* Responsive Design for Stats */
 @media (max-width: 768px) {
   .stats-container {
     grid-template-columns: 1fr;
@@ -1078,9 +1047,6 @@
     font-size: 1.5rem;
   }
 }
-/* ========================================
-   CUSTOM DELETE MODAL - THEME COMPATIBLE
-   ======================================== */
 
 .delete-modal {
   display: none;
@@ -1222,7 +1188,6 @@
   box-shadow: 0 6px 25px rgba(255, 107, 129, 0.4);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .delete-modal-content {
     width: 95%;
