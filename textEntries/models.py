@@ -47,6 +47,8 @@ class TextEntryInsight(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     summary = models.TextField(blank=True, null=True)
     sentiment = models.CharField(max_length=50, blank=True, null=True)
+    goals = models.TextField(blank=True, null=True)
+    suggestion = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

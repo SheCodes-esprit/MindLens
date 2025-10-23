@@ -36,20 +36,16 @@
             </a>
         </div>
 
-        <div class="ai-features mt-5 p-4 glass-card rounded-4 shadow-sm">
-        <h5>🤖 AI Insights</h5>
-
-        {% if insight %}
-            {% if insight.summary %}
-                <h6>📄 Summary</h6>
-                <p>{{ insight.summary }}</p>
-            {% else %}
-                <p class="text-muted">Summary not available.</p>
-            {% endif %}
-        {% else %}
-            <p class="text-muted">No AI insights yet.</p>
-        {% endif %}
-    </div>
+       <div class="ai-features mt-5 p-4 glass-card rounded-4 shadow-sm">
+    <h5>🤖 AI Insights</h5>
+    {% if insight %}
+        <p><strong>Summary:</strong> {{ insight.summary }}</p>
+        <p><strong>Suggested Action:</strong> {{ insight.suggestion }}</p>
+        <p><strong>Feeling:</strong> {{ entry.feeling }}</p>
+    {% else %}
+        <p class="text-muted">No insights available yet.</p>
+    {% endif %}
+</div>
 
     </section>
 

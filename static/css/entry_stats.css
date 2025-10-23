@@ -1,0 +1,67 @@
+.visual-hero {
+  position: relative;
+  background: linear-gradient(135deg, #fdfdfd 0%, #f0f0f5 100%);
+  padding: 4rem 2rem;
+  margin-bottom: 3rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.visual-hero h2 {
+  font-family: "Playfair Display", serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: #2d3436;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* Floating Icons Animation */
+.floating-icons {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.float-icon {
+  position: absolute;
+  font-size: 2.5rem;
+  opacity: 0.15;
+  animation: float 15s infinite ease-in-out;
+  color: #ff6b81;
+}
+
+.float-icon:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+.float-icon:nth-child(2) { top: 60%; left: 20%; animation-delay: 2s; }
+.float-icon:nth-child(3) { top: 40%; right: 15%; animation-delay: 4s; }
+.float-icon:nth-child(4) { top: 70%; right: 25%; animation-delay: 6s; }
+.float-icon:nth-child(5) { top: 30%; left: 50%; animation-delay: 8s; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+}
+
+/* Button styling */
+.btn-create-visual {
+  background: linear-gradient(135deg, #ff6b81 0%, #ff8fa3 100%);
+  color: white;
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 0.6rem 1.2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.btn-create-visual:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
