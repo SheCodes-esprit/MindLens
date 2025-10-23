@@ -1,0 +1,80 @@
+{% extends 'frontoffice/layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/entries.css' %}">
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+<section class="entry-form-section container py-5">
+  <div class="text-center mb-5">
+    <h1 class="page-title animate__animated animate__fadeInDown">
+      {% if entry %}✏️ Update Entry{% else %}✨ New Entry{% endif %}
+    </h1>
+    <p class="subtitle animate__animated animate__fadeInUp">
+      Capture your thoughts and emotions — your reflection space 🌿
+    </p>
+  </div>
+
+  <div class="glass-card p-4 rounded-4 shadow-sm animate__animated animate__fadeInUp">
+    <form method="POST" id="entryForm">
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label for="title" class="form-label">Title</label>
+        <input type="text" id="title" name="title" class="form-control" 
+               value="{{ entry.title|default_if_none:'' }}" placeholder="Enter title">
+      </div>
+
+      <div class="mb-3">
+        <label for="tag" class="form-label">Tag</label>
+        <input type="text" id="tag" name="tag" class="form-control"
+               value="{{ entry.tag.name|default_if_none:'' }}" placeholder="Optional tag">
+      </div>
+
+      <div class="mb-3">
+        <label for="editor" class="form-label">Content</label>
+        <div id="editor" class="form-control" style="min-height: 200px;">
+          {% if entry %}{{ entry.content|safe }}{% endif %}
+        </div>
+        <input type="hidden" name="content" id="hiddenContent">
+      </div>
+
+      {% if entry and insight %}
+      <div class="mb-3">
+        <label for="summary" class="form-label">Summary</label>
+        <textarea name="summary" id="summary" class="form-control" rows="4">{{ insight.summary |safe }}</textarea>
+      </div>
+      {% endif %}
+
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        {% if entry %}
+          <a href="{% url 'entry_list' %}" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary">Update</button>
+        {% else %}
+          <button type="submit" class="btn btn-success">Add Entry</button>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</section>
+
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+<script>
+  var quill = new Quill('#editor', {
+    theme: 'snow',
+    modules: {
+      toolbar: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline'],
+        ['blockquote', 'code-block'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ]
+    }
+  });
+
+  document.getElementById('entryForm').onsubmit = function() {
+    var html = quill.root.innerHTML;
+    document.getElementById('hiddenContent').value = html;
+  }
+</script>
+{% endblock %}
