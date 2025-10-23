@@ -1,6 +1,4 @@
-/* Wellbeing Display - Enhanced to Match Main App Theme */
 
-/* Using main.css color scheme and variables */
 :root {
   --bg: #fff;
   --text: #2d3436;
@@ -9,7 +7,6 @@
   --card-title-color: var(--text);
   --card-body-color: var(--text);
 
-  /* Updated wellbeing-specific colors to harmonize with accent */
   --mood-color: #ff6b81;
   --energy-color: #ffa502;
   --sleep-color: #667eea;
@@ -32,7 +29,6 @@ body {
   font-family: "Inter", sans-serif;
 }
 
-/* Enhanced hero section with gradient matching home page CTA */
 .wellbeing-hero {
   position: relative;
   overflow: hidden;
@@ -113,7 +109,6 @@ body {
   }
 }
 
-/* Hero content with proper z-index and typography matching home page */
 .wellbeing-hero > * {
   position: relative;
   z-index: 1;
@@ -134,7 +129,6 @@ body {
   font-weight: 400;
 }
 
-/* Button styling to exactly match home page buttons */
 .btn-accent {
   background: linear-gradient(135deg, var(--accent) 0%, #ff8fa3 100%);
   color: white;
@@ -159,7 +153,6 @@ body {
   color: white;
 }
 
-/* Container matching main.css style */
 .wellbeing-container {
   max-width: 1400px;
   margin: 0 auto;
@@ -168,13 +161,11 @@ body {
   font-family: "Inter", sans-serif;
 }
 
-/* Summary Stats */
 .summary-stats {
   max-width: 1400px;
   margin: 0 auto;
 }
 
-/* Enhanced stat cards to exactly match home page feature cards */
 .stat-card {
   background: #ffffff;
   padding: 2rem;
@@ -231,7 +222,6 @@ body {
   margin: 0;
 }
 
-/* Records Section */
 .records-section {
   max-width: 1400px;
   margin: 0 auto;
@@ -247,7 +237,6 @@ body {
   padding: 0 0.5rem;
 }
 
-/* Enhanced record cards to exactly match home page entry/feature cards */
 .record-card {
   background: #ffffff;
   border-radius: 16px;
@@ -287,7 +276,6 @@ body {
   font-weight: 500;
 }
 
-/* Metrics */
 .metrics {
   flex: 1;
 }
@@ -328,7 +316,6 @@ body {
   color: var(--productivity-color);
 }
 
-/* Enhanced progress bars with smoother animations */
 .progress {
   height: 8px;
   background: var(--section-bg);
@@ -381,7 +368,6 @@ body {
   background: linear-gradient(90deg, var(--productivity-color), #7ee5ff);
 }
 
-/* AI Summary with accent color gradient matching app theme */
 .ai-summary {
   background: linear-gradient(135deg, var(--accent) 0%, #ff8fa3 100%);
   padding: 1rem;
@@ -422,7 +408,6 @@ body {
   z-index: 1;
 }
 
-/* Card Actions */
 .card-actions {
   display: flex;
   gap: 0.5rem;
@@ -448,7 +433,6 @@ body {
   gap: 0.5rem;
 }
 
-/* Updated button colors to match accent theme */
 .card-actions .btn-primary {
   background: var(--accent);
   color: white;
@@ -475,7 +459,6 @@ body {
   transform: translateY(-2px);
 }
 
-/* Enhanced empty state to match home page style with better animations */
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
@@ -519,7 +502,6 @@ body {
   line-height: 1.6;
 }
 
-/* Added filter section styling to match app theme */
 .container.py-3.text-center form {
   background: white;
   padding: 1.5rem;
@@ -568,7 +550,6 @@ body {
   box-shadow: 0 4px 12px rgba(255, 107, 129, 0.3);
 }
 
-/* Added view toggle button styles */
 .view-toggle {
   display: inline-flex;
   background: white;
@@ -603,7 +584,6 @@ body {
   box-shadow: 0 2px 8px rgba(255, 107, 129, 0.3);
 }
 
-/* Calendar heatmap styles */
 .calendar-heatmap-container {
   background: white;
   padding: 2rem;
@@ -673,7 +653,6 @@ body {
   z-index: 10;
 }
 
-/* Calendar day intensity levels based on wellbeing scores */
 .calendar-day[data-level="1"] {
   background: rgba(255, 107, 129, 0.2);
   color: var(--text);
@@ -704,7 +683,6 @@ body {
   z-index: 1;
 }
 
-/* Calendar legend */
 .calendar-legend {
   display: flex;
   align-items: center;
@@ -741,7 +719,6 @@ body {
   background: var(--accent);
 }
 
-/* Selected day details section */
 .selected-day-details {
   background: white;
   padding: 2rem;
@@ -769,7 +746,6 @@ body {
   position: relative;
 }
 
-/* Added header with action buttons positioned in top-right */
 .day-record-header {
   display: flex;
   justify-content: space-between;
@@ -786,7 +762,6 @@ body {
   font-family: "Playfair Display", serif;
 }
 
-/* New compact action buttons for top-right positioning */
 .card-actions-topright {
   display: flex;
   gap: 0.5rem;
@@ -833,7 +808,6 @@ body {
   transform: translateY(-2px) scale(1.05);
 }
 
-/* Updated compact record cards to have action buttons in top-right */
 .record-card-compact {
   background: white;
   border-radius: 12px;
@@ -864,12 +838,10 @@ body {
   color: var(--text);
 }
 
-/* Removed old bottom action buttons styling for compact cards */
 .card-actions-compact {
   display: none;
 }
 
-/* Chart cards styling */
 .chart-card {
   background: white;
   padding: 1.5rem;
@@ -897,7 +869,6 @@ body {
   max-height: 250px;
 }
 
-/* Compact record cards for list view */
 .record-card-compact {
   background: white;
   border-radius: 12px;
@@ -928,7 +899,6 @@ body {
   color: var(--text);
 }
 
-/* Compact metrics with mini progress bars */
 .metrics-compact {
   display: flex;
   flex-direction: column;
@@ -967,7 +937,6 @@ body {
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Compact card actions */
 .card-actions-compact {
   display: flex;
   gap: 0.5rem;
@@ -1017,7 +986,6 @@ body {
   transform: translateY(-2px);
 }
 
-/* Load more button */
 #load-more-btn {
   padding: 0.875rem 2rem;
   border-radius: 12px;
@@ -1040,7 +1008,6 @@ body {
   box-shadow: 0 4px 12px rgba(255, 107, 129, 0.3);
 }
 
-/* Fade in animation for selected day details */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -1052,7 +1019,6 @@ body {
   }
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .wellbeing-hero {
     margin: 1rem;
@@ -1096,7 +1062,6 @@ body {
     font-size: 0.875rem;
   }
 
-  /* Ensure action buttons remain visible and usable on mobile */
   .card-actions-topright {
     gap: 0.375rem;
   }

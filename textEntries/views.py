@@ -7,6 +7,7 @@ from datetime import datetime
 from transformers import BartForConditionalGeneration, BartTokenizer
 import torch
 from bs4 import BeautifulSoup
+from django.core.exceptions import ValidationError
 
 
 
@@ -89,62 +90,77 @@ def summarize_text(text, max_summary_length=150):
 
 @login_required
 def add_entry(request):
+    errors = {}
+
     if request.method == 'POST':
         title = request.POST.get('title', "").strip()
         content = request.POST.get('content', "").strip()
         tag_name = request.POST.get('tag', "").strip().lower()
-
         feeling = analyze_feeling(content)
 
-        if title and content:
-            tag = None
-            if tag_name:
-                tag, created = Tag.objects.get_or_create(user=request.user, name=tag_name)
+        tag = None
+        if tag_name:
+            tag, _ = Tag.objects.get_or_create(user=request.user, name=tag_name)
 
-            entry = Entry.objects.create(
-                user=request.user,
-                title=title or "Untitled",
-                content=content,
-                feeling=feeling,
-                tag=tag
-            )
+        entry = Entry(
+            user=request.user,
+            title=title,
+            content=content,
+            feeling=feeling,
+            tag=tag,
+        )
+
+        try:
+            entry.save()
 
             summary_text = summarize_text(content)
-            TextEntryInsight.objects.create(
-                entry=entry,
-                user=request.user,
-                summary=summary_text
-            )
+            TextEntryInsight.objects.create(entry=entry, user=request.user, summary=summary_text)
 
             return redirect('entry_list')
 
-    return render(request, 'frontoffice/pages/text/entry_form.html', {'entry': None})
+        except ValidationError as e:
+            errors = e.message_dict
+
+    return render(request, 'frontoffice/pages/text/entry_form.html', {'entry': None, 'errors': errors})
 
 
-
-@login_required
 @login_required
 def update_entry(request, entry_id):
     entry = get_object_or_404(Entry, id=entry_id, user=request.user)
     insight = TextEntryInsight.objects.filter(entry=entry, user=request.user).first()
+    errors = {}
 
     if request.method == 'POST':
-        entry.title = request.POST.get('title')
-        entry.content = request.POST.get('content')
-        entry.feeling = analyze_feeling(entry.content)
-        entry.save()
+        entry.title = request.POST.get('title', '').strip()
+        entry.content = request.POST.get('content', '').strip()
+        tag_name = request.POST.get('tag', '').strip().lower()
 
-        summary_text = request.POST.get('summary', '')
-        if insight:
-            insight.summary = summary_text
-            insight.save()
-        else:
-            if summary_text:
+        if tag_name:
+            tag, _ = Tag.objects.get_or_create(user=request.user, name=tag_name)
+            entry.tag = tag
+
+        entry.feeling = analyze_feeling(entry.content)
+
+        try:
+            entry.save()
+
+            summary_text = request.POST.get('summary', '')
+            if insight:
+                insight.summary = summary_text
+                insight.save()
+            elif summary_text:
                 TextEntryInsight.objects.create(entry=entry, user=request.user, summary=summary_text)
 
-        return redirect('entry_list')
+            return redirect('entry_list')
 
-    return render(request, 'frontoffice/pages/text/entry_form.html', {'entry': entry, 'insight': insight})
+        except ValidationError as e:
+            errors = e.message_dict
+
+    return render(request, 'frontoffice/pages/text/entry_form.html', {
+        'entry': entry,
+        'insight': insight,
+        'errors': errors
+    })
 
 
 @login_required

@@ -15,43 +15,67 @@
     </p>
   </div>
 
+  {% if messages %}
+  <div class="messages-container mb-4">
+    {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   <div class="glass-card p-4 rounded-4 shadow-sm animate__animated animate__fadeInUp">
-    <form method="POST" id="entryForm">
+    <form method="POST" id="entryForm" novalidate>
       {% csrf_token %}
 
       <div class="mb-3">
-        <label for="title" class="form-label">Title</label>
-        <input type="text" id="title" name="title" class="form-control" 
-               value="{{ entry.title|default_if_none:'' }}" placeholder="Enter title">
+        <label for="title" class="form-label">Title </label>
+        <input type="text" id="title" name="title" class="form-control " 
+               value="{{ entry.title|default_if_none:'untitled' }}" placeholder="Enter title ">
       </div>
 
       <div class="mb-3">
         <label for="tag" class="form-label">Tag</label>
         <input type="text" id="tag" name="tag" class="form-control"
-               value="{{ entry.tag.name|default_if_none:'' }}" placeholder="Optional tag">
+               value="{{ entry.tag.name|default_if_none:'untagged' }}" placeholder="Optional tag">
       </div>
 
       <div class="mb-3">
-        <label for="editor" class="form-label">Content</label>
-        <div id="editor" class="form-control" style="min-height: 200px;">
+        <label for="editor" class="form-label">Content *</label>
+        <div id="editor" class="form-control {% if errors.content %}is-invalid{% endif %}" style="min-height: 200px;">
           {% if entry %}{{ entry.content|safe }}{% endif %}
         </div>
         <input type="hidden" name="content" id="hiddenContent">
+        {% if errors.content %}
+        <div class="invalid-feedback d-block" >
+          {{ errors.content }}
+        </div>
+        {% else %}
+        <div class="form-text" style="color: red;">Content should be at least 10 characters long.</div>
+        {% endif %}
       </div>
 
       {% if entry and insight %}
       <div class="mb-3">
         <label for="summary" class="form-label">Summary</label>
-        <textarea name="summary" id="summary" class="form-control" rows="4">{{ insight.summary |safe }}</textarea>
+        <textarea name="summary" id="summary" class="form-control" rows="4">{{ insight.summary|safe }}</textarea>
+      </div>
+      {% endif %}
+
+      {% if errors.general %}
+      <div class="alert alert-danger">
+        {{ errors.general }}
       </div>
       {% endif %}
 
       <div class="d-flex justify-content-end gap-2 mt-4">
         {% if entry %}
           <a href="{% url 'entry_list' %}" class="btn btn-secondary">Cancel</a>
-          <button type="submit" class="btn btn-primary">Update</button>
+          <button type="submit" class="btn btn-theme">Update Entry</button>
         {% else %}
-          <button type="submit" class="btn btn-success">Add Entry</button>
+          <button type="submit" class="btn btn-theme">Add Entry</button>
         {% endif %}
       </div>
     </form>
@@ -72,9 +96,88 @@
     }
   });
 
-  document.getElementById('entryForm').onsubmit = function() {
+document.getElementById('entryForm').onsubmit = function() {
     var html = quill.root.innerHTML;
+    var content = quill.getText().trim(); 
     document.getElementById('hiddenContent').value = html;
-  }
+    
+    let isValid = true;
+
+    if (content.length === 0) {
+        document.getElementById('editor').classList.add('is-invalid');
+        isValid = false;
+    } else {
+        document.getElementById('editor').classList.remove('is-invalid');
+    }
+
+    return isValid;
+}
+
+
+  quill.on('text-change', function() {
+    var content = quill.getText().trim();
+    if (content.length >= 10) {
+      document.getElementById('editor').classList.remove('is-invalid');
+    }
+  });
 </script>
+
+<style>
+    .btn-theme {
+  background: linear-gradient(135deg, var(--accent) 0%, #ff8fa3 100%);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+.btn-theme:hover { opacity: 0.9; transform: translateY(-1px); }
+
+.btn-outline-theme {
+  border: 2px solid var(--accent);
+  color: var(--accent);
+  background: transparent;
+  font-weight: 600;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+.btn-outline-theme:hover { background: var(--accent); color: white; }
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.messages-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.invalid-feedback {
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.875em;
+  color: #dc3545;
+}
+
+.is-invalid {
+  border-color: #dc3545 !important;
+}
+
+.ql-toolbar.ql-snow {
+  border: 1px solid #ccc;
+  border-bottom: none;
+}
+
+.ql-container.ql-snow {
+  border: 1px solid #ccc;
+  border-top: none;
+}
+
+.ql-container.ql-snow.is-invalid {
+  border-color: #dc3545 !important;
+}
+</style>
 {% endblock %}
