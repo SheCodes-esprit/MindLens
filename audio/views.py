@@ -13,6 +13,8 @@ from pydub import AudioSegment
 import whisper
 import re
 
+from collections import defaultdict
+from django.utils.timezone import localdate
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -222,13 +224,41 @@ def audio_create(request):
         'remaining_entries': remaining_entries
     })
 
+
+from collections import defaultdict
+from django.utils.timezone import localdate
+from django.db.models import Count, Sum, Q
+import json
+
 @login_required
 def audio_list(request):
     if request.user.role != User.JOURNALIST:
         return redirect('dashboard')
     
+    search_title = request.GET.get('search_title', '').strip()
+    search_mood = request.GET.get('search_mood', '').strip()
+    
+    # Start with all entries for the user
     entries = AudioEntry.objects.filter(user=request.user).order_by('-created_at')
     
+    if search_title:
+        entries = entries.filter(title__icontains=search_title)
+    
+    if search_mood:
+        entries = entries.filter(emotion_analyses__detected_emotion=search_mood).distinct()
+    
+    all_emotions = AudioEmotionAnalysis.objects.filter(
+        audio_entry__user=request.user
+    ).values_list('detected_emotion', flat=True).distinct().order_by('detected_emotion')
+
+    entries_by_month = defaultdict(list)
+    for entry in entries:
+        month_key = entry.created_at.date().replace(day=1)
+        entries_by_month[month_key].append(entry)
+
+    sorted_months = sorted(entries_by_month.keys(), reverse=True)
+    entries_by_month = {month: entries_by_month[month] for month in sorted_months}
+
     today = timezone.now().date()
     start_of_week = today - timedelta(days=today.weekday())
     start_of_week = timezone.make_aware(datetime.combine(start_of_week, datetime.min.time()))
@@ -236,9 +266,8 @@ def audio_list(request):
     
     start_of_month = today.replace(day=1)
     start_of_month = timezone.make_aware(datetime.combine(start_of_month, datetime.min.time()))
-    end_of_month = start_of_month + timedelta(days=31)
-    end_of_month = end_of_month.replace(day=1) - timedelta(seconds=1)
-    
+    end_of_month = (start_of_month + timedelta(days=31)).replace(day=1) - timedelta(seconds=1)
+
     weekly_entries = AudioEntry.objects.filter(
         user=request.user,
         created_at__range=(start_of_week, end_of_week)
@@ -249,17 +278,96 @@ def audio_list(request):
         created_at__range=(start_of_month, end_of_month)
     ).count()
     
+    total_entries = AudioEntry.objects.filter(user=request.user).count()
+    
+    total_duration = AudioEntry.objects.filter(
+        user=request.user
+    ).aggregate(total=Sum('duration'))['total'] or 0
+    total_hours = int(total_duration // 3600)
+    total_minutes = int((total_duration % 3600) // 60)
+    
+    streak = calculate_entry_streak(request.user)
+    
+    oldest_entry = AudioEntry.objects.filter(user=request.user).order_by('created_at').first()
+    if oldest_entry:
+        days_since_first = (today - oldest_entry.created_at.date()).days + 1
+        weeks_active = max(days_since_first / 7, 1)
+        avg_per_week = round(total_entries / weeks_active, 1)
+    else:
+        avg_per_week = 0
+    
     emotion_counts = AudioEmotionAnalysis.objects.filter(
         audio_entry__user=request.user
     ).values('detected_emotion').annotate(count=Count('detected_emotion')).order_by('-count')
+    
     most_frequent_emotion = emotion_counts.first()['detected_emotion'] if emotion_counts.exists() else 'None'
     
+    emotion_labels = [item['detected_emotion'] for item in emotion_counts]
+    emotion_data = [item['count'] for item in emotion_counts]
+    emotion_chart_data = json.dumps({
+        'labels': emotion_labels,
+        'data': emotion_data
+    })
+    
+    weekly_activity = []
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+        day_start = timezone.make_aware(datetime.combine(day, datetime.min.time()))
+        day_end = timezone.make_aware(datetime.combine(day, datetime.max.time()))
+        count = AudioEntry.objects.filter(
+            user=request.user,
+            created_at__range=(day_start, day_end)
+        ).count()
+        weekly_activity.append({
+            'day': day.strftime('%a'),
+            'date': day.strftime('%m/%d'),
+            'count': count
+        })
+    
+    weekly_activity_json = json.dumps(weekly_activity)
+
     return render(request, 'frontoffice/pages/audio/audio_list.html', {
-        'entries': entries,
+        'entries_by_month': entries_by_month,
         'weekly_entries': weekly_entries,
         'monthly_entries': monthly_entries,
+        'total_entries': total_entries,
+        'total_hours': total_hours,
+        'total_minutes': total_minutes,
+        'entry_streak': streak,
+        'avg_per_week': avg_per_week,
         'most_frequent_emotion': most_frequent_emotion,
+        'emotion_chart_data': emotion_chart_data,
+        'weekly_activity_json': weekly_activity_json,
+        'search_title': search_title,
+        'search_mood': search_mood,
+        'all_emotions': all_emotions,
     })
+
+
+def calculate_entry_streak(user):
+    """Calculate the current entry streak (consecutive days with entries)"""
+    today = timezone.now().date()
+    streak = 0
+    current_date = today
+    
+    while True:
+        day_start = timezone.make_aware(datetime.combine(current_date, datetime.min.time()))
+        day_end = timezone.make_aware(datetime.combine(current_date, datetime.max.time()))
+        
+        has_entry = AudioEntry.objects.filter(
+            user=user,
+            created_at__range=(day_start, day_end)
+        ).exists()
+        
+        if has_entry:
+            streak += 1
+            current_date -= timedelta(days=1)
+        else:
+            break
+    
+    return streak
+
+
 
 @login_required
 def audio_detail(request, pk):
