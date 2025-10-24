@@ -4,6 +4,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/audio.css' %}">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 {% endblock %}
 
 {% block content %}
@@ -167,15 +168,15 @@
     <!-- Entries by Month -->
     <div class="audio-entries-container">
         {% if entries_by_month %}
-            {% for month, entries in entries_by_month.items %}
+            {% for month, data in entries_by_month.items %}
                 <div class="month-group">
                     <div class="month-header">
                         <i class="bi bi-calendar-month"></i>
                         {{ month|date:"F Y" }}
-                        <span class="badge bg-light text-dark ms-auto">{{ entries|length }} entr{{ entries|length|pluralize:"y,ies" }}</span>
+                        <span class="badge bg-light text-dark ms-auto">{{ data.entries.paginator.count }} entr{{ data.entries.paginator.count|pluralize:"y,ies" }}</span>
                     </div>
                     <div class="entries-list">
-                        {% for entry in entries %}
+                        {% for entry in data.entries %}
                             <div class="audio-entry-card">
                                 <div class="audio-entry-content">
                                     <div class="audio-icon">
@@ -202,6 +203,38 @@
                             <p class="no-entries">No entries this month.</p>
                         {% endfor %}
                     </div>
+                    <!-- Pagination for this month -->
+                    {% if data.entries.paginator.num_pages > 1 %}
+                    <div class="pagination">
+                        {% if data.entries.has_previous %}
+                        <a href="?{% if search_title %}search_title={{ search_title }}&{% endif %}{% if search_mood %}search_mood={{ search_mood }}&{% endif %}page_{{ month|date:'Y_m' }}={{ data.entries.previous_page_number }}" class="previous">
+                            <i class="bi bi-chevron-left"></i> Previous
+                        </a>
+                        {% else %}
+                        <a href="#" class="previous disabled">
+                            <i class="bi bi-chevron-left"></i> Previous
+                        </a>
+                        {% endif %}
+                        
+                        {% for num in data.entries.paginator.page_range %}
+                        {% if num == data.entries.number %}
+                            <a href="#" class="active">{{ num }}</a>
+                        {% else %}
+                            <a href="?{% if search_title %}search_title={{ search_title }}&{% endif %}{% if search_mood %}search_mood={{ search_mood }}&{% endif %}page_{{ month|date:'Y_m' }}={{ num }}">{{ num }}</a>
+                        {% endif %}
+                        {% endfor %}
+                        
+                        {% if data.entries.has_next %}
+                        <a href="?{% if search_title %}search_title={{ search_title }}&{% endif %}{% if search_mood %}search_mood={{ search_mood }}&{% endif %}page_{{ month|date:'Y_m' }}={{ data.entries.next_page_number }}" class="next">
+                            Next <i class="bi bi-chevron-right"></i>
+                        </a>
+                        {% else %}
+                        <a href="#" class="next disabled">
+                            Next <i class="bi bi-chevron-right"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                 </div>
             {% endfor %}
         {% else %}

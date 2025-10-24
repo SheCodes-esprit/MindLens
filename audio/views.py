@@ -33,6 +33,7 @@ from django.db.models import Sum
 from django.contrib.admin.views.decorators import staff_member_required
 import logging
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -245,6 +246,7 @@ def audio_create(request):
 
 
 
+
 @login_required
 def audio_list(request):
     if request.user.role != User.JOURNALIST:
@@ -266,13 +268,32 @@ def audio_list(request):
         audio_entry__user=request.user
     ).values_list('detected_emotion', flat=True).distinct().order_by('detected_emotion')
 
+    # Group entries by month and paginate
     entries_by_month = defaultdict(list)
     for entry in entries:
         month_key = entry.created_at.date().replace(day=1)
         entries_by_month[month_key].append(entry)
 
+    # Sort months in descending order
     sorted_months = sorted(entries_by_month.keys(), reverse=True)
-    entries_by_month = {month: entries_by_month[month] for month in sorted_months}
+    
+    # Paginate entries for each month
+    paginated_entries_by_month = {}
+    for month in sorted_months:
+        month_entries = entries_by_month[month]
+        paginator = Paginator(month_entries, 3)  # 3 entries per page
+        page_number = request.GET.get(f'page_{month.strftime("%Y_%m")}', 1)
+        try:
+            page_obj = paginator.page(page_number)
+        except PageNotAnInteger:
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            page_obj = paginator.page(paginator.num_pages)
+        paginated_entries_by_month[month] = {
+            'entries': page_obj,
+            'paginator': paginator,
+            'page_number': page_number
+        }
 
     today = timezone.now().date()
     start_of_week = today - timedelta(days=today.weekday())
@@ -342,7 +363,7 @@ def audio_list(request):
     weekly_activity_json = json.dumps(weekly_activity)
 
     return render(request, 'frontoffice/pages/audio/audio_list.html', {
-        'entries_by_month': entries_by_month,
+        'entries_by_month': paginated_entries_by_month,
         'weekly_entries': weekly_entries,
         'monthly_entries': monthly_entries,
         'total_entries': total_entries,
@@ -357,7 +378,6 @@ def audio_list(request):
         'search_mood': search_mood,
         'all_emotions': all_emotions,
     })
-
 
 def calculate_entry_streak(user):
     """Calculate the current entry streak (consecutive days with entries)"""
