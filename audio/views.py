@@ -15,7 +15,24 @@ import re
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Max
 from collections import defaultdict
+from django.utils.timezone import make_aware, localdate
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import cm
+import io
+from collections import defaultdict
 from django.utils.timezone import localdate
+from django.db.models import Count, Sum, Q
+import json
+from django.db.models import Sum, Avg, Count, Max, Q
+from django.utils.timezone import now
+from django.db.models import Sum
+from django.contrib.admin.views.decorators import staff_member_required
+import logging
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -226,10 +243,7 @@ def audio_create(request):
     })
 
 
-from collections import defaultdict
-from django.utils.timezone import localdate
-from django.db.models import Count, Sum, Q
-import json
+
 
 @login_required
 def audio_list(request):
@@ -393,67 +407,213 @@ def audio_delete(request, pk):
 # ──────────────────────────────────────────────────────────────────────
 #  ADMIN AUDIO HISTORY – with stats, search, mood filter & sidebar count
 # ──────────────────────────────────────────────────────────────────────
-from django.db.models import Sum, Avg, Count, Max, Q
-from django.utils.timezone import now
+
 
 @login_required
+def admin_audio_history_pdf(request):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="audio_history.pdf"'
+
+    doc = SimpleDocTemplate(response, pagesize=A4, rightMargin=30, leftMargin=30, topMargin=60, bottomMargin=30)
+    styles = getSampleStyleSheet()
+    elements = []
+
+    # Custom styles
+    title_style = ParagraphStyle(
+        'title_style',
+        parent=styles['Title'],
+        fontSize=18,
+        textColor=colors.HexColor('#004c6d'),
+        alignment=1,  # center
+        spaceAfter=12
+    )
+    subtitle_style = ParagraphStyle(
+        'subtitle_style',
+        parent=styles['Normal'],
+        fontSize=10,
+        textColor=colors.HexColor('#555555'),
+        alignment=1,
+        spaceAfter=12
+    )
+
+    # Title
+    elements.append(Paragraph("Audio History Report", title_style))
+    elements.append(Paragraph(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M')}", subtitle_style))
+    elements.append(Spacer(1, 12))
+
+    # Fetch audio entries
+    audios = AudioEntry.objects.select_related('user').order_by('-created_at')
+
+    # Summary
+    total_entries = audios.count()
+    total_duration_sec = sum(a.duration or 0 for a in audios)
+    total_hours = int(total_duration_sec // 3600)
+    total_minutes = int((total_duration_sec % 3600) // 60)
+    summary_text = f"<b>Total Entries:</b> {total_entries} &nbsp;&nbsp;&nbsp; <b>Total Duration:</b> {total_hours}h {total_minutes}m"
+    elements.append(Paragraph(summary_text, styles['Normal']))
+    elements.append(Spacer(1, 12))
+
+    # Table header
+    data = [["Title", "Journalist", "Duration (s)", "Created", "Dominant Emotion"]]
+
+    # Table rows
+    for audio in audios:
+        data.append([
+            audio.title or "Untitled",
+            audio.user.username,
+            f"{audio.duration:.1f}" if audio.duration else "–",
+            audio.created_at.strftime("%d %b %Y %H:%M"),
+            getattr(audio, "dominant_emotion", "–"),
+        ])
+
+    # Table styling
+    table = Table(data, colWidths=[6*cm, 3*cm, 2.5*cm, 3.5*cm, 3.5*cm])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#004c6d')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('GRID', (0, 0), (-1, -1), 0.3, colors.grey),
+    ]))
+
+    # Alternating row colors
+    for i in range(1, len(data)):
+        bg_color = colors.HexColor('#f5f5f5') if i % 2 == 0 else colors.white
+        table.setStyle([('BACKGROUND', (0, i), (-1, i), bg_color)])
+
+    elements.append(table)
+
+    # Header & Footer
+    def header_footer(canvas, doc):
+        canvas.saveState()
+        canvas.setFont('Helvetica', 9)
+        # Header
+        canvas.drawString(30, 820, "MindLens - Admin Report")
+        canvas.drawRightString(570, 820, "Audio Archive")
+        # Footer
+        canvas.drawString(30, 15, f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+        canvas.drawRightString(570, 15, f"Page {doc.page}")
+        canvas.restoreState()
+
+    # Build PDF
+    doc.build(elements, onFirstPage=header_footer, onLaterPages=header_footer)
+
+    return response
+
+
+
+logger = logging.getLogger(__name__)
+@staff_member_required
 def admin_audio_history(request):
+    # Fetch all audio entries
+    entries = AudioEntry.objects.select_related('user').order_by('-created_at')
+
+    # Filters
     search = request.GET.get('search', '').strip()
-    mood   = request.GET.get('mood', '').strip()
+    mood = request.GET.get('mood', '').strip()
 
-    # ---------- 1. Base queryset (NO COMMA!) ----------
-    qs = AudioEntry.objects.select_related('user')  # ← FIXED: no comma!
-
-    # ---------- 2. Apply filters ----------
     if search:
-        qs = qs.filter(
+        entries = entries.filter(
             Q(title__icontains=search) |
-            Q(user__username__icontains=search) |
-            Q(user__email__icontains=search)
+            Q(user__username__icontains=search)
         )
+
     if mood:
-        qs = qs.filter(emotion_analyses__detected_emotion=mood)
+        entries = entries.filter(emotion_analyses__detected_emotion__iexact=mood)
 
-    # ---------- 3. Statistics ----------
-    total_entries = qs.count()
+    entries = entries.distinct()
 
-    total_duration = qs.aggregate(total=Sum('duration'))['total'] or 0
-    total_hours    = int(total_duration // 3600)
-    total_minutes  = int((total_duration % 3600) // 60)
+    # Pagination
+    paginator = Paginator(entries, 5)  # 5 entries per page
+    page_number = request.GET.get('page')
+    try:
+        page_obj = paginator.get_page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.get_page(1)
+    except EmptyPage:
+        page_obj = paginator.get_page(paginator.num_pages)
 
-    avg_duration = qs.aggregate(avg=Avg('duration'))['avg'] or 0
-    avg_duration = round(avg_duration, 1)
+    # Basic Stats
+    total = entries.count()
+    total_duration = entries.aggregate(total=Sum('duration'))['total'] or 0
+    total_hours = total_duration // 3600
+    total_minutes = (total_duration % 3600) // 60
+    avg_duration = round(total_duration / total, 1) if total else 0
+    entries_today = entries.filter(created_at__date=localdate()).count()
 
-    entries_today = qs.filter(created_at__date=now().date()).count()
+    # Emotion Stats
+    emotion_stats = AudioEmotionAnalysis.objects.filter(audio_entry__in=entries).values('detected_emotion').annotate(
+        total_count=Count('detected_emotion'),
+        avg_intensity=Avg('intensity')
+    ).order_by('-total_count')
 
-    top_mood = (AudioEmotionAnalysis.objects
-                .filter(audio_entry__in=qs)
-                .values('detected_emotion')
-                .annotate(cnt=Count('id'))
-                .order_by('-cnt')
-                .first())
-    most_frequent_mood = top_mood['detected_emotion'] if top_mood else '–'
+    emotion_chart_data = {
+        'labels': [e['detected_emotion'] for e in emotion_stats] if emotion_stats else [],
+        'counts': [e['total_count'] for e in emotion_stats] if emotion_stats else [],
+        'avg_intensities': [round(e['avg_intensity'], 2) for e in emotion_stats] if emotion_stats else []
+    }
+    emotion_chart_data_json = json.dumps(emotion_chart_data)
+    logger.info(f"Emotion chart data: {emotion_chart_data_json}")
 
-    # ---------- 4. Table data ----------
-    entries = qs.annotate(max_intensity=Max('emotion_analyses__intensity')) \
-                .order_by('-created_at')
+    # Weekly Trend
+    today = localdate()
+    weekly_trend = []
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+        day_start = make_aware(datetime.combine(day, datetime.min.time()))
+        day_end = make_aware(datetime.combine(day, datetime.max.time()))
+        day_count = entries.filter(created_at__range=(day_start, day_end)).count()
+        weekly_trend.append({
+            'day': day.strftime('%a'),
+            'date': day.strftime('%m/%d'),
+            'count': day_count
+        })
+    weekly_trend_json = json.dumps(weekly_trend)
+    logger.info(f"Weekly trend data: {weekly_trend_json}")
 
-    all_moods = AudioEmotionAnalysis.objects.values_list(
-        'detected_emotion', flat=True
-    ).distinct().order_by('detected_emotion')
+    # Monthly Trend
+    monthly_trend = entries.filter(created_at__year=today.year).values('created_at__month').annotate(
+        monthly_count=Count('id')
+    ).order_by('created_at__month')
+    monthly_trend_data = {
+        'labels': [datetime(today.year, m['created_at__month'], 1).strftime('%b') for m in monthly_trend] if monthly_trend else [],
+        'counts': [m['monthly_count'] for m in monthly_trend] if monthly_trend else []
+    }
+    monthly_trend_json = json.dumps(monthly_trend_data)
+    logger.info(f"Monthly trend data: {monthly_trend_json}")
 
-    # ---------- 5. Context ----------
+    # Per-user stats
+    user_stats = entries.values('user__username').annotate(
+        user_entries=Count('id'),
+        user_duration=Sum('duration')
+    ).order_by('-user_entries')
+    top_users = user_stats[:5]
+
+    # Most frequent mood
+    mood_counts = AudioEmotionAnalysis.objects.filter(audio_entry__in=entries).values('detected_emotion').annotate(
+        count=Count('detected_emotion')
+    ).order_by('-count')
+    most_frequent_mood = mood_counts[0]['detected_emotion'] if mood_counts else 'None'
+
+    all_moods = AudioEmotionAnalysis.objects.values_list('detected_emotion', flat=True).distinct().order_by('detected_emotion')
+
     context = {
-        'entries': entries,
-        'total': total_entries,
+        'page_obj': page_obj,  # Paginated entries
+        'total': total,
         'total_hours': total_hours,
         'total_minutes': total_minutes,
         'avg_duration': avg_duration,
         'entries_today': entries_today,
         'most_frequent_mood': most_frequent_mood,
+        'all_moods': all_moods,
         'search': search,
         'mood': mood,
-        'all_moods': all_moods,
-        'total_audio': AudioEntry.objects.count(),
+        'emotion_chart_data_json': emotion_chart_data_json,
+        'weekly_trend_json': weekly_trend_json,
+        'monthly_trend_json': monthly_trend_json,
+        'top_users': top_users,
     }
+
     return render(request, 'backoffice/pages/audio_history.html', context)
