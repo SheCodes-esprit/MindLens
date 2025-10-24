@@ -29,13 +29,21 @@
             </div>
             <div class="col-6 col-md-3">
                 <div class="p-3 rounded text-white stats-theme-card" style="background: linear-gradient(135deg, var(--accent-start), color-mix(in srgb, var(--accent-end) 80%, #000));">
-                    <h4 class="mb-0">{{ total_hours|default:0 }}h {{ total_minutes|default:0 }}m</h4>
+                    <h4 class="mb-0">
+                        {% if total_hours > 0 %}
+                            {{ total_hours }}h {{ total_minutes }}m {{ total_seconds }}s
+                        {% elif total_minutes > 0 %}
+                            {{ total_minutes }}m {{ total_seconds }}s
+                        {% else %}
+                            {{ total_seconds }}s
+                        {% endif %}
+                    </h4>
                     <small>Total Duration</small>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="p-3 rounded text-white stats-theme-card" style="background: var(--accent-gradient);">
-                    <h4 class="mb-0">{{ avg_duration|default:0 }} s</h4>
+                    <h4 class="mb-0">{{ avg_duration|floatformat:1|default:0 }} s</h4>
                     <small>Avg Duration</small>
                 </div>
             </div>

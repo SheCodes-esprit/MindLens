@@ -248,6 +248,7 @@ def audio_create(request):
 
 
 @login_required
+@login_required
 def audio_list(request):
     if request.user.role != User.JOURNALIST:
         return redirect('dashboard')
@@ -321,6 +322,7 @@ def audio_list(request):
     ).aggregate(total=Sum('duration'))['total'] or 0
     total_hours = int(total_duration // 3600)
     total_minutes = int((total_duration % 3600) // 60)
+    total_seconds = int(total_duration % 60)
     
     streak = calculate_entry_streak(request.user)
     
@@ -332,11 +334,12 @@ def audio_list(request):
     else:
         avg_per_week = 0
     
+    # Calculate most frequent emotion based on count
     emotion_counts = AudioEmotionAnalysis.objects.filter(
         audio_entry__user=request.user
     ).values('detected_emotion').annotate(count=Count('detected_emotion')).order_by('-count')
     
-    most_frequent_emotion = emotion_counts.first()['detected_emotion'] if emotion_counts.exists() else 'None'
+    most_frequent_emotion = emotion_counts.first()['detected_emotion'] if emotion_counts else 'None'
     
     emotion_labels = [item['detected_emotion'] for item in emotion_counts]
     emotion_data = [item['count'] for item in emotion_counts]
@@ -369,6 +372,7 @@ def audio_list(request):
         'total_entries': total_entries,
         'total_hours': total_hours,
         'total_minutes': total_minutes,
+        'total_seconds': total_seconds,
         'entry_streak': streak,
         'avg_per_week': avg_per_week,
         'most_frequent_emotion': most_frequent_emotion,
@@ -378,7 +382,7 @@ def audio_list(request):
         'search_mood': search_mood,
         'all_emotions': all_emotions,
     })
-
+    
 def calculate_entry_streak(user):
     """Calculate the current entry streak (consecutive days with entries)"""
     today = timezone.now().date()
@@ -464,12 +468,36 @@ def admin_audio_history_pdf(request):
     # Fetch audio entries
     audios = AudioEntry.objects.select_related('user').order_by('-created_at')
 
+    # Apply filters
+    search = request.GET.get('search', '').strip()
+    mood = request.GET.get('mood', '').strip()
+    if search:
+        audios = audios.filter(
+            Q(title__icontains=search) |
+            Q(user__username__icontains=search)
+        )
+    if mood:
+        audios = audios.filter(emotion_analyses__detected_emotion__iexact=mood)
+
+    audios = audios.distinct()
+
     # Summary
     total_entries = audios.count()
-    total_duration_sec = sum(a.duration or 0 for a in audios)
-    total_hours = int(total_duration_sec // 3600)
-    total_minutes = int((total_duration_sec % 3600) // 60)
-    summary_text = f"<b>Total Entries:</b> {total_entries} &nbsp;&nbsp;&nbsp; <b>Total Duration:</b> {total_hours}h {total_minutes}m"
+    total_duration = audios.aggregate(total=Sum('duration'))['total'] or 0
+    total_hours = int(total_duration // 3600)
+    total_minutes = int((total_duration % 3600) // 60)
+    total_seconds = int(total_duration % 60)
+    # Calculate most frequent mood
+    mood_counts = AudioEmotionAnalysis.objects.filter(
+        audio_entry__in=audios
+    ).values('detected_emotion').annotate(count=Count('detected_emotion')).order_by('-count')
+    most_frequent_mood = mood_counts.first()['detected_emotion'] if mood_counts else 'None'
+    
+    summary_text = (
+        f"<b>Total Entries:</b> {total_entries} &nbsp;&nbsp;&nbsp; "
+        f"<b>Total Duration:</b> {total_hours}h {total_minutes}m {total_seconds}s &nbsp;&nbsp;&nbsp; "
+        f"<b>Most Frequent Mood:</b> {most_frequent_mood}"
+    )
     elements.append(Paragraph(summary_text, styles['Normal']))
     elements.append(Spacer(1, 12))
 
@@ -478,12 +506,13 @@ def admin_audio_history_pdf(request):
 
     # Table rows
     for audio in audios:
+        duration = audio.duration if audio.duration else 0
         data.append([
             audio.title or "Untitled",
             audio.user.username,
-            f"{audio.duration:.1f}" if audio.duration else "–",
+            f"{duration:.1f}" if duration else "–",
             audio.created_at.strftime("%d %b %Y %H:%M"),
-            getattr(audio, "dominant_emotion", "–"),
+            audio.dominant_emotion or "–",
         ])
 
     # Table styling
@@ -522,9 +551,6 @@ def admin_audio_history_pdf(request):
 
     return response
 
-
-
-logger = logging.getLogger(__name__)
 @staff_member_required
 def admin_audio_history(request):
     # Fetch all audio entries
@@ -558,8 +584,9 @@ def admin_audio_history(request):
     # Basic Stats
     total = entries.count()
     total_duration = entries.aggregate(total=Sum('duration'))['total'] or 0
-    total_hours = total_duration // 3600
-    total_minutes = (total_duration % 3600) // 60
+    total_hours = int(total_duration // 3600)
+    total_minutes = int((total_duration % 3600) // 60)
+    total_seconds = int(total_duration % 60)
     avg_duration = round(total_duration / total, 1) if total else 0
     entries_today = entries.filter(created_at__date=localdate()).count()
 
@@ -568,6 +595,9 @@ def admin_audio_history(request):
         total_count=Count('detected_emotion'),
         avg_intensity=Avg('intensity')
     ).order_by('-total_count')
+
+    # Most frequent mood
+    most_frequent_mood = emotion_stats.first()['detected_emotion'] if emotion_stats else 'None'
 
     emotion_chart_data = {
         'labels': [e['detected_emotion'] for e in emotion_stats] if emotion_stats else [],
@@ -611,19 +641,14 @@ def admin_audio_history(request):
     ).order_by('-user_entries')
     top_users = user_stats[:5]
 
-    # Most frequent mood
-    mood_counts = AudioEmotionAnalysis.objects.filter(audio_entry__in=entries).values('detected_emotion').annotate(
-        count=Count('detected_emotion')
-    ).order_by('-count')
-    most_frequent_mood = mood_counts[0]['detected_emotion'] if mood_counts else 'None'
-
     all_moods = AudioEmotionAnalysis.objects.values_list('detected_emotion', flat=True).distinct().order_by('detected_emotion')
 
     context = {
-        'page_obj': page_obj,  # Paginated entries
+        'page_obj': page_obj,
         'total': total,
         'total_hours': total_hours,
         'total_minutes': total_minutes,
+        'total_seconds': total_seconds,
         'avg_duration': avg_duration,
         'entries_today': entries_today,
         'most_frequent_mood': most_frequent_mood,
@@ -634,6 +659,7 @@ def admin_audio_history(request):
         'weekly_trend_json': weekly_trend_json,
         'monthly_trend_json': monthly_trend_json,
         'top_users': top_users,
+        'total_audio': total,
     }
 
     return render(request, 'backoffice/pages/audio_history.html', context)
