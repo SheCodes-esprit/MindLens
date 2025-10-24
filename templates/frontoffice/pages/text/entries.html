@@ -30,6 +30,14 @@
           <option value="{{ f }}" {% if request.GET.feeling == f %}selected{% endif %}>{{ f }}</option>
         {% endfor %}
       </select>
+      <select name="tag" class="form-select" style="max-width: 200px;">
+        <option value="">All tags</option>
+        {% for tag in tags_list %}
+          <option value="{{ tag.id }}" {% if request.GET.tag == tag.id|stringformat:"s" %}selected{% endif %}>
+            {{ tag.name|capfirst }}
+          </option>
+        {% endfor %}
+      </select>
 
       <input type="month" name="month" class="form-control" style="max-width: 180px;" value="{{ request.GET.month }}">
 

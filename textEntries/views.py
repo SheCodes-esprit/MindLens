@@ -43,11 +43,18 @@ def entry_list(request):
         except ValueError:
             pass  
 
+    tag_id = request.GET.get('tag', '').strip()
+    if tag_id.isdigit():
+        entries = entries.filter(tag_id=int(tag_id))
+
     feelings_list = Entry.objects.filter(user=request.user).values_list('feeling', flat=True).distinct()
+    
+    tags_list = Tag.objects.filter(user=request.user).order_by('name')
 
     context = {
         'entries': entries,
         'feelings_list': feelings_list,
+        'tags_list': tags_list,
         'request': request,  
     }
     return render(request, 'frontoffice/pages/text/entries.html', context)
@@ -286,6 +293,8 @@ nltk.download("omw-1.4")
 STOPWORDS = set(stopwords.words("english"))
 lemmatizer = WordNetLemmatizer()
 
+from django.db.models import Count
+
 @login_required
 def entry_stats(request):
     entries = Entry.objects.filter(user=request.user).order_by('created_at')
@@ -297,10 +306,14 @@ def entry_stats(request):
             "pie_labels": "[]",
             "pie_counts": "[]",
             "pie_colors": "[]",
+            "tag_labels": "[]",
+            "tag_counts": "[]",
+            "tag_colors": "[]",
             "most_common_mood": "Neutral",
             "total_entries": 0
         })
 
+    # ---------------- Mood statistics ----------------
     all_sentiments = set()
     sentiment_counts = Counter()
     sentiment_over_time = defaultdict(lambda: defaultdict(int))
@@ -335,11 +348,13 @@ def entry_stats(request):
     sentiment_to_score = {s: i + 1 for i, s in enumerate(sorted_sentiments)}
 
     total_entries = len(entries)
-    total_score = sum(sentiment_to_score[entry.feeling or "Neutral"] for entry in entries)
-    avg_index = round(total_score / total_entries) - 1 if total_entries else 0
-    avg_index = max(0, min(avg_index, len(sorted_sentiments) - 1))
-
     most_common_mood = sorted_sentiments[0] if sorted_sentiments else "Neutral"
+
+    # ---------------- Tag statistics ----------------
+    tag_counts_qs = entries.values('tag__name').annotate(count=Count('id')).order_by('-count')
+    tag_labels = [t['tag__name'] or 'Untagged' for t in tag_counts_qs]
+    tag_counts = [t['count'] for t in tag_counts_qs]
+    tag_colors = colors[:len(tag_labels)]
 
     context = {
         "labels": mark_safe(json.dumps(sorted_dates)),
@@ -347,6 +362,9 @@ def entry_stats(request):
         "pie_labels": mark_safe(json.dumps(pie_labels)),
         "pie_counts": mark_safe(json.dumps(pie_counts)),
         "pie_colors": mark_safe(json.dumps(pie_colors)),
+        "tag_labels": mark_safe(json.dumps(tag_labels)),
+        "tag_counts": mark_safe(json.dumps(tag_counts)),
+        "tag_colors": mark_safe(json.dumps(tag_colors)),
         "most_common_mood": most_common_mood,
         "total_entries": total_entries,
     }

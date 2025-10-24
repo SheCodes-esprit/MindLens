@@ -27,16 +27,28 @@
     </div>
   </div>
 
-  <div class="d-flex flex-wrap gap-4 justify-content-center">
-    <div class="glass-card p-3" style="flex:1; min-width:300px; max-width:600px;">
-      <h5 class="mb-3">Sentiment Trend Over Time</h5>
-      <canvas id="sentimentChart" height="200"></canvas>
-    </div>
-    <div class="glass-card p-3" style="flex:1; min-width:300px; max-width:400px;">
-      <h5 class="mb-3">Mood Distribution</h5>
-      <canvas id="moodPieChart" height="200"></canvas>
-    </div>
+<div class="d-flex flex-wrap gap-4 justify-content-center mb-5">
+  <div class="glass-card p-3" style="flex:1; min-width:300px; max-width:600px;">
+    <h5 class="mb-3">Sentiment Trend Over Time</h5>
+    <canvas id="sentimentChart" height="200"></canvas>
   </div>
+</div>
+
+<div class="d-flex flex-wrap gap-4 justify-content-center">
+  <div class="glass-card p-3" style="flex:1; min-width:300px; max-width:400px;">
+    <h5 class="mb-3">Mood Distribution</h5>
+    <canvas id="moodPieChart" height="200"></canvas>
+  </div>
+
+  <div class="glass-card p-3" style="flex:1; min-width:300px; max-width:400px;">
+    <h5 class="mb-3">Tag Distribution</h5>
+    <canvas id="tagPieChart" height="200"></canvas>
+  </div>
+</div>
+
+
+
+
 
 </section>
 
@@ -80,6 +92,28 @@
           }
       }
   });
+
+  new Chart(document.getElementById('tagPieChart'), {
+    type: 'pie',
+    data: {
+        labels: {{ tag_labels }},
+        datasets:[{
+            data: {{ tag_counts }},
+            backgroundColor: {{ tag_colors }},
+            borderWidth: 1,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { 
+          legend: { 
+            position: 'bottom', 
+            labels: { color: '#555', boxWidth:20, padding:15 } 
+          } 
+        }
+    }
+});
 </script>
 
 <style>
