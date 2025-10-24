@@ -23,6 +23,7 @@ from users import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path('admin-audio/', include('audio.admin_urls')),   
     path("users/", include("users.urls")),
     path('', views.home, name='home'),
     path('dashboard/', views.dashboard, name='dashboard'),

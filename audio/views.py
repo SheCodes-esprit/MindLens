@@ -12,7 +12,8 @@ from django.db.models import Count
 from pydub import AudioSegment
 import whisper
 import re
-
+from django.contrib.admin.views.decorators import staff_member_required
+from django.db.models import Max
 from collections import defaultdict
 from django.utils.timezone import localdate
 # Configure logging
@@ -386,3 +387,73 @@ def audio_delete(request, pk):
         entry.delete()
         return redirect('audio_list')
     return redirect('audio_detail', pk=pk)
+
+
+
+# ──────────────────────────────────────────────────────────────────────
+#  ADMIN AUDIO HISTORY – with stats, search, mood filter & sidebar count
+# ──────────────────────────────────────────────────────────────────────
+from django.db.models import Sum, Avg, Count, Max, Q
+from django.utils.timezone import now
+
+@login_required
+def admin_audio_history(request):
+    search = request.GET.get('search', '').strip()
+    mood   = request.GET.get('mood', '').strip()
+
+    # ---------- 1. Base queryset (NO COMMA!) ----------
+    qs = AudioEntry.objects.select_related('user')  # ← FIXED: no comma!
+
+    # ---------- 2. Apply filters ----------
+    if search:
+        qs = qs.filter(
+            Q(title__icontains=search) |
+            Q(user__username__icontains=search) |
+            Q(user__email__icontains=search)
+        )
+    if mood:
+        qs = qs.filter(emotion_analyses__detected_emotion=mood)
+
+    # ---------- 3. Statistics ----------
+    total_entries = qs.count()
+
+    total_duration = qs.aggregate(total=Sum('duration'))['total'] or 0
+    total_hours    = int(total_duration // 3600)
+    total_minutes  = int((total_duration % 3600) // 60)
+
+    avg_duration = qs.aggregate(avg=Avg('duration'))['avg'] or 0
+    avg_duration = round(avg_duration, 1)
+
+    entries_today = qs.filter(created_at__date=now().date()).count()
+
+    top_mood = (AudioEmotionAnalysis.objects
+                .filter(audio_entry__in=qs)
+                .values('detected_emotion')
+                .annotate(cnt=Count('id'))
+                .order_by('-cnt')
+                .first())
+    most_frequent_mood = top_mood['detected_emotion'] if top_mood else '–'
+
+    # ---------- 4. Table data ----------
+    entries = qs.annotate(max_intensity=Max('emotion_analyses__intensity')) \
+                .order_by('-created_at')
+
+    all_moods = AudioEmotionAnalysis.objects.values_list(
+        'detected_emotion', flat=True
+    ).distinct().order_by('detected_emotion')
+
+    # ---------- 5. Context ----------
+    context = {
+        'entries': entries,
+        'total': total_entries,
+        'total_hours': total_hours,
+        'total_minutes': total_minutes,
+        'avg_duration': avg_duration,
+        'entries_today': entries_today,
+        'most_frequent_mood': most_frequent_mood,
+        'search': search,
+        'mood': mood,
+        'all_moods': all_moods,
+        'total_audio': AudioEntry.objects.count(),
+    }
+    return render(request, 'backoffice/pages/audio_history.html', context)

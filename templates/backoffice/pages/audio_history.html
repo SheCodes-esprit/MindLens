@@ -1,0 +1,138 @@
+{% extends 'backoffice/layouts/base.html' %}
+
+{% block title %}Audio History - MindLens Admin{% endblock %}
+{% block page_title %}Audio History{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
+<li class="breadcrumb-item active" aria-current="page">Audio History</li>
+{% endblock %}
+
+{% block content %}
+<div class="content-card mb-4">
+    <div class="content-card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Audio Statistics</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-3 text-center">
+            <div class="col-6 col-md-3">
+                <div class="p-3 rounded text-white stats-theme-card" style="background: var(--accent-gradient);">
+                    <h4 class="mb-0">{{ total }}</h4>
+                    <small>Total Entries</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 rounded text-white stats-theme-card" style="background: linear-gradient(135deg, var(--accent-start), color-mix(in srgb, var(--accent-end) 80%, #000));">
+                    <h4 class="mb++0">{{ total_hours }}h {{ total_minutes }}m</h4>
+                    <small>Total Duration</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 rounded text-white stats-theme-card" style="background: var(--accent-gradient);">
+                    <h4 class="mb-0">{{ avg_duration }} s</h4>
+                    <small>Avg Duration</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 rounded text-white stats-theme-card" style="background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 70%, #000), var(--accent-end));">
+                    <h4 class="mb-0">{{ entries_today }}</h4>
+                    <small>Entries Today</small>
+                </div>
+            </div>
+        </div>
+        <div class="mt-3 text-center">
+            <span class="badge fs-6" style="background: var(--accent-gradient); color: var(--text);">
+                Most Frequent Mood: <strong>{{ most_frequent_mood }}</strong>
+            </span>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Existing Filter + Table -->
+<div class="content-card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title">All Audio Entries ({{ total }})</h5>
+    </div>
+
+    <div class="card-body p-0">
+        <!-- Search & Mood filter -->
+        <div class="p-3 border-bottom">
+            <form method="get" class="row g-3">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" name="search"
+                               placeholder="Search title, user…" value="{{ search }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="mood">
+                        <option value="">All Moods</option>
+                        {% for m in all_moods %}
+                        <option value="{{ m }}" {% if m == mood %}selected{% endif %}>{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-admin-primary w-100">
+                        <i class="bi bi-funnel"></i> Filter
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{% url 'admin_audio_history' %}" class="btn btn-admin-secondary w-100">
+                        <i class="bi bi-x-circle"></i> Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="admin-table">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Journalist</th>
+                        <th>Date</th>
+                        <th>Duration</th>
+                        <th>Mood</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in entries %}
+                    <tr>
+                        <td>{{ e.title|default:"Untitled" }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if e.user.profile_image %}
+                                <img src="{{ e.user.profile_image.url }}" class="rounded-circle me-2" width="28" height="28">
+                                {% else %}
+                                <img src="https://tryeasel.dev/placeholder.svg?width=28&height=28"
+                                     class="rounded-circle me-2" width="28" height="28">
+                                {% endif %}
+                                {{ e.user.username }}
+                            </div>
+                        </td>
+                        <td>{{ e.created_at|date:"d M Y H:i" }}</td>
+                        <td>{% if e.duration %}{{ e.duration|floatformat:1 }} s{% else %}–{% endif %}</td>
+                        <td>
+                            <span class="badge bg-{{ e.dominant_emotion|lower|default:'secondary' }}">
+                                {{ e.dominant_emotion }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4">
+                            <i class="bi bi-inbox" style="font-size: 3rem; opacity: .3;"></i>
+                            <p class="mt-2 mb-0">No audio entries found.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

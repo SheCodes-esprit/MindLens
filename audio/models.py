@@ -21,3 +21,11 @@ class AudioEmotionAnalysis(models.Model):
 
     def __str__(self):
         return f"{self.detected_emotion} ({self.intensity}) for {self.audio_entry}"
+
+
+    def get_dominant_emotion(self):
+        """Return the emotion with the highest intensity, or '–'."""
+        analysis = self.emotion_analyses.order_by('-intensity').first()
+        return analysis.detected_emotion if analysis else '–'
+
+    AudioEntry.dominant_emotion = property(get_dominant_emotion)
