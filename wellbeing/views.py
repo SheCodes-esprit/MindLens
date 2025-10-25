@@ -5,8 +5,23 @@ from .models import WellbeingRecord, RoutineRecommendation
 from .forms import WellbeingRecordForm, RoutineRecommendationForm
 from datetime import date
 from django.db.models import Avg
+from django.shortcuts import render
+from django.contrib.admin.views.decorators import staff_member_required
+from django.db.models import Avg, Count, Max, Min, Q
+from django.utils import timezone
+from datetime import timedelta
+from .models import WellbeingRecord, RoutineRecommendation
+from .analytics_utils import (
+    UserSegmentation, CorrelationAnalysis, PredictiveTrends, HeatmapData
+)
 # Import your AI utilities
 from .ai_prompts import generate_summary_and_recommendations
+
+# ✅ FIXED: Use get_user_model() instead of importing User directly
+from django.contrib.auth import get_user_model
+User = get_user_model()
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 @login_required
 def wellbeing_list(request):
     """List the user's wellbeing records with monthly statistics."""
@@ -204,3 +219,128 @@ def recommendation_create(request, wellbeing_pk):
         'form': form,
         'record': record
     })
+
+
+
+@staff_member_required
+def wellbeing_analytics(request):
+    """
+    Privacy-focused analytics dashboard showing aggregated wellbeing statistics.
+    No personal user data is displayed.
+    """
+    
+    # Get date range filter from request
+    days = int(request.GET.get('days', 30))
+    start_date = timezone.now().date() - timedelta(days=days)
+    
+    # Filter records by date range
+    records = WellbeingRecord.objects.filter(date__gte=start_date)
+    
+    # Aggregate statistics (no personal data exposed)
+    stats = {
+        'total_records': records.count(),
+        'total_users': records.values('user').distinct().count(),
+        'avg_mood': round(records.aggregate(Avg('mood_score'))['mood_score__avg'] or 0, 2),
+        'avg_energy': round(records.aggregate(Avg('energy_level'))['energy_level__avg'] or 0, 2),
+        'avg_sleep': round(records.aggregate(Avg('sleep_hours'))['sleep_hours__avg'] or 0, 2),
+        'avg_productivity': round(records.aggregate(Avg('productivity_score'))['productivity_score__avg'] or 0, 2),
+        'mood_range': {
+            'min': records.aggregate(Min('mood_score'))['mood_score__min'] or 0,
+            'max': records.aggregate(Max('mood_score'))['mood_score__max'] or 0,
+        },
+        'energy_range': {
+            'min': records.aggregate(Min('energy_level'))['energy_level__min'] or 0,
+            'max': records.aggregate(Max('energy_level'))['energy_level__max'] or 0,
+        },
+        'sleep_range': {
+            'min': round(records.aggregate(Min('sleep_hours'))['sleep_hours__min'] or 0, 1),
+            'max': round(records.aggregate(Max('sleep_hours'))['sleep_hours__max'] or 0, 1),
+        },
+    }
+    
+    # Daily aggregates for trend chart
+    daily_stats = []
+    for i in range(days, 0, -1):
+        current_date = timezone.now().date() - timedelta(days=i)
+        day_records = records.filter(date=current_date)
+        
+        if day_records.exists():
+            daily_stats.append({
+                'date': current_date.strftime('%Y-%m-%d'),
+                'mood': round(day_records.aggregate(Avg('mood_score'))['mood_score__avg'] or 0, 1),
+                'energy': round(day_records.aggregate(Avg('energy_level'))['energy_level__avg'] or 0, 1),
+                'sleep': round(day_records.aggregate(Avg('sleep_hours'))['sleep_hours__avg'] or 0, 1),
+                'productivity': round(day_records.aggregate(Avg('productivity_score'))['productivity_score__avg'] or 0, 1),
+                'count': day_records.count(),
+            })
+    
+    # Recommendation statistics
+    recommendations = RoutineRecommendation.objects.filter(
+        wellbeing_record__date__gte=start_date
+    )
+    
+    recommendation_stats = {
+        'total': recommendations.count(),
+        'ai_generated': recommendations.filter(ai_generated=True).count(),
+        'by_type': dict(
+            recommendations.values('type').annotate(count=Count('id')).values_list('type', 'count')
+        ),
+        'avg_efficiency': round(recommendations.aggregate(Avg('efficiency_score'))['efficiency_score__avg'] or 0, 2),
+    }
+    
+    # Score distribution (for histogram)
+    mood_distribution = {
+        'low': records.filter(mood_score__lte=3).count(),
+        'medium': records.filter(mood_score__gt=3, mood_score__lte=7).count(),
+        'high': records.filter(mood_score__gt=7).count(),
+    }
+    
+    all_records = records.select_related('user').order_by('-date')
+    
+    # User Segmentation
+    user_segments = UserSegmentation.get_all_user_segments(days)
+    segment_summary = {
+        segment: len(users) for segment, users in user_segments.items()
+    }
+    
+    # Correlations
+    records_list = list(records.order_by('date'))
+    correlations = CorrelationAnalysis.calculate_correlations(records_list)
+    correlation_insights = CorrelationAnalysis.get_correlation_insights(correlations)
+    
+    # Predictive Trends
+    at_risk_users = PredictiveTrends.identify_at_risk_users(days)
+    
+    # Heatmap Data
+    daily_heatmap = HeatmapData.generate_daily_heatmap(days)
+    
+    
+    # Pagination
+    paginator = Paginator(all_records, 4)  # 4 records per page
+    page = request.GET.get('page', 1)
+    
+    try:
+        all_records = paginator.page(page)
+    except PageNotAnInteger:
+        all_records = paginator.page(1)
+    except EmptyPage:
+        all_records = paginator.page(paginator.num_pages)
+    
+    context = {
+        'stats': stats,
+        'daily_stats': daily_stats,
+        'recommendation_stats': recommendation_stats,
+        'mood_distribution': mood_distribution,
+        'days': days,
+        'start_date': start_date,
+        'all_records': all_records,
+        'user_segments': user_segments,
+        'segment_summary': segment_summary,
+        'correlations': correlations,
+        'correlation_insights': correlation_insights,
+        'at_risk_users': at_risk_users,
+        'daily_heatmap': daily_heatmap,
+        'days': days,
+    }
+    
+    return render(request, 'backoffice/pages/wellbeing_analytics.html', context)

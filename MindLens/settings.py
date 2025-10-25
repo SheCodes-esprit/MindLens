@@ -29,7 +29,8 @@ INSTALLED_APPS = [
     'wellbeing'  ,
     'audio',
     'visual',
-    'textEntries'
+    'textEntries',
+    'django.contrib.humanize'
     
 ]
 

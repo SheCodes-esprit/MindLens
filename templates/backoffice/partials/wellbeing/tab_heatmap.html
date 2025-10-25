@@ -1,0 +1,19 @@
+<div id="heatmap" class="tab-content">
+    <div class="content-card">
+      <div class="card-header">
+        <h3 class="card-title">Mood by Day of Week</h3>
+      </div>
+      <div style="padding: 1.5rem;">
+        <div class="heatmap-grid">
+          {% for day_data in daily_heatmap %}
+            <div>
+              <div class="heatmap-label">{{ day_data.day|slice:":3" }}</div>
+              <div class="heatmap-cell" style="background: linear-gradient(135deg, rgba(var(--accent-rgb), {{ day_data.mood|add:0|floatformat:1|add:0.1 }}) 0%, rgba(var(--accent-rgb), {{ day_data.mood|add:0|floatformat:1|add:0.15 }}) 100%);" title="{{ day_data.day }}: {{ day_data.mood }}/10 ({{ day_data.count }} records)">
+                {{ day_data.mood }}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
