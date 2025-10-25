@@ -246,6 +246,7 @@ def analyze_emotions_keyword_based(text):
 
 
 @login_required
+@login_required
 def audio_create(request):
     if request.user.role != User.JOURNALIST:
         return redirect('dashboard')
@@ -257,7 +258,6 @@ def audio_create(request):
     
     last_access = request.session.get('last_entry_check_date')
     if last_access != str(today):
-        logger.info(f"Daily audio entry limit reset for user {request.user.username} at {timezone.now()}")
         request.session['last_entry_check_date'] = str(today)
     
     today_entries = AudioEntry.objects.filter(
@@ -274,9 +274,18 @@ def audio_create(request):
             'remaining_entries': 0
         })
     
+    error_msg = None
+    
     if request.method == 'POST':
         form = AudioEntryForm(request.POST, request.FILES)
-        if form.is_valid():
+        
+        # Manual check for required fields
+        title = request.POST.get('title', '').strip()
+        
+        if not title:
+            error_msg = "Title is required."
+        
+        if not error_msg and form.is_valid():
             audio_entry = form.save(commit=False)
             audio_entry.user = request.user
             audio_entry.created_at = timezone.now()
@@ -289,34 +298,21 @@ def audio_create(request):
                 audio_data = base64.b64decode(audio_str)
                 file_name = f"recording_{audio_entry.user.username}_{audio_entry.created_at.strftime('%Y%m%d%H%M%S')}.{ext}"
                 audio_entry.audio_url.save(file_name, ContentFile(audio_data))
-                
-                audio_entry.save()
-                try:
-                    audio = AudioSegment.from_file(audio_entry.audio_url.path)
-                    audio_entry.duration = len(audio) / 1000.0
-                    logger.info(f"Recorded audio duration: {audio_entry.duration} seconds")
-                except Exception as e:
-                    logger.error(f"Error calculating duration for recorded audio: {e}")
-                    audio_entry.duration = 0.0
-                audio_entry.save(update_fields=['duration'])
             
             # Handle uploaded audio
             elif form.cleaned_data.get('audio_url'):
-                audio_file = form.cleaned_data['audio_url']
-                audio_entry.audio_url = audio_file
-                audio_entry.save()
-                
-                try:
-                    audio = AudioSegment.from_file(audio_entry.audio_url.path)
-                    audio_entry.duration = len(audio) / 1000.0
-                    logger.info(f"Uploaded audio duration: {audio_entry.duration} seconds")
-                except Exception as e:
-                    logger.error(f"Error calculating duration for uploaded audio: {e}")
-                    audio_entry.duration = 0.0
-                audio_entry.save(update_fields=['duration'])
+                audio_entry.audio_url = form.cleaned_data['audio_url']
             
-            if not audio_entry.pk:
-                audio_entry.save()
+            audio_entry.save()
+            
+            # Calculate duration
+            try:
+                audio = AudioSegment.from_file(audio_entry.audio_url.path)
+                audio_entry.duration = len(audio) / 1000.0
+            except Exception as e:
+                logger.error(f"Error calculating duration: {e}")
+                audio_entry.duration = 0.0
+            audio_entry.save(update_fields=['duration'])
             
             perform_ai_analysis(audio_entry)
             return redirect('audio_list')
@@ -325,6 +321,7 @@ def audio_create(request):
     
     return render(request, 'frontoffice/pages/audio/audio_create.html', {
         'form': form,
+        'error': error_msg,
         'remaining_entries': remaining_entries
     })
 

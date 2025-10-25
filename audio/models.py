@@ -3,7 +3,7 @@ from users.models import User
 
 class AudioEntry(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='audio_entries')
-    title = models.CharField(max_length=255, blank=True, null=True)
+    title = models.CharField(max_length=255)
     audio_url = models.FileField(upload_to='audio_entries/', blank=True, null=True)
     duration = models.FloatField(blank=True, null=True)  # In seconds
     ai_transcript = models.TextField(blank=True, null=True)
