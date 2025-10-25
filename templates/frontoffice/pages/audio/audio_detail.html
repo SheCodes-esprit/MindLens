@@ -37,7 +37,6 @@
             {% endif %}
         </div>
 
-
         <div class="emotion-analysis-section">
             <h3>
                 <i class="bi bi-emoji-smile"></i>
@@ -75,12 +74,145 @@
             </ul>
         </div>
 
-        
+        <!-- Updated emotion evolution chart section -->
+        <!-- Updated emotion evolution chart section -->
+        <div class="emotion-timeline-section">
+            <h3>
+                <i class="bi bi-graph-up"></i>
+                Emotion Evolution Over Time
+            </h3>
+            <div>
+                <canvas id="emotionTimelineChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart.js script and initialization -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            // Fetch emotion timeline data
+            fetch("{% url 'audio_emotion_timeline' entry.pk %}")
+                .then(response => response.json())
+                .then(data => {
+                    const ctx = document.getElementById('emotionTimelineChart').getContext('2d');
+                    const rootStyle = getComputedStyle(document.documentElement);
+                    const accentColor = rootStyle.getPropertyValue('--accent').trim();
+                    const textColor = rootStyle.getPropertyValue('--text').trim();
+
+                    if (!data.emotions || Object.keys(data.emotions).length === 0) {
+                        document.querySelector('.transcript-content').classList.add('empty');
+                        document.querySelector('.transcript-content').innerHTML = 'No emotion timeline data available yet.';
+                        return;
+                    }
+
+                    const colors = {
+                        'Happy': '#FFD700',
+                        'Sad': '#4169E1',
+                        'Angry': '#FF4500',
+                        'Fear': '#9932CC',
+                        'Surprise': '#FF69B4'
+                    };
+                    const bgColors = Object.fromEntries(
+                        Object.entries(colors).map(([k, v]) => [k, v + '33'])
+                    );
+
+                    const datasets = Object.entries(data.emotions).map(([emotion, points]) => ({
+                        label: emotion,
+                        data: points.map(p => ({x: p.timestamp, y: p.intensity})),
+                        borderColor: colors[emotion] || accentColor,
+                        backgroundColor: bgColors[emotion] || accentColor + '33',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: colors[emotion] || accentColor,
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5
+                    }));
+
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: { datasets },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top',
+                                    labels: {
+                                        color: textColor,
+                                        font: {
+                                            family: '"Playfair Display", serif',
+                                            size: 14,
+                                            weight: '500'
+                                        }
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Emotion Intensity Over Time',
+                                    color: textColor,
+                                    font: {
+                                        family: '"Playfair Display", serif',
+                                        size: 16,
+                                        weight: '600'
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    type: 'linear',
+                                    title: {
+                                        display: true,
+                                        text: 'Time (seconds)',
+                                        color: textColor,
+                                        font: {
+                                            family: '"Playfair Display", serif',
+                                            size: 14
+                                        }
+                                    },
+                                    min: 0,
+                                    max: data.duration || 30,
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.05)'
+                                    },
+                                    ticks: {
+                                        color: textColor
+                                    }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: 'Intensity',
+                                        color: textColor,
+                                        font: {
+                                            family: '"Playfair Display", serif',
+                                            size: 14
+                                        }
+                                    },
+                                    min: 0,
+                                    max: 1,
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.05)'
+                                    },
+                                    ticks: {
+                                        color: textColor
+                                    }
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading timeline data:', error);
+                    const content = document.querySelector('.transcript-content');
+                    content.classList.add('empty');
+                    content.innerHTML = 'Unable to load emotion timeline. Please try again.';
+                });
+        </script>
     </div>
 </div>
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 {% endblock %}
 {% endblock %}
