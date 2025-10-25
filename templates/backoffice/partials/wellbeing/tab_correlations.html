@@ -1,0 +1,33 @@
+  <div id="correlations" class="tab-content">
+    <div class="content-card" style="margin-bottom: 2rem;">
+      <div class="card-header">
+        <h3 class="card-title">Variable Correlations</h3>
+      </div>
+      <div style="padding: 1rem;">
+        {% for insight in correlation_insights %}
+          <div class="correlation-item">
+            <div>
+              <div class="correlation-metric">{{ insight.metric }}</div>
+              <div class="correlation-description">{{ insight.description }}</div>
+            </div>
+            <div style="display: flex; align-items: center;">
+              <div class="correlation-value">{{ insight.correlation }}</div>
+              <div class="correlation-strength">{{ insight.strength }}</div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    
+    <div class="stats-card">
+      <div class="stats-label">Interpretation Guide</div>
+      <div class="interpretation-guide">
+        <p><strong>Correlation Range:</strong> -1 to +1</p>
+        <p><strong>Strong (±0.7 to ±1.0):</strong> Variables move together significantly</p>
+        <p><strong>Moderate (±0.4 to ±0.7):</strong> Some relationship between variables</p>
+        <p><strong>Weak (0 to ±0.4):</strong> Little to no relationship</p>
+        <p><strong>Positive:</strong> Variables increase together</p>
+        <p><strong>Negative:</strong> One increases while the other decreases</p>
+      </div>
+    </div>
+  </div>

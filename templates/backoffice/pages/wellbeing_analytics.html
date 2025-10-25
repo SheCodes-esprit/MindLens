@@ -1,0 +1,507 @@
+{% extends 'backoffice/layouts/base.html' %}
+{% load static %}
+
+{% block title %}Wellbeing Analytics - MindLens Admin{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  /* Removed inline styles and now using admin dashboard CSS classes */
+  
+  .analytics-header {
+    margin-bottom: 2rem;
+  }
+
+  .analytics-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .analytics-header p {
+    color: var(--text);
+    opacity: 0.8;
+    font-size: 1rem;
+  }
+
+  .key-metrics-container {
+    background: var(--accent-gradient);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    color: var(--text);
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+  }
+
+  .key-metrics-container h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .metric-item {
+    color: var(--text);
+  }
+
+  .metric-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .metric-label {
+    font-size: 0.875rem;
+    opacity: 0.9;
+  }
+
+  .tabs-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid var(--border-color);
+    overflow-x: auto;
+  }
+
+  .tab-button {
+    padding: 1rem 1.5rem;
+    background: none;
+    border: none;
+    font-weight: 600;
+    color: var(--text);
+    opacity: 0.6;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: var(--transition);
+    white-space: nowrap;
+  }
+
+  .tab-button:hover {
+    opacity: 0.8;
+  }
+
+  .tab-button.active {
+    color: var(--text);
+    opacity: 1;
+    border-bottom-color: var(--accent);
+  }
+
+  .tab-content {
+    display: none;
+  }
+
+  .tab-content.active {
+    display: block;
+    animation: fadeInUp 0.6s ease forwards;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .distribution-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .distribution-label {
+    width: 100px;
+    font-weight: 600;
+    color: var(--text);
+    flex-shrink: 0;
+  }
+
+  .distribution-bar-bg {
+    flex: 1;
+    height: 30px;
+    background: rgba(var(--accent-rgb), 0.1);
+    border-radius: 8px;
+    margin: 0 1rem;
+    overflow: hidden;
+  }
+
+  .distribution-bar-fill {
+    height: 100%;
+    background: var(--accent-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+
+  .distribution-count {
+    width: 50px;
+    text-align: right;
+    font-weight: 600;
+    color: var(--text);
+    flex-shrink: 0;
+  }
+
+  .segment-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+  }
+
+  .segment-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .segment-critical { border-left-color: #dc2626; }
+  .segment-at_risk { border-left-color: #f97316; }
+  .segment-normal { border-left-color: #eab308; }
+  .segment-excellent { border-left-color: #22c55e; }
+
+  .segment-count {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .segment-label {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    color: var(--text);
+    opacity: 0.7;
+  }
+
+  .correlation-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .correlation-item:last-child {
+    border-bottom: none;
+  }
+
+  .correlation-metric {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .correlation-description {
+    font-size: 0.875rem;
+    color: var(--text);
+    opacity: 0.7;
+    margin-top: 0.25rem;
+  }
+
+  .correlation-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .correlation-strength {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text);
+    opacity: 0.6;
+    margin-left: 1rem;
+  }
+
+  .at-risk-user {
+    background: rgba(220, 38, 38, 0.05);
+    border-left: 4px solid #dc2626;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border-radius: 6px;
+  }
+
+  .at-risk-user-name {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .at-risk-trend {
+    font-size: 0.875rem;
+    color: var(--text);
+    opacity: 0.7;
+    margin-top: 0.25rem;
+  }
+
+  .heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .heatmap-cell {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .heatmap-cell:hover {
+    transform: scale(1.05);
+  }
+
+  .heatmap-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text);
+    opacity: 0.7;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .recommendation-type {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .recommendation-type.morning { background: rgba(254, 243, 199, 0.6); }
+  .recommendation-type.evening { background: rgba(219, 234, 254, 0.6); }
+  .recommendation-type.exercise { background: rgba(220, 252, 231, 0.6); }
+  .recommendation-type.meditation { background: rgba(243, 232, 255, 0.6); }
+  .recommendation-type.nutrition { background: rgba(254, 202, 202, 0.6); }
+  .recommendation-type.sleep { background: rgba(224, 231, 255, 0.6); }
+  .recommendation-type.productivity { background: rgba(204, 251, 241, 0.6); }
+  .recommendation-type.stress { background: rgba(254, 215, 170, 0.6); }
+
+  .no-records {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text);
+    opacity: 0.6;
+  }
+
+  .interpretation-guide {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .interpretation-guide p {
+    margin-bottom: 0.75rem;
+  }
+
+  .interpretation-guide strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<main>
+  <!-- Header Section -->
+  <div class="analytics-header">
+    <h1>Wellbeing Analytics Dashboard</h1>
+    <p>Privacy-focused aggregated statistics and insights</p>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="content-card" style="margin-bottom: 2rem;">
+    <form method="get" class="d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center">
+        <label for="days" style="font-weight: 600; margin-right: 1rem; color: var(--text);">Time Period:</label>
+        <select name="days" id="days" onchange="this.form.submit()" class="theme-dropdown">
+          <option value="7" {% if days == 7 %}selected{% endif %}>Last 7 days</option>
+          <option value="30" {% if days == 30 %}selected{% endif %}>Last 30 days</option>
+          <option value="90" {% if days == 90 %}selected{% endif %}>Last 90 days</option>
+          <option value="365" {% if days == 365 %}selected{% endif %}>Last year</option>
+        </select>
+      </div>
+      <a href="{% url 'wellbeing:export_excel' %}?days={{ days }}" class="btn-admin-primary">
+        Export to Excel
+      </a>
+    </form>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="tabs-container">
+    <button class="tab-button active" onclick="switchTab(event, 'overview')">Overview</button>
+     <button class="tab-button" onclick="switchTab(event, 'records')">Records</button>
+    <button class="tab-button" onclick="switchTab(event, 'segmentation')">User Segmentation</button>
+    <button class="tab-button" onclick="switchTab(event, 'correlations')">Correlations</button>
+    <button class="tab-button" onclick="switchTab(event, 'predictions')">Predictions</button>
+    <button class="tab-button" onclick="switchTab(event, 'heatmap')">Heatmap</button>
+   
+  </div>
+
+    <!-- Include Tab Partials -->
+  {% include 'backoffice/partials/wellbeing/tab_overview.html' %}
+
+   <!-- TAB 2: RECORDS TABLE -->
+  {% include 'backoffice/partials/wellbeing/tab_records.html' %}
+  <!-- TAB 2: USER SEGMENTATION -->
+ {% include 'backoffice/partials/wellbeing/tab_segmentation.html' %}
+  <!-- TAB 3: CORRELATIONS -->
+  {% include 'backoffice/partials/wellbeing/tab_correlations.html' %}
+
+  <!-- TAB 4: PREDICTIONS -->
+ {% include 'backoffice/partials/wellbeing/tab_predictions.html' %}
+
+  <!-- TAB 5: HEATMAP -->
+ {% include 'backoffice/partials/wellbeing/tab_heatmap.html' %}
+ 
+</main>
+
+<!-- Chart.js Script -->
+<script>
+  const dailyStats = {{ daily_stats|safe }};
+  
+  function switchTab(event, tabName) {
+    event.preventDefault();
+    
+    // Hide all tabs
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => tab.classList.remove('active'));
+    
+    // Remove active class from all buttons
+    const buttons = document.querySelectorAll('.tab-button');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    
+    // Show selected tab
+    document.getElementById(tabName).classList.add('active');
+    
+    // Add active class to clicked button
+    event.target.classList.add('active');
+  }
+  
+  if (dailyStats.length > 0) {
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    
+    // Using vibrant, accessible colors: rose for mood, teal for energy, amber for productivity
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: dailyStats.map(d => d.date),
+        datasets: [
+          {
+            label: 'Mood Score',
+            data: dailyStats.map(d => d.mood),
+            borderColor: '#ec4899',
+            backgroundColor: 'rgba(236, 72, 153, 0.15)',
+            borderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            pointRadius: 5,
+            pointBackgroundColor: '#ec4899',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointHoverRadius: 7,
+          },
+          {
+            label: 'Energy Level',
+            data: dailyStats.map(d => d.energy),
+            borderColor: '#06b6d4',
+            backgroundColor: 'rgba(6, 182, 212, 0.15)',
+            borderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            pointRadius: 5,
+            pointBackgroundColor: '#06b6d4',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointHoverRadius: 7,
+          },
+          {
+            label: 'Productivity',
+            data: dailyStats.map(d => d.productivity),
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245, 158, 11, 0.15)',
+            borderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            pointRadius: 5,
+            pointBackgroundColor: '#f59e0b',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointHoverRadius: 7,
+          },
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false,
+        },
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+              usePointStyle: true,
+              padding: 20,
+              font: { size: 13, weight: '600' },
+              color: 'var(--text)',
+              boxWidth: 8,
+              boxHeight: 8,
+            }
+          },
+          filler: {
+            propagate: true,
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 10,
+            ticks: { 
+              stepSize: 2, 
+              color: 'var(--text)',
+              font: { size: 12, weight: '500' }
+            },
+            grid: { 
+              color: 'rgba(0, 0, 0, 0.05)',
+              drawBorder: false,
+            }
+          },
+          x: {
+            ticks: { 
+              color: 'var(--text)',
+              font: { size: 12, weight: '500' }
+            },
+            grid: { 
+              color: 'rgba(0, 0, 0, 0.05)',
+              drawBorder: false,
+            }
+          }
+        }
+      }
+    });
+  }
+</script>
+{% endblock %}

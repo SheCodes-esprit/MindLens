@@ -6,7 +6,7 @@ urlpatterns = [
     path('signin/', views.signin_view, name='signin'),
     path('signup/', views.signup_view, name='signup'),
     path('logout/', views.logout_view, name='logout'),
-    path('admin/dashboard/', views.admin_dashboard_view, name='dashboard'),
+    
     path('journalist/dashboard/', views.journalist_dashboard_view, name='journalist_dashboard'),
     path('profile/', views.profile_view, name='profile'),
 
@@ -28,4 +28,5 @@ urlpatterns = [
     path('sessions/', views.active_sessions_view, name='active_sessions'),
     path('sessions/terminate/<int:session_id>/', views.terminate_session_view, name='terminate_session'),
     path('sessions/terminate-all/', views.terminate_all_sessions_view, name='terminate_all_sessions'),
+    path('dashboard/', views.admin_dashboard, name='dashboard'),
 ]
