@@ -1989,3 +1989,32 @@
 /* ========================================
    EMOTION ANALYSIS SECTION
    ======================================== */
+/* Added styling for emotion-timeline-section to match transcript and emotion-analysis sections */
+.emotion-timeline-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+}
+
+.emotion-timeline-section h3 {
+  font-family: "Playfair Display", serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.emotion-timeline-section h3 i {
+  color: var(--accent);
+  font-size: 1.25rem;
+}
+
+#emotionTimelineChart {
+  min-height: 300px;
+  position: relative;
+}
