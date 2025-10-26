@@ -33,6 +33,7 @@ from django.db.models import Sum
 from django.contrib.admin.views.decorators import staff_member_required
 import logging
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.http import JsonResponse
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -46,6 +47,7 @@ def perform_ai_analysis(audio_entry):
     1. Transcribes audio using Whisper.
     2. Performs emotion analysis using keyword-based detection.
     3. Saves detected emotions in AudioEmotionAnalysis.
+    4. Creates timeline entries for emotion evolution.
     """
     if not audio_entry.audio_url:
         logger.info("No audio file found for analysis.")
@@ -92,8 +94,90 @@ def perform_ai_analysis(audio_entry):
         if not any(v >= 0.01 for v in emotions.values()):
             logger.info("No significant emotions detected.")
 
+        create_emotion_timeline(audio_entry, transcript)
+
     except Exception as e:
         logger.error(f"Emotion analysis failed: {e}")
+
+def create_emotion_timeline(audio_entry, transcript):
+    """
+    Segments the transcript into time-based chunks and analyzes emotions for each chunk.
+    Creates AudioEmotionTimeline entries with timestamps.
+    """
+    from .models import AudioEmotionTimeline
+    
+    if not audio_entry.duration or audio_entry.duration == 0:
+        logger.warning(f"Audio duration not available for timeline analysis: {audio_entry.pk}")
+        return
+    
+    # Segment transcript into 5 equal time chunks
+    num_segments = 5
+    segment_duration = audio_entry.duration / num_segments
+    
+    # Split transcript into sentences for better segmentation
+    sentences = re.split(r'[.!?]+', transcript)
+    sentences = [s.strip() for s in sentences if s.strip()]
+    
+    if not sentences:
+        logger.warning("No sentences found in transcript for timeline analysis")
+        return
+    
+    # Distribute sentences across segments
+    sentences_per_segment = max(1, len(sentences) // num_segments)
+    
+    for segment_idx in range(num_segments):
+        start_idx = segment_idx * sentences_per_segment
+        end_idx = start_idx + sentences_per_segment if segment_idx < num_segments - 1 else len(sentences)
+        
+        segment_text = ' '.join(sentences[start_idx:end_idx])
+        
+        if not segment_text.strip():
+            continue
+        
+        # Analyze emotions for this segment
+        segment_emotions = analyze_emotions_keyword_based(segment_text)
+        
+        # Calculate timestamp (middle of the segment)
+        timestamp = (segment_idx + 0.5) * segment_duration
+        
+        # Create timeline entries for each emotion with significant intensity
+        for emotion, intensity in segment_emotions.items():
+            if intensity >= 0.01:
+                AudioEmotionTimeline.objects.create(
+                    audio_entry=audio_entry,
+                    timestamp=timestamp,
+                    detected_emotion=emotion,
+                    intensity=intensity,
+                    segment_text=segment_text[:200]  # Store first 200 chars of segment
+                )
+        
+        logger.info(f"Created timeline entry for segment {segment_idx + 1}: {emotion} at {timestamp}s")
+
+
+def audio_emotion_timeline(request, pk):
+    """API endpoint that returns emotion timeline data as JSON"""
+    if request.user.role != User.JOURNALIST:
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+    
+    entry = get_object_or_404(AudioEntry, pk=pk, user=request.user)
+    timeline_data = entry.emotion_timeline.all().order_by('timestamp')
+    
+    # Group by emotion for chart display
+    emotions_data = {}
+    for item in timeline_data:
+        if item.detected_emotion not in emotions_data:
+            emotions_data[item.detected_emotion] = []
+        emotions_data[item.detected_emotion].append({
+            'timestamp': item.timestamp,
+            'intensity': item.intensity
+        })
+    
+    return JsonResponse({
+        'duration': entry.duration,
+        'emotions': emotions_data
+    })
+
+
 
 def analyze_emotions_keyword_based(text):
     """
@@ -160,6 +244,8 @@ def analyze_emotions_keyword_based(text):
     
     return emotion_scores
 
+
+@login_required
 @login_required
 def audio_create(request):
     if request.user.role != User.JOURNALIST:
@@ -172,7 +258,6 @@ def audio_create(request):
     
     last_access = request.session.get('last_entry_check_date')
     if last_access != str(today):
-        logger.info(f"Daily audio entry limit reset for user {request.user.username} at {timezone.now()}")
         request.session['last_entry_check_date'] = str(today)
     
     today_entries = AudioEntry.objects.filter(
@@ -189,9 +274,18 @@ def audio_create(request):
             'remaining_entries': 0
         })
     
+    error_msg = None
+    
     if request.method == 'POST':
         form = AudioEntryForm(request.POST, request.FILES)
-        if form.is_valid():
+        
+        # Manual check for required fields
+        title = request.POST.get('title', '').strip()
+        
+        if not title:
+            error_msg = "Title is required."
+        
+        if not error_msg and form.is_valid():
             audio_entry = form.save(commit=False)
             audio_entry.user = request.user
             audio_entry.created_at = timezone.now()
@@ -204,34 +298,21 @@ def audio_create(request):
                 audio_data = base64.b64decode(audio_str)
                 file_name = f"recording_{audio_entry.user.username}_{audio_entry.created_at.strftime('%Y%m%d%H%M%S')}.{ext}"
                 audio_entry.audio_url.save(file_name, ContentFile(audio_data))
-                
-                audio_entry.save()
-                try:
-                    audio = AudioSegment.from_file(audio_entry.audio_url.path)
-                    audio_entry.duration = len(audio) / 1000.0
-                    logger.info(f"Recorded audio duration: {audio_entry.duration} seconds")
-                except Exception as e:
-                    logger.error(f"Error calculating duration for recorded audio: {e}")
-                    audio_entry.duration = 0.0
-                audio_entry.save(update_fields=['duration'])
             
             # Handle uploaded audio
             elif form.cleaned_data.get('audio_url'):
-                audio_file = form.cleaned_data['audio_url']
-                audio_entry.audio_url = audio_file
-                audio_entry.save()
-                
-                try:
-                    audio = AudioSegment.from_file(audio_entry.audio_url.path)
-                    audio_entry.duration = len(audio) / 1000.0
-                    logger.info(f"Uploaded audio duration: {audio_entry.duration} seconds")
-                except Exception as e:
-                    logger.error(f"Error calculating duration for uploaded audio: {e}")
-                    audio_entry.duration = 0.0
-                audio_entry.save(update_fields=['duration'])
+                audio_entry.audio_url = form.cleaned_data['audio_url']
             
-            if not audio_entry.pk:
-                audio_entry.save()
+            audio_entry.save()
+            
+            # Calculate duration
+            try:
+                audio = AudioSegment.from_file(audio_entry.audio_url.path)
+                audio_entry.duration = len(audio) / 1000.0
+            except Exception as e:
+                logger.error(f"Error calculating duration: {e}")
+                audio_entry.duration = 0.0
+            audio_entry.save(update_fields=['duration'])
             
             perform_ai_analysis(audio_entry)
             return redirect('audio_list')
@@ -240,6 +321,7 @@ def audio_create(request):
     
     return render(request, 'frontoffice/pages/audio/audio_create.html', {
         'form': form,
+        'error': error_msg,
         'remaining_entries': remaining_entries
     })
 
