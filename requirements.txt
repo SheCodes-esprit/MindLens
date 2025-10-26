@@ -1,6 +1,9 @@
+audioop-linux==1.0.0
+
 psycopg2-binary==2.9.11
 gunicorn==23.0.0
 whitenoise==6.7.0
+
 absl-py==2.3.1
 accelerate==1.11.0
 asgiref==3.10.0
