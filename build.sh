@@ -1,20 +1,14 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -o errexit
 
-# Install ffmpeg for MoviePy & FER video processing
-apt-get update && apt-get install -y ffmpeg
+# Installe les dépendances
+pip install -r requirements.txt --no-cache-dir
 
-# Upgrade pip tools first
-pip install --upgrade pip setuptools wheel
+# Applique les migrations
+python manage.py migrate --noinput
 
-# Install dependencies
-pip install -r requirements.txt
+# Collecte les fichiers statiques
+python manage.py collectstatic --noinput
 
-# Collect static files
-python manage.py collectstatic --no-input
-
-# Apply migrations
-python manage.py migrate
-
-# Create superuser if environment variables exist
-python manage.py createsuperuser --noinput || true
+# Crée un superuser si les variables d'environnement sont définies (ignore les erreurs)
+python manage.py createsuperuser --noinput --username "$DJANGO_SUPERUSER_USERNAME" --email "$DJANGO_SUPERUSER_EMAIL" --password "$DJANGO_SUPERUSER_PASSWORD" || true

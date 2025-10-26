@@ -93,19 +93,45 @@ WSGI_APPLICATION = "MindLens.wsgi.application"
 #     )
 # }
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "mindlens_db",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "localhost",
-        "PORT": "5433",
-        "OPTIONS": {
-            "client_encoding": "UTF8",
-        },
+#DATABASES = {
+#    "default": {
+#        "ENGINE": "django.db.backends.postgresql",
+#        "NAME": "mindlens_db",
+#        "USER": "postgres",
+#        "PASSWORD": "postgres",
+#        "HOST": "localhost",
+#        "PORT": "5433",
+#        "OPTIONS": {
+#            "client_encoding": "UTF8",
+#        },
+#    }
+#}
+
+# Base de données
+if os.environ.get('DATABASE_URL'):
+    # Configuration pour Render (production)
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=600,
+            ssl_require=True
+        )
     }
-}
+else:
+    # Configuration locale (développement)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "mindlens_db",
+            "USER": "postgres",
+            "PASSWORD": "mouna",
+            "HOST": "localhost",
+            "PORT": "5433",
+            "OPTIONS": {
+                "client_encoding": "UTF8",
+            },
+        }
+    }
 #
 # DATABASES = {
 #     "default": {
@@ -176,3 +202,4 @@ EMAIL_USE_TLS = True                     # Sécurisé
 EMAIL_HOST_USER = "MindLens.Shecodes@gmail.com"  # L’email de la plateforme
 EMAIL_HOST_PASSWORD = "epnk ejhe ifvt npgt" # Mot de passe d’application Gmail
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+

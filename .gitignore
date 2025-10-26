@@ -30,3 +30,4 @@ Thumbs.db
 .env.*
 
 */migrations/__pycache__/
+staticfiles/
