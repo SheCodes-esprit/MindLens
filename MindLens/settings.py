@@ -9,11 +9,23 @@ from dotenv import load_dotenv
 # ------------------------------
 # BASE CONFIGURATION
 # ------------------------------
+os.environ['TRANSFORMERS_OFFLINE'] = '1'
+os.environ['HF_HUB_OFFLINE'] = '1'
+WSGI_APPLICATION = 'MindLens.wsgi.application'
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = "django-insecure-3gp)3x@ss^$7ohhkeca*!6os@vr5%c#x3hude^@ypsy2edyv(d"
-DEBUG = True
-ALLOWED_HOSTS = []
+DEBUG = os.environ.get("DEBUG", "False") == "True"
+
+ALLOWED_HOSTS = ['mindlens-1.onrender.com', 'localhost', '127.0.0.1']
+RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+CSRF_TRUSTED_ORIGINS = [
+    f"https://{RENDER_EXTERNAL_HOSTNAME}"
+] if RENDER_EXTERNAL_HOSTNAME else []
 
 # ------------------------------
 # APPLICATIONS
@@ -26,6 +38,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "users",
+    'wellbeing'  ,
+    'audio',
+    'visual',
+    'textEntries',
     'django.contrib.humanize'
     
 ]
@@ -70,19 +86,54 @@ WSGI_APPLICATION = "MindLens.wsgi.application"
 # ------------------------------
 # DATABASE
 # ------------------------------
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "mindlens_db",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "localhost",
-        "PORT": "5433",
-        "OPTIONS": {
-            "client_encoding": "UTF8",
-        },
+
+# DATABASES = {
+#     'default': dj_database_url.config(
+#          default=os.environ.get("DATABASE_URL"),
+#         conn_max_age=600,
+#         ssl_require=True
+#     )
+# }
+
+#DATABASES = {
+#    "default": {
+#        "ENGINE": "django.db.backends.postgresql",
+#        "NAME": "mindlens_db",
+#        "USER": "postgres",
+#        "PASSWORD": "postgres",
+#        "HOST": "localhost",
+#        "PORT": "5433",
+#        "OPTIONS": {
+#            "client_encoding": "UTF8",
+#        },
+#    }
+#}
+
+# Base de données
+if os.environ.get('DATABASE_URL'):
+    # Configuration pour Render (production)
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=600,
+            ssl_require=True
+        )
     }
-}
+else:
+    # Configuration locale (développement)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "mindlens_db",
+            "USER": "postgres",
+            "PASSWORD": "mouna",
+            "HOST": "localhost",
+            "PORT": "5433",
+            "OPTIONS": {
+                "client_encoding": "UTF8",
+            },
+        }
+    }
 #
 # DATABASES = {
 #     "default": {
@@ -114,8 +165,13 @@ USE_TZ = True
 # STATIC & MEDIA FILES
 # ------------------------------
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]  
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")   
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]  
+# STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")   
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -137,13 +193,23 @@ load_dotenv()
 HUGGINGFACE_API_KEY = os.getenv('HUGGINGFACE_API_KEY')
 
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
-DEBUG=True
+#DEBUG=True
 # settings.py
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"          # Serveur SMTP
 EMAIL_PORT = 587                        # Port TLS
 EMAIL_USE_TLS = True                     # Sécurisé
-EMAIL_HOST_USER = "tesnimsatouri@gmail.com"  # L’email de la plateforme
-EMAIL_HOST_PASSWORD = "remv cetq iyqc kkrs" # Mot de passe d’application Gmail
+EMAIL_HOST_USER = "MindLens.Shecodes@gmail.com"  # L’email de la plateforme
+EMAIL_HOST_PASSWORD = "epnk ejhe ifvt npgt" # Mot de passe d’application Gmail
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
+# Optimisations pour réduire la mémoire
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
+
+# Désactivez le debug toolbar si présent
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': lambda request: False
+}
