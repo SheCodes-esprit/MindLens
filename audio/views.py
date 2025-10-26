@@ -23,17 +23,11 @@ from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import cm
 import io
-from collections import defaultdict
-from django.utils.timezone import localdate
-from django.db.models import Count, Sum, Q
-import json
 from django.db.models import Sum, Avg, Count, Max, Q
 from django.utils.timezone import now
-from django.db.models import Sum
-from django.contrib.admin.views.decorators import staff_member_required
-import logging
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
+import text2emotion as te  # Import text2emotion
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -41,11 +35,17 @@ logger = logging.getLogger(__name__)
 # Initialize Whisper model
 whisper_model = whisper.load_model("base")
 
+# Ensure NLTK data is downloaded for text2emotion
+import nltk
+nltk.download('punkt')
+nltk.download('wordnet')
+nltk.download('vader_lexicon')
+
 def perform_ai_analysis(audio_entry):
     """
     Performs transcription and emotion analysis for a given AudioEntry.
     1. Transcribes audio using Whisper.
-    2. Performs emotion analysis using keyword-based detection.
+    2. Performs emotion analysis using text2emotion.
     3. Saves detected emotions in AudioEmotionAnalysis.
     4. Creates timeline entries for emotion evolution.
     """
@@ -77,19 +77,19 @@ def perform_ai_analysis(audio_entry):
         logger.info("Transcript too short for emotion analysis")
         return
 
-    # Step 3: Perform emotion analysis using keyword-based approach
+    # Step 3: Perform emotion analysis using text2emotion
     try:
-        emotions = analyze_emotions_keyword_based(transcript)
+        emotions = analyze_emotions_text2emotion(transcript)
         logger.info(f"Detected emotions: {emotions}")
 
         # Step 4: Save emotions in the database
         for emotion, intensity in emotions.items():
-            if intensity >= 0.01:
+            if intensity >= 0.01:  # Only save significant emotions
                 AudioEmotionAnalysis.objects.create(
                     audio_entry=audio_entry,
                     detected_emotion=emotion,
                     intensity=intensity,
-                    ai_model_version='whisper_base + keyword_analysis'
+                    ai_model_version='whisper_base + text2emotion'
                 )
         if not any(v >= 0.01 for v in emotions.values()):
             logger.info("No significant emotions detected.")
@@ -134,8 +134,8 @@ def create_emotion_timeline(audio_entry, transcript):
         if not segment_text.strip():
             continue
         
-        # Analyze emotions for this segment
-        segment_emotions = analyze_emotions_keyword_based(segment_text)
+        # Analyze emotions for this segment using text2emotion
+        segment_emotions = analyze_emotions_text2emotion(segment_text)
         
         # Calculate timestamp (middle of the segment)
         timestamp = (segment_idx + 0.5) * segment_duration
@@ -153,6 +153,32 @@ def create_emotion_timeline(audio_entry, transcript):
         
         logger.info(f"Created timeline entry for segment {segment_idx + 1}: {emotion} at {timestamp}s")
 
+def analyze_emotions_text2emotion(text):
+    """
+    Analyzes emotions in text using the text2emotion library.
+    Returns a dictionary with emotion scores between 0 and 1.
+    """
+    try:
+        # Use text2emotion to analyze emotions
+        emotions = te.get_emotion(text)
+        # Ensure emotions are in expected format and rounded
+        emotion_scores = {
+            'Happy': round(emotions.get('Happy', 0.0), 4),
+            'Angry': round(emotions.get('Angry', 0.0), 4),
+            'Surprise': round(emotions.get('Surprise', 0.0), 4),
+            'Sad': round(emotions.get('Sad', 0.0), 4),
+            'Fear': round(emotions.get('Fear', 0.0), 4)
+        }
+        return emotion_scores
+    except Exception as e:
+        logger.error(f"text2emotion analysis failed: {e}")
+        return {
+            'Happy': 0.0,
+            'Sad': 0.0,
+            'Angry': 0.0,
+            'Fear': 0.0,
+            'Surprise': 0.0
+        }
 
 def audio_emotion_timeline(request, pk):
     """API endpoint that returns emotion timeline data as JSON"""
@@ -178,74 +204,6 @@ def audio_emotion_timeline(request, pk):
     })
 
 
-
-def analyze_emotions_keyword_based(text):
-    """
-    Analyzes emotions in text using keyword matching.
-    Returns a dictionary with emotion scores between 0 and 1.
-    """
-    text_lower = text.lower()
-    
-    emotion_keywords = {
-        'Happy': [
-            'happy', 'joy', 'joyful', 'excited', 'wonderful', 'great', 'amazing', 
-            'love', 'fun', 'enjoyed', 'delighted', 'pleased', 'cheerful', 'glad',
-            'fantastic', 'excellent', 'awesome', 'brilliant', 'perfect', 'beautiful',
-            'laugh', 'laughing', 'smile', 'smiling', 'best', 'good', 'nice'
-        ],
-        'Sad': [
-            'sad', 'unhappy', 'depressed', 'miserable', 'disappointed', 'down', 
-            'upset', 'hurt', 'crying', 'tears', 'lonely', 'hopeless', 'gloomy',
-            'sorry', 'regret', 'miss', 'lost', 'bad', 'terrible', 'awful'
-        ],
-        'Angry': [
-            'angry', 'mad', 'furious', 'annoyed', 'irritated', 'frustrated', 
-            'rage', 'hate', 'outraged', 'pissed', 'upset', 'disgusted'
-        ],
-        'Fear': [
-            'afraid', 'scared', 'fear', 'worried', 'anxious', 'nervous', 
-            'terrified', 'panic', 'frightened', 'stress', 'stressed', 'concern'
-        ],
-        'Surprise': [
-            'surprised', 'shocked', 'amazed', 'astonished', 'unexpected', 
-            'wow', 'incredible', 'unbelievable', 'omg', 'whoa'
-        ]
-    }
-    
-    # Count matches for each emotion
-    emotion_scores = {}
-    words = text_lower.split()
-    total_words = len(words)
-    
-    for emotion, keywords in emotion_keywords.items():
-        match_count = 0
-        matched_words = set()
-        
-        for keyword in keywords:
-            # Use word boundaries to match whole words
-            pattern = r'\b' + re.escape(keyword) + r'\w*\b'
-            matches = re.findall(pattern, text_lower)
-            match_count += len(matches)
-            matched_words.update(matches)
-        
-        if match_count > 0:
-            # Base score from keyword density
-            base_score = (match_count / max(total_words, 1)) * 10
-            
-            # Bonus for multiple different emotional words
-            variety_bonus = len(matched_words) * 0.15
-            
-            # Final intensity (capped at 1.0 for database storage)
-            intensity = min(base_score + variety_bonus, 1.0)
-        else:
-            intensity = 0.0
-        
-        emotion_scores[emotion] = round(intensity, 4)
-    
-    return emotion_scores
-
-
-@login_required
 @login_required
 def audio_create(request):
     if request.user.role != User.JOURNALIST:

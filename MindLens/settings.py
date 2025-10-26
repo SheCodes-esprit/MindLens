@@ -5,7 +5,6 @@ Django settings for MindLens project.
 from pathlib import Path
 import os  
 from dotenv import load_dotenv
-import dj_database_url 
 
 # ------------------------------
 # BASE CONFIGURATION
@@ -13,16 +12,8 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = "django-insecure-3gp)3x@ss^$7ohhkeca*!6os@vr5%c#x3hude^@ypsy2edyv(d"
-DEBUG = os.environ.get("DEBUG", "False") == "True"
-
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
-RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
-
-CSRF_TRUSTED_ORIGINS = [
-    f"https://{RENDER_EXTERNAL_HOSTNAME}"
-] if RENDER_EXTERNAL_HOSTNAME else []
+DEBUG = True
+ALLOWED_HOSTS = []
 
 # ------------------------------
 # APPLICATIONS
@@ -48,7 +39,6 @@ INSTALLED_APPS = [
 # ------------------------------
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -84,15 +74,6 @@ WSGI_APPLICATION = "MindLens.wsgi.application"
 # ------------------------------
 # DATABASE
 # ------------------------------
-
-# DATABASES = {
-#     'default': dj_database_url.config(
-#          default=os.environ.get("DATABASE_URL"),
-#         conn_max_age=600,
-#         ssl_require=True
-#     )
-# }
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -137,17 +118,11 @@ USE_TZ = True
 # STATIC & MEDIA FILES
 # ------------------------------
 STATIC_URL = "/static/"
-if not DEBUG :
-     STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-# STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]  
-# STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")   
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]  
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")   
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
-
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # ------------------------------
 # CUSTOM USER MODEL
