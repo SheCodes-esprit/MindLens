@@ -163,9 +163,10 @@ USE_TZ = True
 # STATIC & MEDIA FILES
 # ------------------------------
 STATIC_URL = "/static/"
-if not DEBUG :
-     STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]  
 # STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")   
@@ -192,7 +193,7 @@ load_dotenv()
 HUGGINGFACE_API_KEY = os.getenv('HUGGINGFACE_API_KEY')
 
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
-DEBUG=True
+#DEBUG=True
 # settings.py
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
