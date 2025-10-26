@@ -8,7 +8,7 @@ from users.models import User
 import base64
 from django.utils import timezone
 from datetime import datetime, timedelta
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from pydub import AudioSegment
 import whisper
 import re
@@ -16,143 +16,312 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Max
 from collections import defaultdict
 from django.utils.timezone import make_aware, localdate
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import cm
 import io
-from collections import defaultdict
-from django.utils.timezone import localdate
-from django.db.models import Count, Sum, Q
-import json
 from django.db.models import Sum, Avg, Count, Max, Q
 from django.utils.timezone import now
-from django.db.models import Sum
-from django.contrib.admin.views.decorators import staff_member_required
-import logging
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.http import JsonResponse
+import json
+import nltk
+from nltk.sentiment import SentimentIntensityAnalyzer
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# Initialize Whisper model
-whisper_model = whisper.load_model("base")
+# Initialize Whisper model (lazy loaded)
+_whisper_model = None
+
+# Initialize VADER sentiment analyzer
+_sia = None
+
+def get_whisper_model():
+    """Lazy load Whisper model on first use"""
+    global _whisper_model
+    if _whisper_model is None:
+        try:
+            logger.info("[v0] Loading Whisper model...")
+            _whisper_model = whisper.load_model("base")
+            logger.info("[v0] Whisper model loaded successfully")
+        except Exception as e:
+            logger.error(f"[v0] Failed to load Whisper model: {e}", exc_info=True)
+            raise
+    return _whisper_model
+
+def get_sentiment_analyzer():
+    """Lazy load VADER sentiment analyzer"""
+    global _sia
+    if _sia is None:
+        try:
+            logger.info("[v0] Loading VADER sentiment analyzer...")
+            _sia = SentimentIntensityAnalyzer()
+            logger.info("[v0] VADER sentiment analyzer loaded successfully")
+        except Exception as e:
+            logger.error(f"[v0] Failed to load VADER: {e}", exc_info=True)
+            raise
+    return _sia
+
+# Initialize NLTK data on startup
+def initialize_nltk_data():
+    """Initialize NLTK data required for sentiment analysis"""
+    try:
+        nltk.data.find('sentiment/vader_lexicon')
+    except LookupError:
+        logger.info("[v0] Downloading NLTK vader_lexicon...")
+        nltk.download('vader_lexicon', quiet=True)
+
+# Initialize NLTK data when module loads
+initialize_nltk_data()
+
+# <CHANGE> Emotion keywords for keyword-based detection
+EMOTION_KEYWORDS = {
+    'Happy': ['happy', 'joy', 'joyful', 'excited', 'great', 'wonderful', 'amazing', 'fantastic', 'love', 'awesome', 'fun', 'laugh', 'smile', 'glad', 'delighted', 'thrilled', 'blessed', 'grateful'],
+    'Sad': ['sad', 'unhappy', 'depressed', 'down', 'blue', 'miserable', 'lonely', 'grief', 'sorrow', 'cry', 'tears', 'heartbroken', 'devastated', 'disappointed', 'upset', 'gloomy'],
+    'Angry': ['angry', 'mad', 'furious', 'rage', 'hate', 'annoyed', 'irritated', 'frustrated', 'upset', 'aggressive', 'hostile', 'bitter', 'resentful', 'outraged', 'livid'],
+    'Fear': ['fear', 'afraid', 'scared', 'terrified', 'anxious', 'nervous', 'worried', 'panic', 'dread', 'horror', 'frightened', 'petrified', 'uneasy', 'apprehensive'],
+    'Surprise': ['surprise', 'surprised', 'shocked', 'amazed', 'astonished', 'stunned', 'unexpected', 'wow', 'wow', 'incredible', 'unbelievable', 'astounded', 'bewildered']
+}
+
+def analyze_emotions_vader(text):
+    """
+    <CHANGE> Analyzes emotions using VADER sentiment analyzer + keyword matching.
+    Returns a dictionary with emotion scores between 0 and 1.
+    """
+    try:
+        sia = get_sentiment_analyzer()
+        text_lower = text.lower()
+        
+        # Get overall sentiment
+        sentiment_scores = sia.polarity_scores(text_lower)
+        compound = sentiment_scores['compound']  # -1 to 1
+        
+        # Initialize emotion scores
+        emotion_scores = {
+            'Happy': 0.0,
+            'Sad': 0.0,
+            'Angry': 0.0,
+            'Fear': 0.0,
+            'Surprise': 0.0
+        }
+        
+        # Keyword-based emotion detection
+        for emotion, keywords in EMOTION_KEYWORDS.items():
+            keyword_count = sum(1 for keyword in keywords if keyword in text_lower)
+            if keyword_count > 0:
+                # Base score from keyword frequency
+                base_score = min(keyword_count / len(keywords), 1.0)
+                
+                # Adjust based on sentiment
+                if emotion == 'Happy' and compound > 0:
+                    emotion_scores[emotion] = round(base_score * (0.5 + compound * 0.5), 4)
+                elif emotion == 'Sad' and compound < 0:
+                    emotion_scores[emotion] = round(base_score * (0.5 + abs(compound) * 0.5), 4)
+                elif emotion == 'Angry' and compound < -0.3:
+                    emotion_scores[emotion] = round(base_score * (0.5 + abs(compound) * 0.5), 4)
+                elif emotion == 'Fear' and compound < -0.2:
+                    emotion_scores[emotion] = round(base_score * (0.5 + abs(compound) * 0.5), 4)
+                elif emotion == 'Surprise':
+                    emotion_scores[emotion] = round(base_score * 0.8, 4)
+                else:
+                    emotion_scores[emotion] = round(base_score * 0.6, 4)
+        
+        # If no keywords found, use sentiment polarity
+        if sum(emotion_scores.values()) == 0:
+            if compound > 0.5:
+                emotion_scores['Happy'] = round((compound + 1) / 2, 4)
+            elif compound < -0.5:
+                emotion_scores['Sad'] = round((abs(compound) + 1) / 2, 4)
+            elif compound < -0.3:
+                emotion_scores['Angry'] = round((abs(compound) + 1) / 2, 4)
+        
+        logger.info(f"[v0] Emotion analysis result: {emotion_scores}")
+        return emotion_scores
+        
+    except Exception as e:
+        logger.error(f"[v0] Emotion analysis failed: {e}", exc_info=True)
+        return {
+            'Happy': 0.0,
+            'Sad': 0.0,
+            'Angry': 0.0,
+            'Fear': 0.0,
+            'Surprise': 0.0
+        }
+
 
 def perform_ai_analysis(audio_entry):
     """
     Performs transcription and emotion analysis for a given AudioEntry.
-    1. Transcribes audio using Whisper.
-    2. Performs emotion analysis using keyword-based detection.
+    1. Transcribes audio using Whisper (lazy loaded).
+    2. Performs emotion analysis using VADER + keywords.
     3. Saves detected emotions in AudioEmotionAnalysis.
     4. Creates timeline entries for emotion evolution.
     """
     if not audio_entry.audio_url:
-        logger.info("No audio file found for analysis.")
+        logger.error(f"[v0] No audio file found for entry {audio_entry.pk}")
         return
 
-    # Step 1: Transcribe audio
+    # Step 1: Transcribe audio (lazy load Whisper)
     transcript = ""
     try:
-        result = whisper_model.transcribe(audio_entry.audio_url.path, task="translate")
+        logger.info(f"[v0] Starting transcription for entry {audio_entry.pk}")
+        whisper_model = get_whisper_model()
+        
+        # Verify file exists before transcribing
+        audio_path = audio_entry.audio_url.path
+        logger.info(f"[v0] Audio file path: {audio_path}")
+        
+        result = whisper_model.transcribe(audio_path, task="translate")
         transcript = result.get('text', '').strip()
+        
         if not transcript:
+            logger.warning(f"[v0] No speech detected in audio {audio_entry.pk}")
             audio_entry.ai_transcript = "No speech detected."
             audio_entry.save()
-            logger.info("Transcript is empty after transcription.")
             return
+        
         audio_entry.ai_transcript = transcript
         audio_entry.save()
-        logger.info(f"Transcript: {transcript}")
+        logger.info(f"[v0] Transcript saved: {transcript[:100]}...")
+        
     except Exception as e:
-        logger.error(f"Whisper transcription failed: {e}")
+        logger.error(f"[v0] Whisper transcription failed for entry {audio_entry.pk}: {e}", exc_info=True)
         audio_entry.ai_transcript = "Transcription failed."
         audio_entry.save()
         return
 
     # Step 2: Skip emotion analysis if transcript too short
     if len(transcript) < 3:
-        logger.info("Transcript too short for emotion analysis")
+        logger.info(f"[v0] Transcript too short for emotion analysis: {len(transcript)} chars")
         return
 
-    # Step 3: Perform emotion analysis using keyword-based approach
+    # Step 3: Perform emotion analysis using VADER + keywords
     try:
-        emotions = analyze_emotions_keyword_based(transcript)
-        logger.info(f"Detected emotions: {emotions}")
+        logger.info(f"[v0] Starting emotion analysis for entry {audio_entry.pk}")
+        emotions = analyze_emotions_vader(transcript)
+        logger.info(f"[v0] Detected emotions: {emotions}")
 
-        # Step 4: Save emotions in the database
-        for emotion, intensity in emotions.items():
-            if intensity >= 0.01:
-                AudioEmotionAnalysis.objects.create(
-                    audio_entry=audio_entry,
-                    detected_emotion=emotion,
-                    intensity=intensity,
-                    ai_model_version='whisper_base + keyword_analysis'
-                )
-        if not any(v >= 0.01 for v in emotions.values()):
-            logger.info("No significant emotions detected.")
+        # Step 4: Save emotions in the database (bulk create for efficiency)
+        emotion_objects = [
+            AudioEmotionAnalysis(
+                audio_entry=audio_entry,
+                detected_emotion=emotion,
+                intensity=intensity,
+                ai_model_version='whisper_base + vader_keywords'
+            )
+            for emotion, intensity in emotions.items()
+            if intensity >= 0.01
+        ]
+        
+        if emotion_objects:
+            AudioEmotionAnalysis.objects.bulk_create(emotion_objects)
+            logger.info(f"[v0] Created {len(emotion_objects)} emotion records for entry {audio_entry.pk}")
+        else:
+            logger.info(f"[v0] No significant emotions detected for entry {audio_entry.pk}")
 
         create_emotion_timeline(audio_entry, transcript)
 
     except Exception as e:
-        logger.error(f"Emotion analysis failed: {e}")
+        logger.error(f"[v0] Emotion analysis failed for entry {audio_entry.pk}: {e}", exc_info=True)
+
 
 def create_emotion_timeline(audio_entry, transcript):
     """
     Segments the transcript into time-based chunks and analyzes emotions for each chunk.
-    Creates AudioEmotionTimeline entries with timestamps.
+    Creates AudioEmotionTimeline entries with timestamps (bulk create for efficiency).
     """
     from .models import AudioEmotionTimeline
     
     if not audio_entry.duration or audio_entry.duration == 0:
-        logger.warning(f"Audio duration not available for timeline analysis: {audio_entry.pk}")
+        logger.warning(f"[v0] Audio duration not available for timeline analysis: {audio_entry.pk}")
         return
     
-    # Segment transcript into 5 equal time chunks
-    num_segments = 5
-    segment_duration = audio_entry.duration / num_segments
-    
-    # Split transcript into sentences for better segmentation
-    sentences = re.split(r'[.!?]+', transcript)
-    sentences = [s.strip() for s in sentences if s.strip()]
-    
-    if not sentences:
-        logger.warning("No sentences found in transcript for timeline analysis")
-        return
-    
-    # Distribute sentences across segments
-    sentences_per_segment = max(1, len(sentences) // num_segments)
-    
-    for segment_idx in range(num_segments):
-        start_idx = segment_idx * sentences_per_segment
-        end_idx = start_idx + sentences_per_segment if segment_idx < num_segments - 1 else len(sentences)
+    try:
+        # Segment transcript into 5 equal time chunks
+        num_segments = 5
+        segment_duration = audio_entry.duration / num_segments
         
-        segment_text = ' '.join(sentences[start_idx:end_idx])
+        # Split transcript into sentences for better segmentation
+        sentences = re.split(r'[.!?]+', transcript)
+        sentences = [s.strip() for s in sentences if s.strip()]
         
-        if not segment_text.strip():
-            continue
+        if not sentences:
+            logger.warning(f"[v0] No sentences found in transcript for timeline analysis")
+            return
         
-        # Analyze emotions for this segment
-        segment_emotions = analyze_emotions_keyword_based(segment_text)
+        # Distribute sentences across segments
+        sentences_per_segment = max(1, len(sentences) // num_segments)
+        timeline_objects = []
         
-        # Calculate timestamp (middle of the segment)
-        timestamp = (segment_idx + 0.5) * segment_duration
+        for segment_idx in range(num_segments):
+            start_idx = segment_idx * sentences_per_segment
+            end_idx = start_idx + sentences_per_segment if segment_idx < num_segments - 1 else len(sentences)
+            
+            segment_text = ' '.join(sentences[start_idx:end_idx])
+            
+            if not segment_text.strip():
+                continue
+            
+            # Analyze emotions for this segment using VADER + keywords
+            segment_emotions = analyze_emotions_vader(segment_text)
+            
+            # Calculate timestamp (middle of the segment)
+            timestamp = (segment_idx + 0.5) * segment_duration
+            
+            # Create timeline entries for each emotion with significant intensity
+            for emotion, intensity in segment_emotions.items():
+                if intensity >= 0.01:
+                    timeline_objects.append(
+                        AudioEmotionTimeline(
+                            audio_entry=audio_entry,
+                            timestamp=timestamp,
+                            detected_emotion=emotion,
+                            intensity=intensity,
+                            segment_text=segment_text[:200]
+                        )
+                    )
+            
+            logger.info(f"[v0] Segment {segment_idx + 1} analyzed: {len([o for o in timeline_objects if o.timestamp == timestamp])} emotions")
         
-        # Create timeline entries for each emotion with significant intensity
-        for emotion, intensity in segment_emotions.items():
-            if intensity >= 0.01:
-                AudioEmotionTimeline.objects.create(
-                    audio_entry=audio_entry,
-                    timestamp=timestamp,
-                    detected_emotion=emotion,
-                    intensity=intensity,
-                    segment_text=segment_text[:200]  # Store first 200 chars of segment
-                )
-        
-        logger.info(f"Created timeline entry for segment {segment_idx + 1}: {emotion} at {timestamp}s")
+        # Bulk create all timeline objects
+        if timeline_objects:
+            AudioEmotionTimeline.objects.bulk_create(timeline_objects)
+            logger.info(f"[v0] Created {len(timeline_objects)} timeline entries for entry {audio_entry.pk}")
+            
+    except Exception as e:
+        logger.error(f"[v0] Timeline creation failed for entry {audio_entry.pk}: {e}", exc_info=True)
 
+
+# ... existing code ...
+def analyze_emotions_text2emotion(text):
+    """
+    Analyzes emotions in text using the text2emotion library.
+    Returns a dictionary with emotion scores between 0 and 1.
+    """
+    try:
+        # Use text2emotion to analyze emotions
+        emotions = te.get_emotion(text)
+        # Ensure emotions are in expected format and rounded
+        emotion_scores = {
+            'Happy': round(emotions.get('Happy', 0.0), 4),
+            'Angry': round(emotions.get('Angry', 0.0), 4),
+            'Surprise': round(emotions.get('Surprise', 0.0), 4),
+            'Sad': round(emotions.get('Sad', 0.0), 4),
+            'Fear': round(emotions.get('Fear', 0.0), 4)
+        }
+        return emotion_scores
+    except Exception as e:
+        logger.error(f"text2emotion analysis failed: {e}")
+        return {
+            'Happy': 0.0,
+            'Sad': 0.0,
+            'Angry': 0.0,
+            'Fear': 0.0,
+            'Surprise': 0.0
+        }
 
 def audio_emotion_timeline(request, pk):
     """API endpoint that returns emotion timeline data as JSON"""
@@ -178,74 +347,6 @@ def audio_emotion_timeline(request, pk):
     })
 
 
-
-def analyze_emotions_keyword_based(text):
-    """
-    Analyzes emotions in text using keyword matching.
-    Returns a dictionary with emotion scores between 0 and 1.
-    """
-    text_lower = text.lower()
-    
-    emotion_keywords = {
-        'Happy': [
-            'happy', 'joy', 'joyful', 'excited', 'wonderful', 'great', 'amazing', 
-            'love', 'fun', 'enjoyed', 'delighted', 'pleased', 'cheerful', 'glad',
-            'fantastic', 'excellent', 'awesome', 'brilliant', 'perfect', 'beautiful',
-            'laugh', 'laughing', 'smile', 'smiling', 'best', 'good', 'nice'
-        ],
-        'Sad': [
-            'sad', 'unhappy', 'depressed', 'miserable', 'disappointed', 'down', 
-            'upset', 'hurt', 'crying', 'tears', 'lonely', 'hopeless', 'gloomy',
-            'sorry', 'regret', 'miss', 'lost', 'bad', 'terrible', 'awful'
-        ],
-        'Angry': [
-            'angry', 'mad', 'furious', 'annoyed', 'irritated', 'frustrated', 
-            'rage', 'hate', 'outraged', 'pissed', 'upset', 'disgusted'
-        ],
-        'Fear': [
-            'afraid', 'scared', 'fear', 'worried', 'anxious', 'nervous', 
-            'terrified', 'panic', 'frightened', 'stress', 'stressed', 'concern'
-        ],
-        'Surprise': [
-            'surprised', 'shocked', 'amazed', 'astonished', 'unexpected', 
-            'wow', 'incredible', 'unbelievable', 'omg', 'whoa'
-        ]
-    }
-    
-    # Count matches for each emotion
-    emotion_scores = {}
-    words = text_lower.split()
-    total_words = len(words)
-    
-    for emotion, keywords in emotion_keywords.items():
-        match_count = 0
-        matched_words = set()
-        
-        for keyword in keywords:
-            # Use word boundaries to match whole words
-            pattern = r'\b' + re.escape(keyword) + r'\w*\b'
-            matches = re.findall(pattern, text_lower)
-            match_count += len(matches)
-            matched_words.update(matches)
-        
-        if match_count > 0:
-            # Base score from keyword density
-            base_score = (match_count / max(total_words, 1)) * 10
-            
-            # Bonus for multiple different emotional words
-            variety_bonus = len(matched_words) * 0.15
-            
-            # Final intensity (capped at 1.0 for database storage)
-            intensity = min(base_score + variety_bonus, 1.0)
-        else:
-            intensity = 0.0
-        
-        emotion_scores[emotion] = round(intensity, 4)
-    
-    return emotion_scores
-
-
-@login_required
 @login_required
 def audio_create(request):
     if request.user.role != User.JOURNALIST:
