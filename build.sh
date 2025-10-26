@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -o errexit
 
-# Upgrade pip, setuptools, wheel first
+# Install ffmpeg for MoviePy & FER video processing
+apt-get update && apt-get install -y ffmpeg
+
+# Upgrade pip tools first
 pip install --upgrade pip setuptools wheel
 
 # Install dependencies
