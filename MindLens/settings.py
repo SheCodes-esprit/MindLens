@@ -6,6 +6,8 @@ from pathlib import Path
 import os  
 from dotenv import load_dotenv
 import dj_database_url 
+import gc
+import threading
 
 # ------------------------------
 # BASE CONFIGURATION
@@ -15,7 +17,11 @@ os.environ['HF_HUB_OFFLINE'] = '1'
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'  # Force CPU only
+os.environ['OMP_NUM_THREADS'] = '1'
+os.environ['MKL_NUM_THREADS'] = '1'
+os.environ['OPENBLAS_NUM_THREADS'] = '1'
 WSGI_APPLICATION = 'MindLens.wsgi.application'
+gc.set_threshold(100, 5, 5)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -213,9 +219,20 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
 # Optimisations pour réduire la mémoire
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
-FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 1048576  # 10MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 1048576  # 10MB
 
+# Force garbage collection périodique
+def periodic_gc():
+    import time
+    while True:
+        time.sleep(30)  # Toutes les 30 secondes
+        gc.collect()
+
+# Démarrer le thread de nettoyage (seulement en production)
+if not os.environ.get("DEBUG", "").lower() == "true":
+    gc_thread = threading.Thread(target=periodic_gc, daemon=True)
+    gc_thread.start()
 # Désactivez le debug toolbar si présent
 DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TOOLBAR_CALLBACK': lambda request: False

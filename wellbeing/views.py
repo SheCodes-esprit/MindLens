@@ -11,16 +11,78 @@ from django.db.models import Avg, Count, Max, Min, Q
 from django.utils import timezone
 from datetime import timedelta
 from .models import WellbeingRecord, RoutineRecommendation
-from .analytics_utils import (
-    UserSegmentation, CorrelationAnalysis, PredictiveTrends, HeatmapData
-)
-# Import your AI utilities
-from .ai_prompts import generate_summary_and_recommendations
+import logging
 
 # ✅ FIXED: Use get_user_model() instead of importing User directly
 from django.contrib.auth import get_user_model
 User = get_user_model()
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
+logger = logging.getLogger(__name__)
+
+# <CHANGE> Lazy loading for AI utilities
+_ai_prompts_loaded = False
+
+def get_ai_prompts():
+    """Lazy load AI prompts only when needed"""
+    global _ai_prompts_loaded
+    if not _ai_prompts_loaded:
+        try:
+            logger.info("[Wellbeing] Loading AI prompts...")
+            from .ai_prompts import generate_summary_and_recommendations
+            _ai_prompts_loaded = True
+            logger.info("[Wellbeing] AI prompts loaded successfully")
+            return generate_summary_and_recommendations
+        except Exception as e:
+            logger.error(f"[Wellbeing] Failed to load AI prompts: {e}")
+            # Return a fallback function
+            def fallback_ai_function(record, model=None):
+                return {
+                    "summary": "AI analysis temporarily unavailable.",
+                    "recommendations": {}
+                }
+            return fallback_ai_function
+    
+    from .ai_prompts import generate_summary_and_recommendations
+    return generate_summary_and_recommendations
+
+def get_analytics_utils():
+    """Lazy load analytics utilities only when needed"""
+    try:
+        logger.info("[Wellbeing] Loading analytics utilities...")
+        from .analytics_utils import (
+            UserSegmentation, CorrelationAnalysis, PredictiveTrends, HeatmapData
+        )
+        logger.info("[Wellbeing] Analytics utilities loaded successfully")
+        return UserSegmentation, CorrelationAnalysis, PredictiveTrends, HeatmapData
+    except Exception as e:
+        logger.error(f"[Wellbeing] Failed to load analytics utilities: {e}")
+        # Return fallback classes
+        class FallbackUserSegmentation:
+            @staticmethod
+            def get_all_user_segments(days):
+                return {}
+        
+        class FallbackCorrelationAnalysis:
+            @staticmethod
+            def calculate_correlations(records):
+                return {}
+            
+            @staticmethod
+            def get_correlation_insights(correlations):
+                return []
+        
+        class FallbackPredictiveTrends:
+            @staticmethod
+            def identify_at_risk_users(days):
+                return []
+        
+        class FallbackHeatmapData:
+            @staticmethod
+            def generate_daily_heatmap(days):
+                return []
+        
+        return FallbackUserSegmentation, FallbackCorrelationAnalysis, FallbackPredictiveTrends, FallbackHeatmapData
 
 @login_required
 def wellbeing_list(request):
@@ -56,8 +118,6 @@ def wellbeing_list(request):
         'all_dates': all_dates,
     })
 
-
-
 @login_required
 def wellbeing_create(request):
     """Create a new wellbeing record with AI-generated summary and recommendations."""
@@ -77,9 +137,11 @@ def wellbeing_create(request):
             record.user = request.user
             record.save()
 
-            # 2️⃣ Generate AI summary and recommendations
+            # 2️⃣ Generate AI summary and recommendations WITH LAZY LOADING
             try:
-                ai_results = generate_summary_and_recommendations(record, model="llama-3.1-8b-instant")
+                # <CHANGE> Load AI function only when needed
+                generate_ai_insights = get_ai_prompts()
+                ai_results = generate_ai_insights(record, model="llama-3.1-8b-instant")
                 
                 # Save AI summary
                 if ai_results.get("summary") and not ai_results["summary"].startswith("Error:"):
@@ -115,7 +177,6 @@ def wellbeing_create(request):
         'title': 'New Record'
     })
 
-
 @login_required
 def wellbeing_detail(request, pk):
     """Display the details of a wellbeing record along with its recommendations."""
@@ -126,7 +187,6 @@ def wellbeing_detail(request, pk):
         'record': record,
         'recommendations': recommendations
     })
-
 
 @login_required
 def wellbeing_update(request, pk):
@@ -145,9 +205,11 @@ def wellbeing_update(request, pk):
                 ai_generated=True
             ).delete()
 
-            # 3️⃣ Regenerate AI summary and recommendations based on new values
+            # 3️⃣ Regenerate AI summary and recommendations WITH LAZY LOADING
             try:
-                ai_results = generate_summary_and_recommendations(record, model="llama-3.1-8b-instant")
+                # <CHANGE> Load AI function only when needed
+                generate_ai_insights = get_ai_prompts()
+                ai_results = generate_ai_insights(record, model="llama-3.1-8b-instant")
                 
                 # Save AI summary
                 if ai_results.get("summary") and not ai_results["summary"].startswith("Error:"):
@@ -197,7 +259,6 @@ def wellbeing_delete(request, pk):
         'record': record
     })
 
-
 @login_required
 def recommendation_create(request, wellbeing_pk):
     """Create a routine recommendation for a given wellbeing record."""
@@ -219,8 +280,6 @@ def recommendation_create(request, wellbeing_pk):
         'form': form,
         'record': record
     })
-
-
 
 @staff_member_required
 def wellbeing_analytics(request):
@@ -297,23 +356,36 @@ def wellbeing_analytics(request):
     
     all_records = records.select_related('user').order_by('-date')
     
-    # User Segmentation
-    user_segments = UserSegmentation.get_all_user_segments(days)
-    segment_summary = {
-        segment: len(users) for segment, users in user_segments.items()
-    }
-    
-    # Correlations
-    records_list = list(records.order_by('date'))
-    correlations = CorrelationAnalysis.calculate_correlations(records_list)
-    correlation_insights = CorrelationAnalysis.get_correlation_insights(correlations)
-    
-    # Predictive Trends
-    at_risk_users = PredictiveTrends.identify_at_risk_users(days)
-    
-    # Heatmap Data
-    daily_heatmap = HeatmapData.generate_daily_heatmap(days)
-    
+    # <CHANGE> Load analytics utilities WITH LAZY LOADING
+    try:
+        UserSegmentation, CorrelationAnalysis, PredictiveTrends, HeatmapData = get_analytics_utils()
+        
+        # User Segmentation
+        user_segments = UserSegmentation.get_all_user_segments(days)
+        segment_summary = {
+            segment: len(users) for segment, users in user_segments.items()
+        }
+        
+        # Correlations
+        records_list = list(records.order_by('date'))
+        correlations = CorrelationAnalysis.calculate_correlations(records_list)
+        correlation_insights = CorrelationAnalysis.get_correlation_insights(correlations)
+        
+        # Predictive Trends
+        at_risk_users = PredictiveTrends.identify_at_risk_users(days)
+        
+        # Heatmap Data
+        daily_heatmap = HeatmapData.generate_daily_heatmap(days)
+        
+    except Exception as e:
+        logger.error(f"[Wellbeing] Analytics failed: {e}")
+        # Fallback values if analytics fail
+        user_segments = {}
+        segment_summary = {}
+        correlations = {}
+        correlation_insights = []
+        at_risk_users = []
+        daily_heatmap = []
     
     # Pagination
     paginator = Paginator(all_records, 4)  # 4 records per page
@@ -340,7 +412,6 @@ def wellbeing_analytics(request):
         'correlation_insights': correlation_insights,
         'at_risk_users': at_risk_users,
         'daily_heatmap': daily_heatmap,
-        'days': days,
     }
     
     return render(request, 'backoffice/pages/wellbeing_analytics.html', context)
