@@ -1,0 +1,312 @@
+{% extends 'backoffice/layouts/base.html' %}
+
+{% block title %}Audio History - MindLens Admin{% endblock %}
+{% block page_title %}Audio History{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
+<li class="breadcrumb-item active" aria-current="page">Audio History</li>
+{% endblock %}
+
+{% block content %}
+<!-- Include Chart.js -->
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+<!-- Basic Stats -->
+<div class="content-card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Audio Statistics</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-3 text-center">
+            <div class="col-6 col-md-3">
+                <div class="p-3 rounded text-white stats-theme-card" style="background: var(--accent-gradient);">
+                    <h4 class="mb-0">{{ total|default:0 }}</h4>
+                    <small>Total Entries</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 rounded text-white stats-theme-card" style="background: linear-gradient(135deg, var(--accent-start), color-mix(in srgb, var(--accent-end) 80%, #000));">
+                    <h4 class="mb-0">
+                        {% if total_hours > 0 %}
+                            {{ total_hours }}h {{ total_minutes }}m {{ total_seconds }}s
+                        {% elif total_minutes > 0 %}
+                            {{ total_minutes }}m {{ total_seconds }}s
+                        {% else %}
+                            {{ total_seconds }}s
+                        {% endif %}
+                    </h4>
+                    <small>Total Duration</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 rounded text-white stats-theme-card" style="background: var(--accent-gradient);">
+                    <h4 class="mb-0">{{ avg_duration|floatformat:1|default:0 }} s</h4>
+                    <small>Avg Duration</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 rounded text-white stats-theme-card" style="background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 70%, #000), var(--accent-end));">
+                    <h4 class="mb-0">{{ entries_today|default:0 }}</h4>
+                    <small>Entries Today</small>
+                </div>
+            </div>
+        </div>
+        <div class="mt-3 text-center">
+            <span class="badge fs-6" style="background: var(--accent-gradient); color: var(--text);">
+                Most Frequent Mood: <strong>{{ most_frequent_mood|default:'N/A' }}</strong>
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- Advanced Stats -->
+<div class="content-card mb-4">
+    <div class="card-header" data-bs-toggle="collapse" data-bs-target="#advancedStatsBody" aria-expanded="false" aria-controls="advancedStatsBody">
+        <h5 class="card-title mb-0">Advanced Statistics <i class="bi bi-chevron-down float-end"></i></h5>
+    </div>
+    <div class="card-body collapse" id="advancedStatsBody">
+        <div class="row g-4">
+            <!-- Emotion Distribution -->
+            <div class="col-md-6">
+                <div class="card p-3 h-100">
+                    <h6>Emotion Distribution</h6>
+                    <canvas id="emotionChart" width="400" height="200"></canvas>
+                    <script>
+                        const emotionData = JSON.parse('{{ emotion_chart_data_json|escapejs }}');
+                        const emotionCtx = document.getElementById('emotionChart').getContext('2d');
+                        new Chart(emotionCtx, {
+                            type: 'bar',
+                            data: {
+                                labels: emotionData.labels,
+                                datasets: [
+                                    {
+                                        label: 'Count',
+                                        data: emotionData.counts,
+                                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                                        borderColor: 'rgba(54, 162, 235, 1)',
+                                        borderWidth: 1
+                                    },
+                                    {
+                                        label: 'Avg Intensity',
+                                        data: emotionData.avg_intensities,
+                                        type: 'line',
+                                        fill: false,
+                                        borderColor: 'rgba(255, 99, 132, 1)',
+                                        tension: 0.1
+                                    }
+                                ]
+                            },
+                            options: { scales: { y: { beginAtZero: true } }, plugins: { legend: { position: 'top' } } }
+                        });
+                    </script>
+                </div>
+            </div>
+
+            <!-- Weekly Trend -->
+            <div class="col-md-6">
+                <div class="card p-3 h-100">
+                    <h6>Weekly Trend</h6>
+                    <canvas id="weeklyTrendChart" width="400" height="200"></canvas>
+                    <script>
+                        const weeklyTrend = JSON.parse('{{ weekly_trend_json|escapejs }}');
+                        const weeklyCtx = document.getElementById('weeklyTrendChart').getContext('2d');
+                        new Chart(weeklyCtx, {
+                            type: 'line',
+                            data: {
+                                labels: weeklyTrend.map(item => item.day),
+                                datasets: [{
+                                    label: 'Entries',
+                                    data: weeklyTrend.map(item => item.count || 0),
+                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                    fill: false
+                                }]
+                            },
+                            options: { scales: { y: { beginAtZero: true } } }
+                        });
+                    </script>
+                </div>
+            </div>
+
+            <!-- Monthly Trend -->
+            <div class="col-md-6">
+                <div class="card p-3 h-100">
+                    <h6>Monthly Trend ({{ today.year|default:2025 }})</h6>
+                    <canvas id="monthlyTrendChart" width="400" height="200"></canvas>
+                    <script>
+                        const monthlyTrend = JSON.parse('{{ monthly_trend_json|escapejs }}');
+                        const monthlyCtx = document.getElementById('monthlyTrendChart').getContext('2d');
+                        new Chart(monthlyCtx, {
+                            type: 'bar',
+                            data: {
+                                labels: monthlyTrend.labels,
+                                datasets: [{
+                                    label: 'Entries',
+                                    data: monthlyTrend.counts,
+                                    backgroundColor: 'rgba(153, 102, 255, 0.5)'
+                                }]
+                            },
+                            options: { scales: { y: { beginAtZero: true } } }
+                        });
+                    </script>
+                </div>
+            </div>
+
+            <!-- Top Users -->
+            <div class="col-md-6">
+                <div class="card p-3 h-100">
+                    <h6>Top 5 Users by Entries</h6>
+                    <ul class="list-group">
+                        {% if top_users %}
+                            {% for user in top_users %}
+                            <li class="list-group-item">
+                                {{ user.user__username|default:'Unknown' }}: {{ user.user_entries|default:0 }} entries ({{ user.user_duration|floatformat:1|default:0 }}s)
+                            </li>
+                            {% endfor %}
+                        {% else %}
+                            <li class="list-group-item">No user data available.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Existing Filter + Table -->
+<div class="content-card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title">All Audio Entries ({{ total|default:0 }})</h5>
+    </div>
+
+    <div class="card-body p-0">
+        <!-- Search & Mood filter -->
+        <div class="p-3 border-bottom">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" name="search"
+                               placeholder="Search title, user…" value="{{ search|default:'' }}">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" name="mood">
+                        <option value="">All Moods</option>
+                        {% for m in all_moods %}
+                        <option value="{{ m }}" {% if m == mood %}selected{% endif %}>{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-admin-primary w-100">
+                        <i class="bi bi-funnel"></i> Filter
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <a href="{% url 'admin_audio_history' %}" class="btn btn-admin-secondary w-100">
+                        <i class="bi bi-x-circle"></i> Clear
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{% url 'admin_audio_history_pdf' %}?search={{ search|default:'' }}&mood={{ mood|default:'' }}" 
+                       class="btn btn-danger w-100">
+                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="admin-table">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Journalist</th>
+                        <th>Date</th>
+                        <th>Duration</th>
+                        <th>Dominant Emotion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in page_obj %}
+                    <tr>
+                        <td>{{ e.title|default:"Untitled" }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if e.user.profile_image %}
+                                <img src="{{ e.user.profile_image.url }}" class="rounded-circle me-2" width="28" height="28">
+                                {% else %}
+                                <img src="https://tryeasel.dev/placeholder.svg?width=28&height=28"
+                                     class="rounded-circle me-2" width="28" height="28">
+                                {% endif %}
+                                {{ e.user.username }}
+                            </div>
+                        </td>
+                        <td>{{ e.created_at|date:"d M Y H:i" }}</td>
+                        <td>{% if e.duration %}{{ e.duration|floatformat:1 }} s{% else %}–{% endif %}</td>
+                        <td>
+                            <span class="badge bg-{{ e.dominant_emotion|lower|default:'secondary' }}">
+                                {{ e.dominant_emotion|default:'N/A' }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4">
+                            <i class="bi bi-inbox" style="font-size: 3rem; opacity: .3;"></i>
+                            <p class="mt-2 mb-0">No audio entries found.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Styled Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="pagination-container">
+            <nav class="pagination-nav">
+                <ul class="pagination-list">
+                    {% if page_obj.has_previous %}
+                    <li class="pagination-item">
+                        <a class="pagination-link" href="?page={{ page_obj.previous_page_number }}&search={{ search|default:'' }}&mood={{ mood|default:'' }}" aria-label="Previous">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="pagination-item disabled">
+                        <span class="pagination-link">
+                            <i class="bi bi-chevron-left"></i>
+                        </span>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    <li class="pagination-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="pagination-link" href="?page={{ num }}&search={{ search|default:'' }}&mood={{ mood|default:'' }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="pagination-item">
+                        <a class="pagination-link" href="?page={{ page_obj.next_page_number }}&search={{ search|default:'' }}&mood={{ mood|default:'' }}" aria-label="Next">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="pagination-item disabled">
+                        <span class="pagination-link">
+                            <i class="bi bi-chevron-right"></i>
+                        </span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

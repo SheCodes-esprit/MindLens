@@ -1,70 +1,148 @@
 {% extends 'backoffice/layouts/base.html' %}
-
+{% load humanize %}   {# for nice number formatting #}
 {% block title %}Dashboard - MindLens Admin{% endblock %}
 
+{% block extra_head %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  .stats-change.text-success i { font-size: .9rem; }
+  .chart-fallback { text-align: center; color: #6c757d; padding: 2rem; font-style: italic; }
+  
+  /* Better spacing for stats cards */
+  .stats-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .stats-row > .stat-col {
+    flex: 1;
+    min-width: 220px;
+  }
+  
+  /* Pagination styles */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 0;
+    margin: 0;
+  }
+  
+  .pagination .page-link {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    color: #6c5ce7;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  
+  .pagination .page-link:hover {
+    background-color: #f8f9fa;
+    border-color: #6c5ce7;
+  }
+  
+  .pagination .page-link.active {
+    background-color: #6c5ce7;
+    color: white;
+    border-color: #6c5ce7;
+  }
+  
+  .pagination .page-link.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  
+  .pagination-info {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<!-- Stats Overview -->
-<div class="row g-4 mb-4">
-  <div class="col-xl-3 col-md-6">
+<!-- ==================== Stats Overview ==================== -->
+<div class="stats-row">
+  <div class="stat-col">
     <div class="stats-card">
-      <div class="stats-icon" style="background: rgba(255, 107, 129, 0.1); color: var(--accent);">
+      <div class="stats-icon">
         <i class="bi bi-people"></i>
       </div>
-      <div class="stats-value">1,234</div>
+      <div class="stats-value">{{ total_users|intcomma }}</div>
       <div class="stats-label">Total Users</div>
       <div class="stats-change text-success">
-        <i class="bi bi-arrow-up"></i> +12% from last month
+        <i class="bi bi-arrow-up"></i> {{ user_growth }}% from last month
       </div>
     </div>
   </div>
-  
-  <div class="col-xl-3 col-md-6">
+
+  <div class="stat-col">
     <div class="stats-card">
-      <div class="stats-icon" style="background: rgba(108, 92, 231, 0.1); color: var(--admin-primary);">
+      <div class="stats-icon">
         <i class="bi bi-journal-text"></i>
       </div>
-      <div class="stats-value">5,678</div>
+      <div class="stats-value">{{ total_journal_entries|intcomma }}</div>
       <div class="stats-label">Journal Entries</div>
       <div class="stats-change text-success">
-        <i class="bi bi-arrow-up"></i> +8% from last month
+        <i class="bi bi-arrow-up"></i> {{ journal_growth }}% from last month
       </div>
     </div>
   </div>
-  
-  <div class="col-xl-3 col-md-6">
+
+  <div class="stat-col">
     <div class="stats-card">
-      <div class="stats-icon" style="background: rgba(0, 184, 148, 0.1); color: var(--success);">
+      <div class="stats-icon">
         <i class="bi bi-mic"></i>
       </div>
-      <div class="stats-value">892</div>
+      <div class="stats-value">{{ total_voice_notes|intcomma }}</div>
       <div class="stats-label">Voice Notes</div>
       <div class="stats-change text-success">
-        <i class="bi bi-arrow-up"></i> +15% from last month
+        <i class="bi bi-arrow-up"></i> {{ voice_growth }}% from last month
       </div>
     </div>
   </div>
-  
-  <div class="col-xl-3 col-md-6">
+
+  <div class="stat-col">
     <div class="stats-card">
-      <div class="stats-icon" style="background: rgba(253, 203, 110, 0.1); color: var(--warning);">
+      <div class="stats-icon">
         <i class="bi bi-images"></i>
       </div>
-      <div class="stats-value">2,341</div>
+      <div class="stats-value">{{ total_gallery_items|intcomma }}</div>
       <div class="stats-label">Gallery Items</div>
       <div class="stats-change text-success">
-        <i class="bi bi-arrow-up"></i> +5% from last month
+        <i class="bi bi-arrow-up"></i> {{ gallery_growth }}% from last month
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-col">
+    <div class="stats-card">
+      <div class="stats-icon">
+        <i class="bi bi-heart-pulse"></i>
+      </div>
+      <div class="stats-value">{{ total_wellbeing_records|intcomma }}</div>
+      <div class="stats-label">Wellbeing Records</div>
+      <div class="stats-change text-success">
+        <i class="bi bi-arrow-up"></i> {{ wellbeing_growth }}% from last month
       </div>
     </div>
   </div>
 </div>
 
-<!-- Recent Activity & Quick Actions -->
+<!-- ==================== Recent Activity ==================== -->
 <div class="row g-4 mb-4">
-  <div >
+  <div class="col-12">
     <div class="content-card">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="card-title">Recent Activity</h5>
-        <a href="#" class="btn btn-admin-secondary btn-sm">View All</a>
+        <div class="pagination-info">
+          Showing {{ recent_activity.start_index }} - {{ recent_activity.end_index }} of {{ recent_activity.paginator.count }}
+        </div>
       </div>
       <div class="card-body p-0">
         <div class="admin-table">
@@ -78,91 +156,198 @@
               </tr>
             </thead>
             <tbody>
+              {% for act in recent_activity %}
               <tr>
                 <td>
                   <div class="d-flex align-items-center">
-                    <img src="https://tryeasel.dev/placeholder.svg?width=32&height=32" alt="User" class="rounded-circle me-2" width="32" height="32">
-                    <span>Sarah Johnson</span>
+                    {% if act.user.profile_image %}
+                      <img src="{{ act.user.profile_image.url }}" class="rounded-circle me-2" width="32" height="32" alt="Profile">
+                    {% else %}
+                      <img src="https://tryeasel.dev/placeholder.svg?width=32&height=32" class="rounded-circle me-2" width="32" height="32" alt="Default Profile">
+                    {% endif %}
+                    <span>{{ act.user.get_full_name|default:act.user.username }}</span>
                   </div>
                 </td>
-                <td>Created journal entry</td>
-                <td>2 minutes ago</td>
-                <td><span class="status-badge status-active">Active</span></td>
+                <td>{{ act.action }}</td>
+                <td>{{ act.time_ago.display }}</td>
+                <td><span class="status-badge status-{{ act.status|lower }}">{{ act.status }}</span></td>
               </tr>
-              <tr>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <img src="https://tryeasel.dev/placeholder.svg?width=32&height=32" alt="User" class="rounded-circle me-2" width="32" height="32">
-                    <span>Mike Chen</span>
-                  </div>
-                </td>
-                <td>Uploaded voice note</td>
-                <td>15 minutes ago</td>
-                <td><span class="status-badge status-active">Active</span></td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <img src="https://tryeasel.dev/placeholder.svg?width=32&height=32" alt="User" class="rounded-circle me-2" width="32" height="32">
-                    <span>Emma Davis</span>
-                  </div>
-                </td>
-                <td>Added gallery image</td>
-                <td>1 hour ago</td>
-                <td><span class="status-badge status-pending">Pending</span></td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <img src="https://tryeasel.dev/placeholder.svg?width=32&height=32" alt="User" class="rounded-circle me-2" width="32" height="32">
-                    <span>Alex Rodriguez</span>
-                  </div>
-                </td>
-                <td>Reported content</td>
-                <td>3 hours ago</td>
-                <td><span class="status-badge status-inactive">Review</span></td>
-              </tr>
+              {% empty %}
+              <tr><td colspan="4" class="text-center text-muted py-3">No recent activity</td></tr>
+              {% endfor %}
             </tbody>
           </table>
         </div>
       </div>
+      
+      <!-- Pagination Controls -->
+      {% if recent_activity.has_other_pages %}
+      <div class="card-footer">
+        <nav aria-label="Recent activity pagination">
+          <ul class="pagination">
+            {% if recent_activity.has_previous %}
+              <li class="page-item">
+                <a class="page-link" href="?page=1" aria-label="First">
+                  <i class="bi bi-chevron-double-left"></i>
+                </a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" href="?page={{ recent_activity.previous_page_number }}" aria-label="Previous">
+                  <i class="bi bi-chevron-left"></i>
+                </a>
+              </li>
+            {% else %}
+              <li class="page-item">
+                <span class="page-link disabled"><i class="bi bi-chevron-double-left"></i></span>
+              </li>
+              <li class="page-item">
+                <span class="page-link disabled"><i class="bi bi-chevron-left"></i></span>
+              </li>
+            {% endif %}
+
+            {% for num in recent_activity.paginator.page_range %}
+              {% if recent_activity.number == num %}
+                <li class="page-item">
+                  <span class="page-link active">{{ num }}</span>
+                </li>
+              {% elif num > recent_activity.number|add:'-3' and num < recent_activity.number|add:'3' %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+              {% endif %}
+            {% endfor %}
+
+            {% if recent_activity.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ recent_activity.next_page_number }}" aria-label="Next">
+                  <i class="bi bi-chevron-right"></i>
+                </a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" href="?page={{ recent_activity.paginator.num_pages }}" aria-label="Last">
+                  <i class="bi bi-chevron-double-right"></i>
+                </a>
+              </li>
+            {% else %}
+              <li class="page-item">
+                <span class="page-link disabled"><i class="bi bi-chevron-right"></i></span>
+              </li>
+              <li class="page-item">
+                <span class="page-link disabled"><i class="bi bi-chevron-double-right"></i></span>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+      </div>
+      {% endif %}
     </div>
   </div>
-  
-  
 </div>
 
-<!-- Charts Row -->
+<!-- ==================== Charts ==================== -->
+<div class="row g-4 mb-4">
+  <!-- User Growth Line Chart -->
+  <div class="col-lg-6 col-md-12">
+    <div class="content-card">
+      <div class="card-header"><h5 class="card-title">User Growth (last 12 weeks)</h5></div>
+      <div class="card-body" style="min-height: 400px; display: flex; align-items: center; justify-content: center;">
+        <canvas id="userGrowthChart"></canvas>
+        <div id="userGrowthFallback" class="chart-fallback" style="display: none;">Charts unavailable—check browser console for errors.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Distribution Pie Chart -->
+  <div class="col-lg-6 col-md-12">
+    <div class="content-card">
+      <div class="card-header"><h5 class="card-title">Content Distribution</h5></div>
+      <div class="card-body" style="min-height: 400px; display: flex; align-items: center; justify-content: center;">
+        <canvas id="contentPieChart"></canvas>
+        <div id="contentFallback" class="chart-fallback" style="display: none;">Charts unavailable—check browser console for errors.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== Inspirational Quote ==================== -->
 <div class="row g-4">
-  <div class="col-lg-6">
-    <div class="content-card">
-      <div class="card-header">
-        <h5 class="card-title">User Growth</h5>
-      </div>
-      <div class="card-body">
-        <div class="text-center py-5">
-          <i class="bi bi-graph-up fs-1 text-muted mb-3"></i>
-          <p class="text-muted">Chart visualization would go here</p>
-          <small class="text-muted">Integration with Chart.js or similar library</small>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="col-lg-6">
-    <div class="content-card">
-      <div class="card-header">
-        <h5 class="card-title">Content Distribution</h5>
-      </div>
-      <div class="card-body">
-        <div class="text-center py-5">
-          <i class="bi bi-pie-chart fs-1 text-muted mb-3"></i>
-          <p class="text-muted">Pie chart visualization would go here</p>
-          <small class="text-muted">Shows distribution of journal entries, voice notes, and gallery items</small>
-        </div>
-      </div>
+  <div class="col-12">
+    <div class="quote-section">
+      <p class="quote-script">"Wellbeing is the key to unlocking your mind's full potential—nurture it daily."</p>
+      <small class="text-muted d-block text-end mt-2">— MindLens Team</small>
     </div>
   </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Check if Chart.js loaded
+    if (typeof Chart === 'undefined') {
+      console.error('Chart.js not loaded. Check CDN/network/CSP.');
+      document.getElementById('userGrowthFallback').style.display = 'block';
+      document.getElementById('contentFallback').style.display = 'block';
+      return;
+    }
+
+    // ---------- User Growth Line Chart ----------
+    const growthCtx = document.getElementById('userGrowthChart').getContext('2d');
+    new Chart(growthCtx, {
+      type: 'line',
+      data: {
+        labels: {{ user_growth_labels|safe }},
+        datasets: [{
+          label: 'New Users',
+          data: {{ user_growth_data|safe }},
+          borderColor: 'rgba(108,92,231,1)',
+          backgroundColor: 'rgba(108,92,231,0.1)',
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 1.5,
+        plugins: { legend: { position: 'top' } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+
+    // ---------- Content Distribution Doughnut Chart ----------
+    const pieCtx = document.getElementById('contentPieChart').getContext('2d');
+    new Chart(pieCtx, {
+      type: 'doughnut',
+      data: {
+        labels: {{ content_labels|safe }},
+        datasets: [{
+          data: {{ content_data|safe }},
+          backgroundColor: [
+            'rgba(255,107,129,0.7)',  // Journal
+            'rgba(0,184,148,0.7)',   // Voice
+            'rgba(253,203,110,0.7)', // Gallery
+            'rgba(75,192,192,0.7)'   // Wellbeing (teal)
+          ],
+          borderColor: '#fff',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 1.5,
+        plugins: { 
+          legend: { 
+            position: 'right',
+            labels: {
+              boxWidth: 15,
+              padding: 15
+            }
+          } 
+        }
+      }
+    });
+  });
+</script>
 {% endblock %}

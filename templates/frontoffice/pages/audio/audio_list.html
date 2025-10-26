@@ -3,6 +3,8 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/audio.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 {% endblock %}
 
 {% block content %}
@@ -21,58 +23,231 @@
         </a>
     </div>
 
-    <div class="audio-stats-section text-center my-4">
-        <h3>Your Audio Journal Stats</h3>
-        <div class="stats-container">
-            <div class="stat-item">
-                <i class="bi bi-calendar-week"></i>
-                <p><strong>Entries This Week:</strong> {{ weekly_entries }}</p>
+    <!-- Advanced Stats Section with Charts -->
+    <div class="audio-stats-section">
+        <button type="button" class="stats-toggle-header" onclick="toggleStats()">
+            <div class="stats-toggle-content">
+                <h3><i class="bi bi-graph-up"></i> Your Audio Journal Analytics</h3>
+                <i class="bi bi-chevron-down stats-toggle-icon"></i>
             </div>
-            <div class="stat-item">
-                <i class="bi bi-calendar-month"></i>
-                <p><strong>Entries This Month:</strong> {{ monthly_entries }}</p>
-            </div>
-            <div class="stat-item">
-                <i class="bi bi-emoji-smile"></i>
-                <p><strong>Most Frequent Emotion:</strong> {{ most_frequent_emotion }}</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="audio-entries-container">
-        {% for entry in entries %}
-        <div class="audio-entry-card">
-            <div class="audio-entry-content">
-                <div class="audio-icon">
-                    <i class="bi bi-play-fill"></i>
+        </button>
+        
+        <div class="stats-content" id="statsContent">
+            <!-- Primary Stats Grid -->
+            <div class="stats-grid-primary">
+                <div class="stat-card stat-card-primary">
+                    <div class="stat-card-icon">
+                        <i class="bi bi-file-earmark-audio"></i>
+                    </div>
+                    <div class="stat-card-content">
+                        <div class="stat-value">{{ total_entries }}</div>
+                        <div class="stat-label">Total Entries</div>
+                    </div>
                 </div>
-                <div class="audio-entry-info">
-                    <a href="{% url 'audio_detail' entry.pk %}" class="audio-entry-title">
-                        {{ entry.title|default:"Untitled" }}
-                    </a>
-                    <div class="audio-entry-date">
-                        <i class="bi bi-calendar3"></i>
-                        {{ entry.created_at|date:"M d, Y" }}
+
+                <div class="stat-card stat-card-secondary">
+                    <div class="stat-card-icon">
+                        <i class="bi bi-calendar-week"></i>
+                    </div>
+                    <div class="stat-card-content">
+                        <div class="stat-value">{{ weekly_entries }}</div>
+                        <div class="stat-label">This Week</div>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-card-tertiary">
+                    <div class="stat-card-icon">
+                        <i class="bi bi-calendar-month"></i>
+                    </div>
+                    <div class="stat-card-content">
+                        <div class="stat-value">{{ monthly_entries }}</div>
+                        <div class="stat-label">This Month</div>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-card-accent">
+                    <div class="stat-card-icon">
+                        <i class="bi bi-fire"></i>
+                    </div>
+                    <div class="stat-card-content">
+                        <div class="stat-value">{{ entry_streak }}</div>
+                        <div class="stat-label">Day Streak</div>
                     </div>
                 </div>
             </div>
-            <form method="POST" action="{% url 'audio_delete' entry.pk %}" onsubmit="event.preventDefault(); openDeleteModal(this);">
-                {% csrf_token %}
-                <button type="submit" class="btn-delete-audio">
-                    <i class="bi bi-trash"></i> Delete
+
+            <!-- Secondary Stats Grid -->
+            <div class="stats-grid-secondary">
+                <div class="stat-card-small">
+                    <div class="stat-small-icon">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+                    <div class="stat-small-content">
+                        <div class="stat-small-label">Total Listening Time</div>
+                        <div class="stat-small-value">{{ total_hours }}h {{ total_minutes }}m</div>
+                    </div>
+                </div>
+
+                <div class="stat-card-small">
+                    <div class="stat-small-icon">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                    <div class="stat-small-content">
+                        <div class="stat-small-label">Avg Per Week</div>
+                        <div class="stat-small-value">{{ avg_per_week }}</div>
+                    </div>
+                </div>
+
+                <div class="stat-card-small">
+                    <div class="stat-small-icon">
+                        <i class="bi bi-emoji-smile"></i>
+                    </div>
+                    <div class="stat-small-content">
+                        <div class="stat-small-label">Top Emotion</div>
+                        <div class="stat-small-value">{{ most_frequent_emotion }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-container">
+                <div class="chart-card">
+                    <h4><i class="bi bi-bar-chart"></i> Weekly Activity</h4>
+                    <canvas id="weeklyActivityChart"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <h4><i class="bi bi-pie-chart"></i> Emotion Distribution</h4>
+                    <canvas id="emotionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="search-filter-section">
+        <h3><i class="bi bi-funnel"></i> Search & Filter</h3>
+        <form method="GET" class="search-filter-form">
+            <div class="search-filter-group">
+                <div class="search-input-wrapper">
+                    <i class="bi bi-search"></i>
+                    <input 
+                        type="text" 
+                        name="search_title" 
+                        placeholder="Search by title..." 
+                        value="{{ search_title }}"
+                        class="search-input"
+                    >
+                </div>
+
+                <div class="mood-select-wrapper">
+                    <i class="bi bi-emoji-smile"></i>
+                    <select name="search_mood" class="mood-select">
+                        <option value="">All Moods</option>
+                        {% for emotion in all_emotions %}
+                            <option value="{{ emotion }}" {% if emotion == search_mood %}selected{% endif %}>
+                                {{ emotion }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-search">
+                    <i class="bi bi-search"></i> Search
                 </button>
-            </form>
-        </div>
-        {% empty %}
-        <div class="audio-empty-state">
-            <i class="bi bi-mic-mute"></i>
-            <h3>No Audio Entries Yet</h3>
-            <p>Start recording your first audio journal entry!</p>
-        </div>
-        {% endfor %}
+
+                {% if search_title or search_mood %}
+                    <a href="{% url 'audio_list' %}" class="btn-clear-search">
+                        <i class="bi bi-x-circle"></i> Clear
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Entries by Month -->
+    <div class="audio-entries-container">
+        {% if entries_by_month %}
+            {% for month, data in entries_by_month.items %}
+                <div class="month-group">
+                    <div class="month-header">
+                        <i class="bi bi-calendar-month"></i>
+                        {{ month|date:"F Y" }}
+                        <span class="badge bg-light text-dark ms-auto">{{ data.entries.paginator.count }} entr{{ data.entries.paginator.count|pluralize:"y,ies" }}</span>
+                    </div>
+                    <div class="entries-list">
+                        {% for entry in data.entries %}
+                            <div class="audio-entry-card">
+                                <div class="audio-entry-content">
+                                    <div class="audio-icon">
+                                        <i class="bi bi-play-fill"></i>
+                                    </div>
+                                    <div class="audio-entry-info">
+                                        <a href="{% url 'audio_detail' entry.pk %}" class="audio-entry-title">
+                                            {{ entry.title|default:"Untitled" }}
+                                        </a>
+                                        <div class="audio-entry-date">
+                                            <i class="bi bi-calendar3"></i>
+                                            {{ entry.created_at|date:"M d, Y" }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <form method="POST" action="{% url 'audio_delete' entry.pk %}" onsubmit="event.preventDefault(); openDeleteModal(this);">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-delete-audio">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
+                        {% empty %}
+                            <p class="no-entries">No entries this month.</p>
+                        {% endfor %}
+                    </div>
+                    <!-- Pagination for this month -->
+                    {% if data.entries.paginator.num_pages > 1 %}
+                    <div class="pagination">
+                        {% if data.entries.has_previous %}
+                        <a href="?{% if search_title %}search_title={{ search_title }}&{% endif %}{% if search_mood %}search_mood={{ search_mood }}&{% endif %}page_{{ month|date:'Y_m' }}={{ data.entries.previous_page_number }}" class="previous">
+                            <i class="bi bi-chevron-left"></i> Previous
+                        </a>
+                        {% else %}
+                        <a href="#" class="previous disabled">
+                            <i class="bi bi-chevron-left"></i> Previous
+                        </a>
+                        {% endif %}
+                        
+                        {% for num in data.entries.paginator.page_range %}
+                        {% if num == data.entries.number %}
+                            <a href="#" class="active">{{ num }}</a>
+                        {% else %}
+                            <a href="?{% if search_title %}search_title={{ search_title }}&{% endif %}{% if search_mood %}search_mood={{ search_mood }}&{% endif %}page_{{ month|date:'Y_m' }}={{ num }}">{{ num }}</a>
+                        {% endif %}
+                        {% endfor %}
+                        
+                        {% if data.entries.has_next %}
+                        <a href="?{% if search_title %}search_title={{ search_title }}&{% endif %}{% if search_mood %}search_mood={{ search_mood }}&{% endif %}page_{{ month|date:'Y_m' }}={{ data.entries.next_page_number }}" class="next">
+                            Next <i class="bi bi-chevron-right"></i>
+                        </a>
+                        {% else %}
+                        <a href="#" class="next disabled">
+                            Next <i class="bi bi-chevron-right"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="audio-empty-state">
+                <i class="bi bi-mic-mute"></i>
+                <h3>No Audio Entries Found</h3>
+                <p>{% if search_title or search_mood %}Try adjusting your search filters.{% else %}Start recording your first audio journal entry!{% endif %}</p>
+            </div>
+        {% endif %}
     </div>
 </div>
 
+<!-- Delete Modal -->
 <div id="deleteModal" class="delete-modal">
     <div class="delete-modal-content">
         <div class="delete-modal-header">
@@ -96,6 +271,29 @@
 
 <script>
 let deleteForm = null;
+let statsExpanded = true;
+
+function toggleStats() {
+    const statsContent = document.getElementById('statsContent');
+    const statsToggle = document.querySelector('.stats-toggle-header');
+    
+    statsExpanded = !statsExpanded;
+    
+    if (statsExpanded) {
+        statsContent.classList.remove('collapsed');
+        statsToggle.classList.remove('collapsed');
+    } else {
+        statsContent.classList.add('collapsed');
+        statsToggle.classList.add('collapsed');
+    }
+    
+    // Auto-scroll to stats section when expanding
+    if (statsExpanded) {
+        setTimeout(() => {
+            statsToggle.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+}
 
 function openDeleteModal(form) {
     deleteForm = form;
@@ -118,6 +316,81 @@ window.onclick = function(event) {
     if (event.target === modal) {
         closeDeleteModal();
     }
-}
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Parse Django JSON safely
+    const weeklyActivityData = JSON.parse('{{ weekly_activity_json|escapejs }}');
+    const emotionData = JSON.parse('{{ emotion_chart_data|escapejs }}');
+
+    // Weekly Activity Chart
+    const weeklyCtx = document.getElementById('weeklyActivityChart').getContext('2d');
+    new Chart(weeklyCtx, {
+        type: 'bar',
+        data: {
+            labels: weeklyActivityData.map(d => d.day),
+            datasets: [{
+                label: 'Entries',
+                data: weeklyActivityData.map(d => d.count),
+                backgroundColor: [
+                    'rgba(255, 107, 129, 0.8)',
+                    'rgba(255, 107, 129, 0.7)',
+                    'rgba(255, 107, 129, 0.6)',
+                    'rgba(255, 107, 129, 0.9)',
+                    'rgba(255, 107, 129, 0.7)',
+                    'rgba(255, 107, 129, 0.8)',
+                    'rgba(255, 107, 129, 0.85)'
+                ],
+                borderColor: 'rgba(255, 107, 129, 1)',
+                borderWidth: 2,
+                borderRadius: 8,
+                hoverBackgroundColor: 'rgba(255, 107, 129, 1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+
+    // Emotion Distribution Chart
+    if (emotionData.labels.length > 0) {
+        const emotionCtx = document.getElementById('emotionChart').getContext('2d');
+        const colors = [
+            'rgba(255, 107, 129, 0.8)',
+            'rgba(99, 102, 241, 0.8)',
+            'rgba(34, 197, 94, 0.8)',
+            'rgba(251, 146, 60, 0.8)',
+            'rgba(168, 85, 247, 0.8)'
+        ];
+
+        new Chart(emotionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: emotionData.labels,
+                datasets: [{
+                    data: emotionData.data,
+                    backgroundColor: colors.slice(0, emotionData.labels.length),
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 15, font: { size: 12 } }
+                    }
+                }
+            }
+        });
+    }
+});
 </script>
 {% endblock %}

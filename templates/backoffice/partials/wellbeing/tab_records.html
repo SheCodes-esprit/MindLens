@@ -1,0 +1,135 @@
+<!-- TAB 2: RECORDS TABLE -->
+<div id="records" class="tab-content">
+  <div class="content-card">
+    <div class="card-header">
+      <h3 class="card-title">Wellbeing Records</h3>
+    </div>
+    {% if all_records %}
+      <div class="admin-table">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>User</th>
+              <th>Mood Score</th>
+              <th>Energy Level</th>
+              <th>Sleep Hours</th>
+              <th>Productivity</th>
+              <th>AI Summary</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for record in all_records %}
+              <tr>
+                <td>{{ record.date|date:"M d, Y" }}</td>
+                <td><span class="status-badge">{{ record.user.username }}</span></td>
+                <td>
+                  <span class="status-badge {% if record.mood_score <= 3 %}status-inactive{% elif record.mood_score <= 7 %}status-pending{% else %}status-active{% endif %}">
+                    {{ record.mood_score }}/10
+                  </span>
+                </td>
+                <td>
+                  <span class="status-badge {% if record.energy_level <= 3 %}status-inactive{% elif record.energy_level <= 7 %}status-pending{% else %}status-active{% endif %}">
+                    {{ record.energy_level }}/10
+                  </span>
+                </td>
+                <td>{{ record.sleep_hours }}h</td>
+                <td>
+                  <span class="status-badge {% if record.productivity_score <= 3 %}status-inactive{% elif record.productivity_score <= 7 %}status-pending{% else %}status-active{% endif %}">
+                    {{ record.productivity_score }}/10
+                  </span>
+                </td>
+                <td>
+                  {% if record.ai_summary %}
+                    <span title="{{ record.ai_summary }}" style="cursor: help; color: var(--accent); font-weight: 500;">
+                      {{ record.ai_summary|truncatewords:10 }}
+                    </span>
+                  {% else %}
+                    <span style="color: var(--text); opacity: 0.5;">—</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Controls -->
+      {% if all_records.has_other_pages %}
+        <div class="pagination-container" style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border-top: 1px solid var(--border-color);">
+          <!-- Page Info -->
+          <div class="pagination-info" style="color: var(--text); font-size: 0.875rem;">
+            Showing {{ all_records.start_index }} to {{ all_records.end_index }} of {{ all_records.paginator.count }} records
+          </div>
+
+          <!-- Pagination Buttons -->
+          <div class="pagination-controls" style="display: flex; gap: 0.5rem; align-items: center;">
+            <!-- First Page -->
+            {% if all_records.has_previous %}
+              <a href="?page=1&days={{ days }}#records" class="pagination-btn" style="padding: 0.5rem 1rem; border-radius: 6px; background: var(--white); border: 1px solid var(--border-color); color: var(--text); text-decoration: none; transition: var(--transition);" onmouseover="this.style.background='var(--accent)'; this.style.color='white';" onmouseout="this.style.background='var(--white)'; this.style.color='var(--text)';">
+                &laquo; First
+              </a>
+            {% else %}
+              <span class="pagination-btn pagination-disabled" style="padding: 0.5rem 1rem; border-radius: 6px; background: var(--white); border: 1px solid var(--border-color); color: var(--text); opacity: 0.5; cursor: not-allowed;">
+                &laquo; First
+              </span>
+            {% endif %}
+
+            <!-- Previous Page -->
+            {% if all_records.has_previous %}
+              <a href="?page={{ all_records.previous_page_number }}&days={{ days }}#records" class="pagination-btn" style="padding: 0.5rem 1rem; border-radius: 6px; background: var(--white); border: 1px solid var(--border-color); color: var(--text); text-decoration: none; transition: var(--transition);" onmouseover="this.style.background='var(--accent)'; this.style.color='white';" onmouseout="this.style.background='var(--white)'; this.style.color='var(--text)';">
+                &lsaquo; Previous
+              </a>
+            {% else %}
+              <span class="pagination-btn pagination-disabled" style="padding: 0.5rem 1rem; border-radius: 6px; background: var(--white); border: 1px solid var(--border-color); color: var(--text); opacity: 0.5; cursor: not-allowed;">
+                &lsaquo; Previous
+              </span>
+            {% endif %}
+
+            <!-- Page Numbers -->
+            <div style="display: flex; gap: 0.25rem;">
+              {% for num in all_records.paginator.page_range %}
+                {% if all_records.number == num %}
+                  <span class="pagination-btn pagination-active" style="padding: 0.5rem 0.75rem; border-radius: 6px; background: var(--accent); color: white; font-weight: 600; min-width: 40px; text-align: center;">
+                    {{ num }}
+                  </span>
+                {% elif num > all_records.number|add:'-3' and num < all_records.number|add:'3' %}
+                  <a href="?page={{ num }}&days={{ days }}#records" class="pagination-btn" style="padding: 0.5rem 0.75rem; border-radius: 6px; background: var(--white); border: 1px solid var(--border-color); color: var(--text); text-decoration: none; min-width: 40px; text-align: center; transition: var(--transition);" onmouseover="this.style.background='var(--accent)'; this.style.color='white';" onmouseout="this.style.background='var(--white)'; this.style.color='var(--text)';">
+                    {{ num }}
+                  </a>
+                {% endif %}
+              {% endfor %}
+            </div>
+
+            <!-- Next Page -->
+            {% if all_records.has_next %}
+              <a href="?page={{ all_records.next_page_number }}&days={{ days }}#records" class="pagination-btn" style="padding: 0.5rem 1rem; border-radius: 6px; background: var(--white); border: 1px solid var(--border-color); color: var(--text); text-decoration: none; transition: var(--transition);" onmouseover="this.style.background='var(--accent)'; this.style.color='white';" onmouseout="this.style.background='var(--white)'; this.style.color='var(--text)';">
+                Next &rsaquo;
+              </a>
+            {% else %}
+              <span class="pagination-btn pagination-disabled" style="padding: 0.5rem 1rem; border-radius: 6px; background: var(--white); border: 1px solid var(--border-color); color: var(--text); opacity: 0.5; cursor: not-allowed;">
+                Next &rsaquo;
+              </span>
+            {% endif %}
+
+            <!-- Last Page -->
+            {% if all_records.has_next %}
+              <a href="?page={{ all_records.paginator.num_pages }}&days={{ days }}#records" class="pagination-btn" style="padding: 0.5rem 1rem; border-radius: 6px; background: var(--white); border: 1px solid var(--border-color); color: var(--text); text-decoration: none; transition: var(--transition);" onmouseover="this.style.background='var(--accent)'; this.style.color='white';" onmouseout="this.style.background='var(--white)'; this.style.color='var(--text)';">
+                Last &raquo;
+              </a>
+            {% else %}
+              <span class="pagination-btn pagination-disabled" style="padding: 0.5rem 1rem; border-radius: 6px; background: var(--white); border: 1px solid var(--border-color); color: var(--text); opacity: 0.5; cursor: not-allowed;">
+                Last &raquo;
+              </span>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+
+    {% else %}
+      <div class="no-records">
+        <p>No wellbeing records found for the selected period.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>

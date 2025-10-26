@@ -1,0 +1,140 @@
+ <div id="overview" class="tab-content active">
+    <!-- Key Metrics -->
+    <div class="key-metrics-container">
+      <h2>Key Metrics</h2>
+      <div class="row">
+        <div class="col-md-3">
+          <div class="metric-item">
+            <div class="metric-value">{{ stats.total_records }}</div>
+            <div class="metric-label">Total Records</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="metric-item">
+            <div class="metric-value">{{ stats.total_users }}</div>
+            <div class="metric-label">Active Users</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="metric-item">
+            <div class="metric-value">{{ stats.avg_mood }}/10</div>
+            <div class="metric-label">Avg Mood Score</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="metric-item">
+            <div class="metric-value">{{ stats.avg_sleep }}h</div>
+            <div class="metric-label">Avg Sleep</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Stats Cards -->
+    <div class="stats-grid">
+      <div class="stats-card">
+        <div class="stats-label">Mood Score</div>
+        <div class="stats-value">{{ stats.avg_mood }}</div>
+        <div class="stats-change">Range: {{ stats.mood_range.min }} - {{ stats.mood_range.max }}</div>
+      </div>
+
+      <div class="stats-card">
+        <div class="stats-label">Energy Level</div>
+        <div class="stats-value">{{ stats.avg_energy }}</div>
+        <div class="stats-change">Range: {{ stats.energy_range.min }} - {{ stats.energy_range.max }}</div>
+      </div>
+
+      <div class="stats-card">
+        <div class="stats-label">Sleep Hours</div>
+        <div class="stats-value">{{ stats.avg_sleep }}</div>
+        <div class="stats-change">Range: {{ stats.sleep_range.min }} - {{ stats.sleep_range.max }}h</div>
+      </div>
+
+      <div class="stats-card">
+        <div class="stats-label">Productivity Score</div>
+        <div class="stats-value">{{ stats.avg_productivity }}</div>
+        <div class="stats-change">Average across all records</div>
+      </div>
+    </div>
+
+    <!-- Trend Chart -->
+    <div class="content-card" style="margin-bottom: 2rem;">
+      <div class="card-header">
+        <h3 class="card-title">Wellbeing Trends ({{ days }} days)</h3>
+      </div>
+      <div style="position: relative; height: 300px;">
+        <canvas id="trendChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Mood Distribution -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="content-card">
+          <div class="card-header">
+            <h3 class="card-title">Mood Distribution</h3>
+          </div>
+          <div style="padding: 1rem;">
+            <div class="distribution-bar">
+              <div class="distribution-label">Low (1-3)</div>
+              <div class="distribution-bar-bg">
+                <div class="distribution-bar-fill" style="width: {% widthratio mood_distribution.low stats.total_records 100 %}%">
+                  {% if mood_distribution.low > 0 %}{{ mood_distribution.low }}{% endif %}
+                </div>
+              </div>
+              <div class="distribution-count">{{ mood_distribution.low }}</div>
+            </div>
+            <div class="distribution-bar">
+              <div class="distribution-label">Medium (4-7)</div>
+              <div class="distribution-bar-bg">
+                <div class="distribution-bar-fill" style="width: {% widthratio mood_distribution.medium stats.total_records 100 %}%">
+                  {% if mood_distribution.medium > 0 %}{{ mood_distribution.medium }}{% endif %}
+                </div>
+              </div>
+              <div class="distribution-count">{{ mood_distribution.medium }}</div>
+            </div>
+            <div class="distribution-bar">
+              <div class="distribution-label">High (8-10)</div>
+              <div class="distribution-bar-bg">
+                <div class="distribution-bar-fill" style="width: {% widthratio mood_distribution.high stats.total_records 100 %}%">
+                  {% if mood_distribution.high > 0 %}{{ mood_distribution.high }}{% endif %}
+                </div>
+              </div>
+              <div class="distribution-count">{{ mood_distribution.high }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommendations Stats -->
+      <div class="col-md-6">
+        <div class="stats-card">
+          <div class="stats-label">Recommendations Overview</div>
+          <div style="margin-top: 1rem;">
+            <div style="margin-bottom: 1rem;">
+              <strong style="color: var(--text);">Total Recommendations:</strong>
+              <span style="font-size: 1.5rem; color: var(--accent); font-weight: 700; display: block; margin-top: 0.25rem;">{{ recommendation_stats.total }}</span>
+            </div>
+            <div style="margin-bottom: 1rem;">
+              <strong style="color: var(--text);">AI Generated:</strong>
+              <span style="font-size: 1.5rem; color: var(--accent); font-weight: 700; display: block; margin-top: 0.25rem;">{{ recommendation_stats.ai_generated }}</span>
+            </div>
+            <div style="margin-bottom: 1rem;">
+              <strong style="color: var(--text);">Avg Efficiency Score:</strong>
+              <span style="font-size: 1.5rem; color: var(--accent); font-weight: 700; display: block; margin-top: 0.25rem;">{{ recommendation_stats.avg_efficiency }}</span>
+            </div>
+            <div style="margin-top: 1.5rem;">
+              <strong style="color: var(--text); display: block; margin-bottom: 0.5rem;">By Type:</strong>
+              <div>
+                {% for type, count in recommendation_stats.by_type.items %}
+                  <span class="recommendation-type {{ type }}">
+                    {{ type|title }}: {{ count }}
+                  </span>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

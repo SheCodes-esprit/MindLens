@@ -1,0 +1,23 @@
+  <div id="predictions" class="tab-content">
+    <div class="content-card">
+      <div class="card-header">
+        <h3 class="card-title">Users at Risk (Declining Trends)</h3>
+      </div>
+      {% if at_risk_users %}
+        <div style="padding: 1rem;">
+          {% for user_risk in at_risk_users %}
+            <div class="at-risk-user">
+              <div class="at-risk-user-name">{{ user_risk.username }}</div>
+              <div class="at-risk-trend">
+                Trend: {{ user_risk.trend }} | Current Mood: {{ user_risk.latest_mood }}/10 | Risk: {{ user_risk.risk_level|upper }}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="no-records">
+          <p>No users at risk detected in this period.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>

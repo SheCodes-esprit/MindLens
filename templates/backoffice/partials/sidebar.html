@@ -18,7 +18,18 @@
         Recent Activity
 
       </a>
+
+       <a href="{% url 'wellbeing:wellbeing_analytics' %}" class="nav-link">
+        <i class="bi bi-graph-up"></i>
+        Wellbeing Analytics
+      </a>
+      <a href="{% url 'admin_audio_history' %}" class="nav-link">
+          <i class="bi bi-mic"></i>
+          Audio History
+          <span class="badge bg-info">{{ total_audio|default:"0" }}</span>
+      </a>
     </div>
+
 
     <div class="nav-section">
       <div class="nav-section-title">User Management</div>

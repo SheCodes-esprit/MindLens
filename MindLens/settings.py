@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'wellbeing'  ,
     'audio',
     'visual',
-    'textEntries'
+    'textEntries',
+    'django.contrib.humanize'
     
 ]
 
@@ -162,9 +163,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # ------------------------------
 load_dotenv()
 # Access the environment variables
+HUGGINGFACE_API_KEY = os.getenv('HUGGINGFACE_API_KEY')
 
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
-
+DEBUG=True
 # settings.py
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
