@@ -39,10 +39,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "users",
-    'wellbeing'  ,
-    'audio',
-    'visual',
-    'textEntries',
     'django.contrib.humanize'
     
 ]
