@@ -11,6 +11,9 @@ from dotenv import load_dotenv
 # ------------------------------
 os.environ['TRANSFORMERS_OFFLINE'] = '1'
 os.environ['HF_HUB_OFFLINE'] = '1'
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'  # Force CPU only
 WSGI_APPLICATION = 'MindLens.wsgi.application'
 
 BASE_DIR = Path(__file__).resolve().parent.parent
