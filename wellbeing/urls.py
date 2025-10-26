@@ -13,4 +13,5 @@ urlpatterns = [
     path('<int:wellbeing_pk>/recommendation/create/', views.recommendation_create, name='recommendation_create'),
     path('analytics/', views.wellbeing_analytics, name='wellbeing_analytics'),
     path('analytics/export/', export_wellbeing_excel, name='export_excel'),
+    
 ]

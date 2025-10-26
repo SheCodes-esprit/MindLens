@@ -8,6 +8,18 @@
 {% endblock %}
 
 {% block content %}
+<div class="container text-center mt-4">
+    <button class="btn btn-primary" onclick="loadFiltered()">Filtrage Intelligent</button>
+    <button class="btn btn-info" onclick="loadTimeline()">Timeline Émotionnelle</button>
+    <button class="btn btn-success" onclick="generateAlbums()">Générer Albums</button>
+    <button class="btn btn-warning" onclick="generateMoodStory()">Mood Story ✨</button>
+</div>
+
+<div id="moodStoryResult" class="mt-3 text-center"></div>
+<div id="filteredResults" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 mt-4"></div>
+<div id="timelineContainer" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 mt-4"></div>
+<div id="albumsContainer" class="mt-4"></div>
+
 
 <!-- 🌟 HERO SECTION -->
 <section class="audio-hero text-center py-5 position-relative">
@@ -129,5 +141,96 @@ async function initStats() {
 }
 
 document.addEventListener('DOMContentLoaded', initStats);
+async function loadFiltered() {
+    const res = await fetch("{% url 'api_visuals_filtered' %}");
+    const data = await res.json();
+    alert(`Résultats filtrés: ${data.results.length} éléments trouvés`);
+}
+
+async function generateMoodStory() {
+    const res = await fetch("{% url 'api_mood_story' %}");
+    const data = await res.json();
+    document.getElementById("moodStoryResult").innerHTML = `
+        <div class="card p-3 shadow mt-3">
+            <h5>Mon Mood Story 🧠</h5>
+            <p>${data.mood_story || data.message}</p>
+        </div>`;
+}
+function createMediaCard(url, type="image", emotion="", date="") {
+    let mediaTag = '';
+    if(type === "video"){
+        mediaTag = `<video src="${url}" class="card-img-top media-item" controls></video>`;
+    } else {
+        mediaTag = `<img src="${url}" class="card-img-top media-item" alt="Media">`;
+    }
+
+    return `
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                ${mediaTag}
+                <div class="card-body p-2">
+                    ${emotion ? `<p class="mb-1"><strong>Émotion:</strong> ${emotion}</p>` : ''}
+                    ${date ? `<p class="mb-0"><small>${date}</small></p>` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+async function loadFiltered() {
+    const res = await fetch("{% url 'api_visuals_filtered' %}");
+    const data = await res.json();
+    const container = document.getElementById("filteredResults");
+    container.innerHTML = "";
+
+    if(data.results.length === 0){
+        container.innerHTML = "<p class='text-center'>Aucun résultat trouvé.</p>";
+        return;
+    }
+
+    data.results.forEach(entry => {
+        const type = entry.media_url.endsWith(".mp4") ? "video" : "image";
+        container.innerHTML += createMediaCard(entry.media_url, type, entry.emotion, entry.created_at);
+    });
+}
+
+async function loadTimeline() {
+    const res = await fetch("{% url 'api_visuals_timeline' %}");
+    const data = await res.json();
+    const container = document.getElementById("timelineContainer");
+    container.innerHTML = "";
+
+    if(data.length === 0){
+        container.innerHTML = "<p class='text-center'>Aucune donnée de timeline.</p>";
+        return;
+    }
+
+    data.forEach(item => {
+        const type = item.media.endsWith(".mp4") ? "video" : "image";
+        container.innerHTML += createMediaCard(item.media, type, item.content, new Date(item.start).toLocaleDateString());
+    });
+}
+
+async function generateAlbums() {
+    const res = await fetch("{% url 'api_generate_albums' %}");
+    const data = await res.json();
+    const container = document.getElementById("albumsContainer");
+    container.innerHTML = "";
+
+    for(const [category, images] of Object.entries(data.albums)){
+        if(images.length === 0) continue;
+        const catDiv = document.createElement('div');
+        catDiv.innerHTML = `<h5 class="mt-4">${category}</h5>`;
+        const row = document.createElement('div');
+        row.className = "row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3";
+        images.forEach(url => {
+            const type = url.endsWith(".mp4") ? "video" : "image";
+            row.innerHTML += createMediaCard(url, type);
+        });
+        catDiv.appendChild(row);
+        container.appendChild(catDiv);
+    }
+}
+
 </script>
 {% endblock %}

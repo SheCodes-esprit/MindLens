@@ -1,4 +1,27 @@
 /* Visual Page Styles */
+.timeline {
+    display: flex;
+    overflow-x: auto;
+    padding: 1rem 0;
+}
+.timeline .item {
+    flex: 0 0 auto;
+    width: 120px;
+    margin-right: 1rem;
+    text-align: center;
+}
+.timeline .item img {
+    width: 100%;
+    border-radius: 8px;
+}
+#moodStoryResult .card {
+    border-left: 4px solid #ffc107;
+    background-color: #fffbea;
+    transition: transform 0.2s;
+}
+#moodStoryResult .card:hover {
+    transform: scale(1.02);
+}
 
 /* Hero Section */
 .visual-hero {

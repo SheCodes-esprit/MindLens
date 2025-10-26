@@ -3,6 +3,699 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/visual.css' %}">
+<link rel="stylesheet" href="{% static 'css/audio.css' %}">
+
+<style>
+/* ============================================
+   PERSONALITY ANALYSIS - PREMIUM CSS
+   ============================================ */
+
+:root {
+  /* Color Palette */
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+
+  --primary-color: #667eea;
+  --secondary-color: #764ba2;
+  --accent-color: #f5576c;
+  --success-color: #00f2fe;
+  --warning-color: #fa709a;
+
+  --bg-light: #f8f9fa;
+  --bg-white: #ffffff;
+  --text-dark: #2d3748;
+  --text-light: #718096;
+  --border-color: #e2e8f0;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.18);
+
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   SEARCH & FILTER SECTION - TOP PRIORITY
+   ============================================ */
+
+
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   PERSONALITY ANALYSIS MODAL - PREMIUM DESIGN
+   ============================================ */
+
+#personality-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+#personality-modal .modal-content {
+  max-width: 700px;
+  width: 90%;
+  margin: 0 auto;
+  padding: 0;
+  background: var(--bg-white);
+  border-radius: 16px;
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+  animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#personality-modal .modal-content h3 {
+  background: var(--primary-gradient);
+  color: white;
+  padding: 24px;
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#personality-modal .modal-content h3::before {
+  content: "🧠";
+  font-size: 1.75rem;
+}
+
+#modal-body {
+  padding: 32px;
+}
+
+/* Loading State */
+#loading {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-light);
+  font-size: 1.1rem;
+}
+
+#loading::after {
+  content: "";
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-left: 10px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Questions Section */
+#questions {
+  display: none;
+}
+
+#questions-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+#questions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 12px;
+}
+
+#questions-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+#questions-container::-webkit-scrollbar-track {
+  background: var(--bg-light);
+  border-radius: 10px;
+}
+
+#questions-container::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 10px;
+}
+
+.question-item {
+  background: var(--bg-light);
+  padding: 16px;
+  border-radius: 12px;
+  border-left: 4px solid var(--primary-color);
+  transition: var(--transition);
+}
+
+.question-item:hover {
+  background: #f0f4ff;
+  transform: translateX(4px);
+}
+
+.question-item label {
+  display: block;
+  color: var(--text-dark);
+  font-weight: 600;
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+}
+
+.question-item strong {
+  color: var(--primary-color);
+  font-size: 1.1rem;
+}
+
+.question-item div {
+  display: flex;
+  gap: 20px;
+  margin-top: 8px;
+}
+
+.question-item input[type="radio"] {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary-color);
+}
+
+.question-item label:has(input[type="radio"]) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Form Buttons */
+#questions-form button,
+#result button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+#questions-form button[type="submit"] {
+  background: var(--primary-gradient);
+  color: white;
+  box-shadow: var(--shadow-md);
+}
+
+#questions-form button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+#questions-form button[type="button"],
+#result button {
+  background: var(--bg-light);
+  color: var(--text-dark);
+  border: 2px solid var(--border-color);
+}
+
+#questions-form button[type="button"]:hover,
+#result button:hover {
+  background: var(--border-color);
+  border-color: var(--text-light);
+}
+
+/* Result Section - PREMIUM DESIGN */
+#result {
+  display: none;
+}
+
+#result h4 {
+  font-size: 1.3rem;
+  color: var(--text-dark);
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+#result-content {
+  background: linear-gradient(135deg, #f8f9fa 0%, #f0f4ff 100%);
+  padding: 24px;
+  border-radius: 12px;
+  border: 2px solid var(--border-color);
+  margin-bottom: 20px;
+}
+
+#result-content p {
+  margin: 0 0 16px 0;
+  color: var(--text-dark);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+#result-content p:last-child {
+  margin-bottom: 0;
+}
+
+#result-content strong {
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+/* ============================================
+   PERSONALITY BUTTON - PREMIUM STYLE
+   ============================================ */
+
+#start-personality-btn {
+  background: var(--secondary-gradient);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  justify-content: center;
+}
+
+#start-personality-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+#start-personality-btn:active {
+  transform: translateY(-1px);
+}
+
+#start-personality-btn::before {
+  content: "✨";
+  font-size: 1.2rem;
+}
+
+/* ============================================
+   FEATURE CARDS SECTION
+   ============================================ */
+
+.advanced-featurees-section {
+  background: linear-gradient(135deg, #f8f9fa 0%, #f0f4ff 100%);
+  padding: 40px 24px;
+  border-radius: 16px;
+  margin-top: 40px;
+  box-shadow: var(--shadow-md);
+  border: 2px solid var(--border-color);
+}
+
+.advanced-featurees-section h2 {
+  font-size: 1.75rem;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.advanced-featurees-section h2 i {
+  color: var(--primary-color);
+  font-size: 2rem;
+}
+
+.advanced-featurees-section > p {
+  text-align: center;
+  color: var(--text-light);
+  margin-bottom: 32px;
+  font-size: 0.95rem;
+}
+
+
+
+.featuree-btn {
+  margin: 0;
+  padding: 12px 20px;
+  font-size: 0.95rem;
+  border-radius: 10px;
+  transition: var(--transition);
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color:white;
+}
+
+.featuree-btn:hover {
+  transform: scale(1.05);
+}
+
+.featuree-btn i {
+  font-size: 1.2rem;
+}
+
+/* ============================================
+   TOOLTIPS
+   ============================================ */
+
+.tooltips {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.tooltips .tooltiptexts {
+  visibility: hidden;
+  width: 220px;
+  background: var(--text-dark);
+  color: white;
+  text-align: center;
+  border-radius: 8px;
+  padding: 12px;
+  position: absolute;
+  z-index: 1;
+  bottom: 130%;
+  left: 50%;
+  margin-left: -110px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  box-shadow: var(--shadow-md);
+}
+
+.tooltips .tooltiptexts::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--text-dark) transparent transparent transparent;
+}
+
+.tooltips:hover .tooltiptexts {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+  .search-filter-form {
+    flex-direction: column;
+  }
+
+  .search-input-wrapper,
+  .mood-select-wrapper {
+    min-width: 100%;
+  }
+
+  .btn-search,
+  .btn-clear-search {
+    width: 100%;
+  }
+
+  #personality-modal .modal-content {
+    width: 95%;
+    max-width: 100%;
+  }
+
+  #modal-body {
+    padding: 20px;
+  }
+
+  .advanced-featurees-section {
+    padding: 24px 16px;
+  }
+
+  .featuree-card {
+    height: auto;
+    min-height: 180px;
+  }
+
+  .search-filter-section h3 {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-filter-section {
+    padding: 16px 0;
+    margin-bottom: 20px;
+  }
+
+  .search-filter-section h3 {
+    font-size: 1.1rem;
+  }
+
+  #personality-modal .modal-content h3 {
+    font-size: 1.25rem;
+    padding: 16px;
+  }
+
+  #modal-body {
+    padding: 16px;
+  }
+
+  .featuree-btn {
+    font-size: 0.85rem;
+    padding: 10px 16px;
+  }
+
+  .tooltips .tooltiptexts {
+    width: 180px;
+    margin-left: -90px;
+    font-size: 0.75rem;
+  }
+}
+
+.advanced-featurees-section {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.featuree-btn {
+    margin: 10px;
+    padding: 12px 20px;
+    font-size: 16px;
+    transition: transform 0.2s;
+}
+
+.featuree-btn:hover {
+    transform: scale(1.05);
+}
+
+
+
+.e-card .tooltips {
+    width: 100%;
+}
+
+.tooltips {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltips .tooltiptexts {
+    visibility: hidden;
+    width: 200px;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    border-radius: 6px;
+    padding: 10px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltips:hover .tooltiptexts {
+    visibility: visible;
+    opacity: 1;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    max-width: 500px;
+    width: 90%;
+    margin: 0 auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+#moodStoryModal .modal-content, #predictionModal .modal-content {
+    max-width: 600px;
+}
+
+
+
+#moodStoryResult h5, #predictionResult h5 {
+    font-size: 2rem;
+    color: #fba1a1;
+    margin-bottom: 15px;
+    padding: 16px;
+}
+
+#moodStoryResult p, #predictionResult p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #555;
+    margin: 10px;
+}
+
+#moodStoryResult .mood-media, #moodStoryResult .mood-video {
+    max-width: 100%;
+    border-radius: 5px;
+    margin: 10px 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#moodStoryResult .timeline {
+    margin-top: 20px;
+    border-left: 2px solid #ccc;
+    padding-left: 20px;
+}
+
+#moodStoryResult .timeline-item {
+    margin-bottom: 15px;
+    padding-left: 10px;
+    position: relative;
+}
+
+#moodStoryResult .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    background: #007bff;
+    border-radius: 50%;
+}
+
+#predictionResult {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+
+}
+
+#predictionResult .advice-section {
+    margin-top: 20px;
+    border-top: 1px solid #ccc;
+    padding-top: 10px;
+}
+
+#predictionResult .quote-section {
+    margin-top: 20px;
+    font-style: italic;
+    color: #777;
+}
+
+.featuree-card i.bi {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    width: 14px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color:white;
+}
+
+.featuree-card img {
+    max-width: 60px;
+    max-height: 60px;
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -15,13 +708,51 @@
             <i class="bi bi-brush-fill float-icon"></i>
             <i class="bi bi-palette-fill float-icon"></i>
         </div>
-        <h2>Mes Entrées Visuelles</h2>
+        <h2>Mes Souvenirs Visuels</h2>
         <a href="{% url 'visual_create' %}" class="btn btn-create-visual">
-            <i class="bi bi-plus-circle"></i> Ajouter
+            <i class="bi bi-plus-circle"></i> Ajouter une photo ou vidéo
         </a>
     </div>
 
-    <div class="visual-entries-container">
+    <div class="search-filter-section mt-4">
+        <h3><i class="bi bi-funnel"></i> Rechercher vos souvenirs</h3>
+        <p class="text-muted">Trouvez vos photos et vidéos par titre ou émotion.</p>
+        <form method="GET" class="search-filter-form">
+            <div class="search-filter-group">
+                <div class="search-input-wrapper">
+                    <i class="bi bi-search"></i>
+                    <input 
+                        type="text" 
+                        name="search_title" 
+                        placeholder="Rechercher par titre (ex: Vacances 2025)" 
+                        value="{{ search_title }}"
+                        class="search-input"
+                    >
+                </div>
+                <div class="mood-select-wrapper">
+                    <i class="bi bi-emoji-smile"></i>
+                    <select name="search_mood" class="mood-select">
+                        <option value="">Toutes les émotions</option>
+                        {% for emotion in all_emotions %}
+                            <option value="{{ emotion }}" {% if emotion == search_mood %}selected{% endif %}>
+                                {{ emotion|capfirst }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-search">
+                    <i class="bi bi-search"></i> Rechercher
+                </button>
+                {% if search_title or search_mood %}
+                    <a href="{% url 'visual_list' %}" class="btn btn-clear-search">
+                        <i class="bi bi-x-circle"></i> Réinitialiser
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <div class="visual-entries-container mt-4">
         {% for entry in entries %}
         <div class="visual-entry-card">
             <div class="visual-entry-content">
@@ -30,7 +761,7 @@
                 </div>
                 <div class="visual-entry-info">
                     <a href="{% url 'visual_detail' entry.pk %}" class="visual-entry-title">
-                        {{ entry.type }} - {{ entry.created_at|date:"M d, Y" }}
+                        {{ entry.type|capfirst }} - {{ entry.created_at|date:"d M Y" }}
                     </a>
                 </div>
             </div>
@@ -47,38 +778,455 @@
             {% endif %}
         </div>
         {% empty %}
-        <div class="visual-empty-state">
+        <div class="visual-empty-state text-center">
             <i class="bi bi-image"></i>
-            <h3>Aucune Entrée Visuelle</h3>
-            <p>Commencez à ajouter votre première entrée visuelle !</p>
+            <h3>Aucun souvenir visuel</h3>
+            <p>Commencez à ajouter vos souvenirs en cliquant sur "Ajouter" ci-dessus !</p>
         </div>
         {% endfor %}
     </div>
+
+    <section class="audio-hero text-center py-5 position-relative mt-5">
+        <div class="floating-icons">
+            <i class="bi bi-graph-up float-icon text-accent"></i>
+            <i class="bi bi-bar-chart float-icon text-primary"></i>
+            <i class="bi bi-pie-chart-fill float-icon text-success"></i>
+        </div>
+        <h1 class="hero-title animate__animated animate__fadeInDown">Vos Statistiques</h1>
+        <p class="hero-subtitle animate__animated animate__fadeInUp">Découvrez vos souvenirs à travers des chiffres et graphiques</p>
+    </section>
+
+    <div class="audio-stats-section">
+        <button type="button" class="stats-toggle-header" onclick="toggleStats()">
+            <div class="stats-toggle-content">
+                <h3><i class="bi bi-graph-up"></i> Analyse de vos souvenirs</h3>
+                <i class="bi bi-chevron-down stats-toggle-icon"></i>
+            </div>
+        </button>
+        <div class="stats-content" id="statsContent">
+            <div class="stats-grid-primary">
+                <div class="stat-card stat-card-primary">
+                    <div class="stat-card-icon">
+                        <i class="bi bi-file-earmark-image"></i>
+                    </div>
+                    <div class="stat-card-content">
+                        <div class="stat-value">{{ total_entries }}</div>
+                        <div class="stat-label">Total des Souvenirs</div>
+                    </div>
+                </div>
+                <div class="stat-card stat-card-secondary">
+                    <div class="stat-card-icon">
+                        <i class="bi bi-calendar-week"></i>
+                    </div>
+                    <div class="stat-card-content">
+                        <div class="stat-value">{{ weekly_entries }}</div>
+                        <div class="stat-label">Cette Semaine</div>
+                    </div>
+                </div>
+                <div class="stat-card stat-card-tertiary">
+                    <div class="stat-card-icon">
+                        <i class="bi bi-calendar-month"></i>
+                    </div>
+                    <div class="stat-card-content">
+                        <div class="stat-value">{{ monthly_entries }}</div>
+                        <div class="stat-label">Ce Mois</div>
+                    </div>
+                </div>
+                <div class="stat-card stat-card-accent">
+                    <div class="stat-card-icon">
+                        <i class="bi bi-fire"></i>
+                    </div>
+                    <div class="stat-card-content">
+                        <div class="stat-value">{{ entry_streak }}</div>
+                        <div class="stat-label">Jours Consécutifs</div>
+                    </div>
+                </div>
+            </div>
+            <div class="stats-grid-secondary">
+                <div class="stat-card-small">
+                    <div class="stat-small-icon">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+                    <div class="stat-small-content">
+                        <div class="stat-small-label">Temps Total d'Affichage</div>
+                        <div class="stat-small-value">{{ total_hours }}h {{ total_minutes }}m</div>
+                    </div>
+                </div>
+                <div class="stat-card-small">
+                    <div class="stat-small-icon">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                    <div class="stat-small-content">
+                        <div class="stat-small-label">Moyenne par Semaine</div>
+                        <div class="stat-small-value">{{ avg_per_week }}</div>
+                    </div>
+                </div>
+                <div class="stat-card-small">
+                    <div class="stat-small-icon">
+                        <i class="bi bi-emoji-smile"></i>
+                    </div>
+                    <div class="stat-small-content">
+                        <div class="stat-small-label">Émotion Dominante</div>
+                        <div class="stat-small-value">{{ most_frequent_emotion|capfirst }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="charts-container">
+                <div class="chart-card">
+                    <h4><i class="bi bi-bar-chart"></i> Activité Hebdomadaire</h4>
+                    <canvas id="weeklyActivityChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h4><i class="bi bi-pie-chart"></i> Répartition des Émotions</h4>
+                    <canvas id="emotionChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h4><i class="bi bi-calendar-week"></i> Activité (30 derniers jours)</h4>
+                    <canvas id="postsTrendChart" height="120"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h4><i class="bi bi-box-seam"></i> Objets Fréquents</h4>
+                    <canvas id="topObjectsChart" height="120"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="advanced-featurees-section text-center">
+        <h2><i class="bi bi-magic"></i> Explorez vos souvenirs autrement</h2>
+        <p class="text-muted">Utilisez ces outils pour trier, organiser et raconter vos moments visuels.</p>
+        <div class="row justify-content-center">
+            <div class="col-md-3">
+                <div class="featuree-card">
+                    <div class="tooltips">
+                        <button class="btn btn-primary featuree-btn" onclick="showFilterModal()">
+                            <i class="bi bi-funnel-fill"></i> Trouver par émotion
+                        </button>
+                        <span class="tooltiptexts">Recherchez vos photos/vidéos par émotion ou date spécifique.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="featuree-card">
+                    <div class="tooltips">
+                        <button class="btn btn-info featuree-btn" onclick="loadTimeline()">
+                            <i class="bi bi-clock-history"></i> Chronologie des émotions
+                        </button>
+                        <span class="tooltiptexts">Voyez l'évolution de vos émotions au fil du temps.</span>
+                    </div>
+                </div>
+            </div>
+        
+            <div class="col-md-3">
+                <div class="featuree-card">
+                    <div class="tooltips">
+                        <button class="btn btn-warning featuree-btn" onclick="showMoodStoryModal()">
+                            <i class="bi bi-book-half"></i> Votre histoire émotionnelle
+                        </button>
+                        <span class="tooltiptexts">Laissez l'IA raconter votre histoire avec créativité.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="featuree-card">
+                    <div class="tooltips">
+                        <button class="btn btn-danger featuree-btn" onclick="showPredictionModal()">
+                            <i class="bi bi-stars"></i> Prédictions et Conseils
+                        </button>
+                        <span class="tooltiptexts">Obtenez des prédictions pour votre humeur future basées sur l'historique hebdomadaire, des conseils pour rester positif et des citations motivantes.</span>
+                    </div>
+                </div>
+            </div>
+                        <div class="col-md-3">
+                <div class="featuree-card">
+                    <div class="tooltips">
+                        
+                        <!-- personality_button.html -->
+                        <button id="start-personality-btn" class="btn btn-primary">Analyse IA de ma personnalité</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<!-- Modal simple -->
+<div id="personality-modal" class="modal" style="display:none;">
+  <div class="modal-content" style="max-width:700px;margin:40px auto;padding:20px;background:#fff;border-radius:8px;">
+    <h3 id="modal-title">Analyse de personnalité</h3>
+    <div id="modal-body">
+      <div id="loading">Chargement...</div>
+      <div id="questions" style="display:none;">
+        <form id="questions-form">
+          <div id="questions-container"></div>
+          <button type="submit" class="btn btn-success">Envoyer mes réponses</button>
+          <button type="button" id="cancel-btn" class="btn btn-secondary">Annuler</button>
+        </form>
+      </div>
+      <div id="result" style="display:none;">
+        <h4>Résultat</h4>
+        <div id="result-content"></div>
+        <button id="close-result" class="btn btn-primary">Fermer</button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div id="deleteModal" class="delete-modal">
-    <div class="delete-modal-content">
-        <div class="delete-modal-header">
-            <i class="bi bi-exclamation-triangle"></i>
-            <h3>Confirmer la Suppression</h3>
+
+
+    <div id="filteredResults" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 mt-4"></div>
+    <div id="timelineContainer" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 mt-4"></div>
+    <div id="albumsContainer" class="mt-4"></div>
+    <div id="moodStoryResult" class="mt-3"></div>
+    <div id="predictionResult" class="mt-3"></div>
+
+    <div id="filterModal" class="modal">
+        <div class="modal-content" style="max-width: 500px; margin: 50px auto; padding: 20px; background: white; border-radius: 10px;">
+            <h3>Filtrer vos souvenirs</h3>
+            <p>Choisissez une émotion ou une période pour afficher vos photos/vidéos.</p>
+            <form id="filterForm">
+                <div class="mb-3">
+                    <label for="filterEmotion" class="form-label">Émotion</label>
+                    <select id="filterEmotion" class="form-select">
+                        <option value="">Toutes les émotions</option>
+                        {% for emotion in all_emotions %}
+                            <option value="{{ emotion }}">{{ emotion|capfirst }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="startDate" class="form-label">Date de début</label>
+                    <input type="date" id="startDate" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="endDate" class="form-label">Date de fin</label>
+                    <input type="date" id="endDate" class="form-control">
+                </div>
+                <button type="button" class="btn btn-primary" onclick="applyFilter()">Appliquer</button>
+                <button type="button" class="btn btn-secondary" onclick="closeFilterModal()">Annuler</button>
+            </form>
         </div>
-        <div class="delete-modal-body">
-            <p>Êtes-vous sûr de vouloir supprimer cette entrée visuelle ?</p>
-            <p class="warning-text">Cette action est irréversible.</p>
+    </div>
+
+    <div id="moodStoryModal" class="modal">
+        <div class="modal-content" id="moodStoryModalContent">
+            <h3>Créez votre histoire émotionnelle</h3>
+            <p>Choisissez une période et un style pour personnaliser votre récit.</p>
+            <form id="moodStoryForm">
+                <div class="mb-3">
+                    <label for="moodStoryPeriod" class="form-label">Période</label>
+                    <select id="moodStoryPeriod" class="form-select">
+                        <option value="7">Dernière semaine</option>
+                        <option value="30">Dernier mois</option>
+                        <option value="90">Derniers 3 mois</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="moodStoryTone" class="form-label">Style du récit</label>
+                    <select id="moodStoryTone" class="form-select">
+                        <option value="poetic">Poétique</option>
+                        <option value="humorous">Humoristique</option>
+                        <option value="analytic">Analytique</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="generateCustomMoodStory()">Générer</button>
+                <button type="button" class="btn btn-secondary" onclick="closeMoodStoryModal()">Annuler</button>
+            </form>
         </div>
-        <div class="delete-modal-footer">
-            <button type="button" class="btn-cancel" onclick="closeDeleteModal()">
-                <i class="bi bi-x-circle"></i> Annuler
-            </button>
-            <button type="button" class="btn-confirm-delete" onclick="confirmDelete()">
-                <i class="bi bi-trash"></i> Supprimer
-            </button>
+    </div>
+
+    <div id="predictionModal" class="modal">
+        <div class="modal-content">
+            <h3>Prédictions et Conseils IA</h3>
+            <p>Basant sur l'historique de la semaine, obtenez une prédiction pour demain ou la semaine prochaine, des conseils pour rester en bonne humeur et une citation adaptée à votre émotion dominante.</p>
+            <form id="predictionForm">
+                <div class="mb-3">
+                    <label for="predictionPeriod" class="form-label">Période de prédiction</label>
+                    <select id="predictionPeriod" class="form-select">
+                        <option value="tomorrow">Demain</option>
+                        <option value="next_week">Semaine prochaine</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="generatePrediction()">Générer</button>
+                <button type="button" class="btn btn-secondary" onclick="closePredictionModal()">Annuler</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="deleteModal" class="modal">
+        <div class="delete-modal-content">
+            <div class="delete-modal-header">
+                <i class="bi bi-exclamation-triangle"></i>
+                <h3>Confirmer la Suppression</h3>
+            </div>
+            <div class="delete-modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer cette entrée visuelle ?</p>
+                <p class="warning-text">Cette action est irréversible.</p>
+            </div>
+            <div class="delete-modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeDeleteModal()">
+                    <i class="bi bi-x-circle"></i> Annuler
+                </button>
+                <button type="button" class="btn-confirm-delete" onclick="confirmDelete()">
+                    <i class="bi bi-trash"></i> Supprimer
+                </button>
+            </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 let deleteForm = null;
+let statsExpanded = true;
+document.addEventListener('DOMContentLoaded', function() {
+  const btn = document.getElementById('start-personality-btn');
+  const modal = document.getElementById('personality-modal');
+  const loading = document.getElementById('loading');
+  const questionsDiv = document.getElementById('questions');
+  const questionsContainer = document.getElementById('questions-container');
+  const resultDiv = document.getElementById('result');
+  const resultContent = document.getElementById('result-content');
+  const closeResult = document.getElementById('close-result');
+  const cancelBtn = document.getElementById('cancel-btn');
+
+  function openModal() {
+    modal.style.display = 'block';
+    loading.style.display = 'block';
+    questionsDiv.style.display = 'none';
+    resultDiv.style.display = 'none';
+    questionsContainer.innerHTML = '';
+    // GET questions
+    fetch('/visual/api/personality-start/')
+      .then(resp => resp.json())
+      .then(data => {
+        loading.style.display = 'none';
+        questionsDiv.style.display = 'block';
+        const qs = data.questions || [];
+        // store emotion for submit
+        modal.dataset.dominantEmotion = data.dominant_emotion;
+        questionsContainer.innerHTML = '';
+        qs.forEach(q => {
+          const id = q.id;
+          const wrapper = document.createElement('div');
+          wrapper.className = 'question-item mb-2';
+          wrapper.innerHTML = `
+            <label><strong>${id}.</strong> ${q.text}</label>
+            <div>
+              <label><input type="radio" name="q${id}" value="true" required> Vrai</label>
+              <label style="margin-left:10px;"><input type="radio" name="q${id}" value="false"> Faux</label>
+            </div>
+          `;
+          questionsContainer.appendChild(wrapper);
+        });
+      })
+      .catch(err => {
+        loading.textContent = 'Erreur lors du chargement. Réessayez plus tard.';
+        console.error(err);
+      });
+  }
+
+  btn.addEventListener('click', openModal);
+
+  cancelBtn.addEventListener('click', function() {
+    modal.style.display = 'none';
+  });
+
+  // submit
+  document.getElementById('questions-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const radios = questionsContainer.querySelectorAll('.question-item');
+    const answers = [];
+    const inputs = questionsContainer.querySelectorAll('input[type=radio]');
+    // récupérer unique par question id
+    const names = new Set();
+    inputs.forEach(inp => names.add(inp.name));
+    for (let name of names) {
+      const chosen = questionsContainer.querySelector(`input[name="${name}"]:checked`);
+      if (!chosen) {
+        alert('Veuillez répondre à toutes les questions.');
+        return;
+      }
+      const id = name.replace('q','');
+      answers.push({ id: parseInt(id), value: chosen.value === 'true' });
+    }
+
+    // POST
+    const payload = {
+      answers: answers,
+      dominant_emotion: modal.dataset.dominantEmotion
+    };
+
+    fetch('/visual/api/personality-complete/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(r => r.json())
+    .then(data => {
+      questionsDiv.style.display = 'none';
+      resultDiv.style.display = 'block';
+      const p = data.profile;
+      resultContent.innerHTML = `
+        <p><strong>Émotion dominante :</strong> ${p.dominant_emotion}</p>
+        <p><strong>Score de cohérence :</strong> ${p.score_pct}%</p>
+        <p><strong>Résumé :</strong> ${p.overall}</p>
+        <p><strong>Forces :</strong> ${p.strengths.join(', ')}</p>
+        <p><strong>Faiblesses :</strong> ${p.weaknesses.join(', ')}</p>
+        <p><strong>Conseil :</strong> ${p.advice}</p>
+      `;
+    })
+    .catch(err => {
+      console.error(err);
+      resultContent.textContent = 'Erreur lors de l\'analyse. Réessayez plus tard.';
+      questionsDiv.style.display = 'none';
+      resultDiv.style.display = 'block';
+    });
+  });
+
+  closeResult.addEventListener('click', () => modal.style.display = 'none');
+
+  // helper CSRF
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+});
+
+
+function toggleStats() {
+    const statsContent = document.getElementById('statsContent');
+    const statsToggle = document.querySelector('.stats-toggle-header');
+    statsExpanded = !statsExpanded;
+    if (statsExpanded) {
+        statsContent.classList.remove('collapsed');
+        statsToggle.classList.remove('collapsed');
+    } else {
+        statsContent.classList.add('collapsed');
+        statsToggle.classList.add('collapsed');
+    }
+    if (statsExpanded) {
+        setTimeout(() => {
+            statsToggle.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+}
 
 function openDeleteModal(form) {
     deleteForm = form;
@@ -96,12 +1244,311 @@ function confirmDelete() {
     }
 }
 
-// Close modal when clicking outside
 window.onclick = function(event) {
-    const modal = document.getElementById('deleteModal');
-    if (event.target === modal) {
+    const deleteModal = document.getElementById('deleteModal');
+    const filterModal = document.getElementById('filterModal');
+    const moodStoryModal = document.getElementById('moodStoryModal');
+    const predictionModal = document.getElementById('predictionModal');
+    if (event.target === deleteModal) {
         closeDeleteModal();
+    } else if (event.target === filterModal) {
+        closeFilterModal();
+    } else if (event.target === moodStoryModal) {
+        closeMoodStoryModal();
+    } else if (event.target === predictionModal) {
+        closePredictionModal();
     }
+};
+
+async function fetchJson(url) {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('Erreur fetch ' + r.status);
+    return r.json();
+}
+
+function renderPostsTrend(data) {
+    const labels = data.series.map(d => d.date);
+    const counts = data.series.map(d => d.count);
+    new Chart(document.getElementById('postsTrendChart').getContext('2d'), {
+        type: 'line',
+        data: { 
+            labels, 
+            datasets: [{
+                label: 'Posts par jour',
+                data: counts,
+                fill: true,
+                tension: 0.3,
+                borderColor: 'var(--accent)',
+                backgroundColor: 'rgba(100, 149, 237, 0.2)',
+                pointBackgroundColor: 'var(--accent)'
+            }] 
+        },
+        options: { 
+            responsive: true, 
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+}
+
+function renderTopObjectsBar(data) {
+    const labels = data.data.map(d => d.object);
+    const counts = data.data.map(d => d.count);
+    new Chart(document.getElementById('topObjectsChart').getContext('2d'), {
+        type: 'bar',
+        data: { 
+            labels, 
+            datasets: [{ label: 'Occurrences', data: counts, backgroundColor: 'var(--accent)' }] 
+        },
+        options: { indexAxis: 'y', responsive: true }
+    });
+}
+
+function createMediaCard(url, type="image", emotion="", date="") {
+    let mediaTag = '';
+    if (type === "video") {
+        mediaTag = `<video src="${url}" class="card-img-top media-item" controls></video>`;
+    } else {
+        mediaTag = `<img src="${url}" class="card-img-top media-item" alt="Media">`;
+    }
+    const capitalizedEmotion = emotion ? emotion.charAt(0).toUpperCase() + emotion.slice(1) : '';
+    return `
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                ${mediaTag}
+                <div class="card-body p-2">
+                    ${emotion ? `<p class="mb-1"><strong>Émotion:</strong> ${capitalizedEmotion}</p>` : ''}
+                    ${date ? `<p class="mb-0"><small>${date}</small></p>` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function showFilterModal() {
+    document.getElementById('filterModal').style.display = 'flex';
+}
+
+function closeFilterModal() {
+    document.getElementById('filterModal').style.display = 'none';
+}
+
+async function applyFilter() {
+    const emotion = document.getElementById('filterEmotion').value;
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    let url = "{% url 'api_visuals_filtered' %}";
+    const params = new URLSearchParams();
+    if (emotion) params.append('emotion', emotion);
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    if (params.toString()) url += `?${params.toString()}`;
+    
+    const res = await fetch(url);
+    const data = await res.json();
+    const container = document.getElementById("filteredResults");
+    container.innerHTML = "";
+    if (data.results.length === 0) {
+        container.innerHTML = "<p class='text-center'>Aucun souvenir trouvé.</p>";
+        closeFilterModal();
+        return;
+    }
+    data.results.forEach(entry => {
+        const type = entry.media_url.endsWith(".mp4") ? "video" : "image";
+        const capitalizedEmotion = entry.emotion ? entry.emotion.charAt(0).toUpperCase() + entry.emotion.slice(1) : '';
+        container.innerHTML += createMediaCard(entry.media_url, type, capitalizedEmotion, entry.created_at);
+    });
+    closeFilterModal();
+}
+
+async function loadTimeline() {
+    const res = await fetch("{% url 'api_visuals_timeline' %}");
+    const data = await res.json();
+    const container = document.getElementById("timelineContainer");
+    container.innerHTML = "";
+    if (data.length === 0) {
+        container.innerHTML = "<p class='text-center'>Aucune donnée pour la chronologie.</p>";
+        return;
+    }
+    data.forEach(item => {
+        const type = item.media.endsWith(".mp4") ? "video" : "image";
+        const capitalizedEmotion = item.content ? item.content.charAt(0).toUpperCase() + item.content.slice(1) : 'N/A';
+        container.innerHTML += createMediaCard(item.media, type, capitalizedEmotion, new Date(item.start).toLocaleDateString());
+    });
+}
+
+
+function showMoodStoryModal() {
+    document.getElementById('moodStoryModal').style.display = 'flex';
+}
+
+function closeMoodStoryModal() {
+    document.getElementById('moodStoryModal').style.display = 'none';
+}
+
+async function generateCustomMoodStory() {
+    const period = document.getElementById('moodStoryPeriod').value;
+    const tone = document.getElementById('moodStoryTone').value;
+    let url = "{% url 'api_mood_story' %}";
+    const params = new URLSearchParams();
+    params.append('days', period);
+    params.append('tone', tone);
+    if (params.toString()) url += `?${params.toString()}`;
+    
+    const res = await fetch(url);
+    const data = await res.json();
+    closeMoodStoryModal();
+    displayMoodStory(data);
+}
+
+function displayMoodStory(data) {
+    const container = document.getElementById('moodStoryResult');
+    container.innerHTML = `<div class="mood-story-container" style="background: linear-gradient(135deg, #f5f7fa 0%, #${getMoodColor(data.dominant_emotion || 'neutral')} 100%);">`;
+    container.innerHTML += `<h5>Votre Histoire Émotionnelle 🧠</h5>`;
+    if (data.mood_story) {
+        container.innerHTML += `<p class="mood-intro">${data.intro || 'Plongez dans votre voyage émotionnel...'}</p>`;
+        container.innerHTML += `<div class="timeline">`;
+        data.story_points.forEach((point, index) => {
+            const mediaType = point.image && point.image.endsWith(".mp4") ? "video" : "image";
+            const mediaTag = mediaType === "video" 
+                ? `<video src="${point.image}" class="mood-video" controls style="max-height: 200px;"></video>`
+                : `<img src="${point.image}" class="mood-media" alt="Émotion ${index + 1}">`;
+            container.innerHTML += `
+                <div class="timeline-item">
+                    <strong>${point.date}</strong>: ${point.text}
+                    ${point.image ? mediaTag : ''}
+                </div>`;
+        });
+        container.innerHTML += `</div>`;
+        container.innerHTML += `<p class="mood-conclusion">${data.conclusion || 'Fin de votre récit émotionnel.'}</p>`;
+    } else {
+        container.innerHTML += `<p>${data.message || 'Aucune histoire disponible.'}</p>`;
+    }
+    container.innerHTML += `</div>`;
+    container.style.display = 'block';
+}
+
+function showPredictionModal() {
+    document.getElementById('predictionModal').style.display = 'flex';
+}
+
+function closePredictionModal() {
+    document.getElementById('predictionModal').style.display = 'none';
+}
+async function generatePrediction() {
+    const period = document.getElementById('predictionPeriod').value;
+    let url = "{% url 'api_mood_prediction' %}";
+    const params = new URLSearchParams();
+    params.append('period', period);
+    if (params.toString()) url += `?${params.toString()}`;
+    
+    try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Erreur lors de la récupération des prédictions');
+        const data = await res.json();
+        closePredictionModal();
+        displayPrediction(data);
+    } catch (error) {
+        const container = document.getElementById('predictionResult');
+        container.innerHTML = `<p class="text-danger">Erreur : ${error.message}. Essayez à nouveau plus tard.</p>`;
+        container.style.display = 'block';
+    }
+}
+
+function displayPrediction(data) {
+    const container = document.getElementById('predictionResult');
+    container.innerHTML = '';
+    const periodText = data.period === 'tomorrow' ? 'demain' : 'la semaine prochaine';
+    container.innerHTML += `<h5>Prédiction pour ${periodText}</h5>`;
+    container.innerHTML += `<p>${data.prediction || 'Aucune prédiction disponible.'}</p>`;
+    container.innerHTML += `<div class="advice-section"><h6 style="margin:16px;    color: #fba1a1;">Conseils pour rester en bonne humeur : </h6><p>${data.advice || 'Aucun conseil disponible.'}</p></div>`;
+    container.innerHTML += `<div class="quote-section"><h6  style="margin:16px;    color: #fba1a1;">Citation motivante :</h6><p>${data.quote || 'Aucune citation disponible.'}</p></div>`;
+    container.style.display = 'block';
+}
+
+function getMoodColor(emotion) {
+    const colors = {
+        'happy': 'ffcc00',
+        'sad': '4682b4',
+        'neutral': 'c3cfe2',
+        'angry': 'ff4500',
+        'surprised': 'ff69b4'
+    };
+    return colors[emotion.toLowerCase()] || 'c3cfe2';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const weeklyActivityData = JSON.parse('{{ weekly_activity_json|escapejs }}');
+    const emotionData = JSON.parse('{{ emotion_chart_data|escapejs }}');
+    const weeklyCtx = document.getElementById('weeklyActivityChart').getContext('2d');
+    new Chart(weeklyCtx, {
+        type: 'bar',
+        data: {
+            labels: weeklyActivityData.map(d => d.day),
+            datasets: [{
+                label: 'Entrées',
+                data: weeklyActivityData.map(d => d.count),
+                backgroundColor: [
+                    'rgba(255, 107, 129, 0.8)',
+                    'rgba(255, 107, 129, 0.7)',
+                    'rgba(255, 107, 129, 0.6)',
+                    'rgba(255, 107, 129, 0.9)',
+                    'rgba(255, 107, 129, 0.7)',
+                    'rgba(255, 107, 129, 0.8)',
+                    'rgba(255, 107, 129, 0.85)'
+                ],
+                borderColor: 'rgba(255, 107, 129, 1)',
+                borderWidth: 2,
+                borderRadius: 8,
+                hoverBackgroundColor: 'rgba(255, 107, 129, 1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+    });
+    if (emotionData.labels.length > 0) {
+        const emotionCtx = document.getElementById('emotionChart').getContext('2d');
+        const colors = [
+            'rgba(255, 107, 129, 0.8)',
+            'rgba(99, 102, 241, 0.8)',
+            'rgba(34, 197, 94, 0.8)',
+            'rgba(251, 146, 60, 0.8)',
+            'rgba(168, 85, 247, 0.8)'
+        ];
+        new Chart(emotionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: emotionData.labels,
+                datasets: [{
+                    data: emotionData.data,
+                    backgroundColor: colors.slice(0, emotionData.labels.length),
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { padding: 15, font: { size: 12 } } }
+                }
+            }
+        });
+    }
+    initStats();
+});
+
+async function initStats() {
+    try {
+        const posts = await fetchJson("{% url 'api_posts_trend' %}?days=30");
+        renderPostsTrend(posts);
+        const top = await fetchJson("{% url 'api_top_objects' %}");
+        renderTopObjectsBar(top);
+    } catch(e) { console.error(e); }
 }
 </script>
 {% endblock %}
