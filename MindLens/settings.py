@@ -5,6 +5,7 @@ Django settings for MindLens project.
 from pathlib import Path
 import os  
 from dotenv import load_dotenv
+import dj_database_url 
 
 # ------------------------------
 # BASE CONFIGURATION
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
 # ------------------------------
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -178,6 +180,8 @@ if not DEBUG:
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # ------------------------------
 # CUSTOM USER MODEL
