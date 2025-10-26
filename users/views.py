@@ -22,202 +22,16 @@ from .models import UserSession
 
 from datetime import datetime, time
 
-# users/views.py
+
 from django.contrib.admin.views.decorators import staff_member_required
 
 from django.db.models import Count, Avg
 from datetime import timedelta
-
 from users.models import User
-from textEntries.models import Entry, TextEntryInsight
-from audio.models import AudioEntry
-from visual.models import VisualEntry
-from wellbeing.models import WellbeingRecord, RoutineRecommendation
-  # <-- if you keep sessions in core
-#---------------------admin dashboard ---------------------
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-@staff_member_required
-def admin_dashboard(request):
-    """Dynamic admin dashboard – all numbers come from the DB."""
-    today = timezone.now().date()
-    last_month = today - timedelta(days=30)
-    prev_month = last_month - timedelta(days=30)
 
-    # ------------------------------------------------------------------
-    # Helper: Calculate growth (handle DateField / DateTimeField)
-    # ------------------------------------------------------------------
-    def growth_this_vs_prev(model, field='created_at'):
-        """Compare growth between current and previous 30-day periods."""
-        field_obj = model._meta.get_field(field)
-        if field_obj.get_internal_type() == 'DateTimeField':
-            date_lookup = f"{field}__date"
-        else:
-            date_lookup = field
-
-        this = model.objects.filter(**{f"{date_lookup}__gte": last_month}).count()
-        prev = model.objects.filter(**{
-            f"{date_lookup}__lt": last_month,
-            f"{date_lookup}__gte": prev_month
-        }).count()
-
-        return round(((this - prev) / (prev or 1)) * 100, 1)
-
-    # ------------------------------------------------------------------
-    # 1. Stats cards
-    # ------------------------------------------------------------------
-    total_users = User.objects.filter(is_staff=False).count()
-    total_journal_entries = Entry.objects.count()
-    total_voice_notes = AudioEntry.objects.count()
-    total_gallery_items = VisualEntry.objects.count()
-    total_wellbeing_records = WellbeingRecord.objects.count()
-
-    user_growth = growth_this_vs_prev(User, 'date_joined')
-    journal_growth = growth_this_vs_prev(Entry, 'created_at')
-    voice_growth = growth_this_vs_prev(AudioEntry, 'created_at')
-    gallery_growth = growth_this_vs_prev(VisualEntry, 'created_at')
-    wellbeing_growth = growth_this_vs_prev(WellbeingRecord, 'date')
-
-    # ------------------------------------------------------------------
-    # 2. Recent activity (collect ALL activities first)
-    # ------------------------------------------------------------------
-    recent = []
-
-    def add_activity(user, action, timestamp, status='Active'):
-        recent.append({
-            'user': user,
-            'action': action,
-            'time_ago': time_ago(timestamp),
-            'status': status,
-        })
-
-    # Journal entries
-    for e in Entry.objects.select_related('user').order_by('-created_at')[:20]:
-        add_activity(e.user, 'Created journal entry', e.created_at)
-
-    # Voice notes
-    for a in AudioEntry.objects.select_related('user').order_by('-created_at')[:20]:
-        add_activity(a.user, 'Uploaded voice note', a.created_at)
-
-    # Gallery items
-    for v in VisualEntry.objects.select_related('user').order_by('-created_at')[:20]:
-        add_activity(v.user, 'Added gallery image', v.created_at)
-
-    # Wellbeing records
-    for w in WellbeingRecord.objects.select_related('user').order_by('-date')[:20]:
-        add_activity(w.user, 'Logged wellbeing record', w.date)
-
-    # Sort by time descending
-    recent = sorted(recent, key=lambda x: x['time_ago']['raw'], reverse=True)
-
-    # Pagination for recent activity
-    page = request.GET.get('page', 1)
-    paginator = Paginator(recent, 4)  # 10 activities per page
-    
-    try:
-        recent_activity = paginator.page(page)
-    except PageNotAnInteger:
-        recent_activity = paginator.page(1)
-    except EmptyPage:
-        recent_activity = paginator.page(paginator.num_pages)
-
-    # ------------------------------------------------------------------
-    # 3. Chart data – User Growth (last 12 weeks)
-    # ------------------------------------------------------------------
-    weeks = []
-    user_counts = []
-    field_obj = User._meta.get_field('date_joined')
-
-    if field_obj.get_internal_type() == 'DateTimeField':
-        date_lookup = 'date_joined__date'
-    else:
-        date_lookup = 'date_joined'
-
-    for i in range(12):
-        start = today - timedelta(weeks=i + 1)
-        end = today - timedelta(weeks=i)
-        count = User.objects.filter(**{
-            f"{date_lookup}__gt": start,
-            f"{date_lookup}__lte": end
-        }).count()
-        weeks.append(start.strftime('%b %d'))
-        user_counts.append(count)
-
-    weeks.reverse()
-    user_counts.reverse()
-
-    # ------------------------------------------------------------------
-    # 4. Chart data – Content Distribution (pie)
-    # ------------------------------------------------------------------
-    content_labels = [
-        'Journal Entries',
-        'Voice Notes',
-        'Gallery Items',
-        'Wellbeing Records'
-    ]
-    content_values = [
-        total_journal_entries,
-        total_voice_notes,
-        total_gallery_items,
-        total_wellbeing_records
-    ]
-
-    # ------------------------------------------------------------------
-    # 5. Pass everything to the template
-    # ------------------------------------------------------------------
-    context = {
-        # Stats
-        'total_users': total_users,
-        'user_growth': user_growth,
-        'total_journal_entries': total_journal_entries,
-        'journal_growth': journal_growth,
-        'total_voice_notes': total_voice_notes,
-        'voice_growth': voice_growth,
-        'total_gallery_items': total_gallery_items,
-        'gallery_growth': gallery_growth,
-        'total_wellbeing_records': total_wellbeing_records,
-        'wellbeing_growth': wellbeing_growth,
-
-        # Recent activity with pagination
-        'recent_activity': recent_activity,
-
-        # Charts
-        'user_growth_labels': weeks,
-        'user_growth_data': user_counts,
-        'content_labels': content_labels,
-        'content_data': content_values,
-    }
-
-    return render(request, 'backoffice/pages/dashboard.html', context)
-
-# ----------------------------------------------------------------------
-# Tiny helper – human-readable "time ago"
-# ----------------------------------------------------------------------
-def time_ago(dt):
-    if not dt:
-        return {'display': '', 'raw': timezone.now()}
-
-    # Si dt est un 'date', on le convertit en 'datetime'
-    if isinstance(dt, datetime):
-        dt_aware = dt
-    else:
-        dt_aware = datetime.combine(dt, time.min)
-        dt_aware = timezone.make_aware(dt_aware)
-
-    diff = timezone.now() - dt_aware
-
-    if diff.days >= 1:
-        display = f'{diff.days} day{"s" if diff.days > 1 else ""} ago'
-    elif diff.seconds >= 7200:
-        display = f'{diff.seconds // 3600} hour{"s" if diff.seconds // 3600 > 1 else ""} ago'
-    elif diff.seconds >= 120:
-        display = f'{diff.seconds // 60} minute{"s" if diff.seconds // 60 > 1 else ""} ago'
-    else:
-        display = 'just now'
-
-    return {'display': display, 'raw': dt_aware}
-# --------------------- Pages simples ---------------------
 def test_template(request):
     return render(request, 'test.html')
 
@@ -227,7 +41,6 @@ def home(request):
 from django.shortcuts import render
 
 
-# --------------------- Auth ---------------------
 def signin_view(request):
     context = {'errors': {}, 'values': {}}
 

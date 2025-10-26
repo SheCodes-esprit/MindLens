@@ -28,5 +28,5 @@ urlpatterns = [
     path('sessions/', views.active_sessions_view, name='active_sessions'),
     path('sessions/terminate/<int:session_id>/', views.terminate_session_view, name='terminate_session'),
     path('sessions/terminate-all/', views.terminate_all_sessions_view, name='terminate_all_sessions'),
-    path('dashboard/', views.admin_dashboard, name='dashboard'),
+    path('dashboard/', views.admin_dashboard_view, name='dashboard'),
 ]
