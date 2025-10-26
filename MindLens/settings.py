@@ -10,6 +10,10 @@ import dj_database_url
 # ------------------------------
 # BASE CONFIGURATION
 # ------------------------------
+os.environ['TRANSFORMERS_OFFLINE'] = '1'
+os.environ['HF_HUB_OFFLINE'] = '1'
+WSGI_APPLICATION = 'MindLens.wsgi.application'
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = "django-insecure-3gp)3x@ss^$7ohhkeca*!6os@vr5%c#x3hude^@ypsy2edyv(d"
