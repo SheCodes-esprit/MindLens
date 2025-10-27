@@ -22,7 +22,6 @@ os.environ['MKL_NUM_THREADS'] = '1'
 os.environ['OPENBLAS_NUM_THREADS'] = '1'
 WSGI_APPLICATION = 'MindLens.wsgi.application'
 gc.set_threshold(100, 5, 5)
-PORT = os.environ.get("PORT", "8000")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 

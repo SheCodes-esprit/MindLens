@@ -1,5 +1,5 @@
 # gunicorn.conf.py - CONFIGURATION ULTIME
-bind = "0.0.0.0:10000"
+bind = f"0.0.0.0:{os.environ.get('PORT', '8000')}"
 workers = 1
 worker_class = "sync"
 timeout = 600  # Augmentez à 600 secondes
